@@ -1,0 +1,65 @@
+/* ============================================
+   PageWrapper.css — 공통 페이지 배경 래퍼
+   ============================================ */
+
+.page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background-color: var(--bg-wall);
+  background-image:
+    linear-gradient(rgba(255,255,255,0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.55) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.022) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+}
+
+.page-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255,240,210,0.13) 0%,
+    transparent 50%,
+    rgba(200,180,150,0.18) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-wrapper-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 16vh;
+}
+
+/* 주방 바닥 */
+.page-floor {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 14vh;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #d4b896 0px, #d4b896 79px,
+      #c8a882 80px, #c8a882 81px
+    ),
+    linear-gradient(180deg, #d4b896 0%, #c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.page-floor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 39px,
+    rgba(0,0,0,0.04) 40px, rgba(0,0,0,0.04) 41px
+  );
+}

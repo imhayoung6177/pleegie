@@ -1,0 +1,30 @@
+/* ============================================
+   IngredientTag.css — 등록된 재료 태그
+   ============================================ */
+
+.ing-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px 5px 10px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #dff0ff, #c8e4f8);
+  border: 1.5px solid #90c0e0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-blue);
+  animation: tagPop 0.3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes tagPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.ing-tag-emoji  { font-size: 1rem; }
+.ing-tag-remove {
+  background: none; border: none;
+  cursor: pointer; color: #7090b0;
+  font-size: 0.75rem; padding: 0;
+  line-height: 1; transition: color 0.15s;
+  display: flex; align-items: center;
+}
+.ing-tag-remove:hover { color: #e05050; }

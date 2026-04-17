@@ -1,0 +1,23 @@
+/* ============================================
+   IngredientChip.css — 재료 인라인 칩
+   ============================================ */
+
+.ing-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #dff0ff, #c8e4f8);
+  border: 1.5px solid #90c0e0;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-blue);
+  white-space: nowrap;
+}
+.ing-chip-missing {
+  background: linear-gradient(135deg, #ffede0, #ffe0c8);
+  border-color: #f0a070;
+  color: var(--orange);
+}
+.ing-chip-sm { font-size: 0.7rem; padding: 2px 8px; }
