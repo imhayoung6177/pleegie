@@ -1,0 +1,15 @@
+/* ============================================
+   SectionTitle.css — 섹션 타이틀
+   ============================================ */
+
+.section-title {
+  font-family: var(--font-main);
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.section-title-sm    { font-size: 1rem; margin-bottom: 12px; }
+.section-title-right { margin-left: auto; font-size: 0.82rem; color: var(--text-light); font-family: var(--font-body); }

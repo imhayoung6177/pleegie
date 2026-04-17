@@ -1,0 +1,87 @@
+/* ============================================
+   Button.css — 공통 버튼
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-main);
+  font-size: 0.92rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.btn:disabled        { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+.btn:active:not(:disabled) { transform: translateY(2px) !important; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+  color: white;
+  box-shadow: 0 3px 0 var(--blue-deeper), var(--shadow-btn);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--blue-deeper), 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.btn-orange {
+  background: linear-gradient(135deg, var(--orange-lt), var(--orange));
+  color: white;
+  box-shadow: 0 3px 0 #c05818, var(--shadow-btn);
+}
+.btn-orange:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #c05818, 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.btn-green {
+  background: linear-gradient(135deg, var(--green-lt), var(--green));
+  color: white;
+  box-shadow: 0 3px 0 #388a52, var(--shadow-btn);
+}
+.btn-green:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #388a52, 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-mid);
+  border: 2px solid #d4b878;
+  box-shadow: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--cream);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #fc8181, #e53e3e);
+  color: white;
+  box-shadow: 0 3px 0 #9b1c1c, var(--shadow-btn);
+}
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #9b1c1c, 0 8px 20px rgba(0,0,0,0.18);
+}
+
+/* 크기 */
+.btn-sm   { padding: 6px 14px; font-size: 0.78rem; }
+.btn-lg   { padding: 14px 36px; font-size: 1.05rem; }
+.btn-full { width: 100%; }
+
+/* 로딩 스피너 */
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: btnSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes btnSpin { to { transform: rotate(360deg); } }

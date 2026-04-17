@@ -1,0 +1,81 @@
+/* ============================================================
+   RegisterPage.css — 회원가입 페이지 전용 추가 스타일
+   AuthPage.css 를 먼저 import 한 뒤 이 파일을 import하세요
+   ============================================================ */
+
+/* 회원가입 카드는 내용이 많아서 최대 너비를 조금 넓힘 */
+.register-card {
+  max-width: 480px;
+}
+
+/* ── 주소 안내 뱃지 ── */
+.reg-addr-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--blue-mid);
+  background: rgba(106, 180, 232, 0.12);
+  border: 1px solid var(--blue-light);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  vertical-align: middle;
+}
+
+/* ── 주소 검색 행 (input + 버튼 나란히) ── */
+.reg-addr-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.reg-addr-input {
+  flex: 1;  /* 검색 버튼 제외 나머지 공간 전부 차지 */
+}
+
+/* 주소 검색 버튼 */
+.reg-addr-btn {
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: 2px solid var(--blue-main);
+  border-radius: var(--radius-sm);
+  background: var(--blue-main);
+  color: white;
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.reg-addr-btn:hover {
+  background: var(--blue-mid);
+  border-color: var(--blue-mid);
+}
+
+/* ── 좌표 변환 상태 메시지 ── */
+.reg-geo-status {
+  font-size: 0.82rem;
+  color: var(--blue-mid);
+  padding-left: 4px;
+  margin-top: 4px;
+}
+
+/* ── 위도/경도 표시 박스 ── */
+.reg-coord-wrap {
+  display: flex;
+  gap: 16px;
+  padding: 6px 12px;
+  background: var(--green-pale);
+  border: 1px solid var(--green-lt);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--green);
+  margin-top: 4px;
+}
+
+/* ── 비밀번호 일치 OK 메시지 ── */
+.auth-field-ok {
+  font-size: 0.8rem;
+  color: var(--green);
+  padding-left: 4px;
+}
