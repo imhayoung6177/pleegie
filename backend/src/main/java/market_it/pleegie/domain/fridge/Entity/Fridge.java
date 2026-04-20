@@ -9,7 +9,8 @@ import market_it.pleegie.domain.user.User;
 
 @Entity
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+        //(access = AccessLevel.PROTECTED)
 public class Fridge extends BaseEntity {
 
     @Id
