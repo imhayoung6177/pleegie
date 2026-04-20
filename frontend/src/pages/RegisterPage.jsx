@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/AuthPage.css';
 import '../styles/RegisterPage.css';
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.withCredentials = true;
 
 /* ──────────────────────────────────────────
    RegisterPage — 일반 회원 회원가입 페이지
@@ -138,7 +141,7 @@ const RegisterPage = () => {
 
   
     try {
-        /*//DB 저장을 위해 SpringBoot와 연동 할 시 주석 해제 후 사용
+        /*//DB 저장을 위해 SpringBoot와 연동 할 시 주석 해제 후 사용*/
 
          const response = await fetch('/api/auth/register', {
            method: 'POST',
@@ -156,7 +159,7 @@ const RegisterPage = () => {
 
          const data = await response.json();
          if (!response.ok) throw new Error(data.message || '회원가입 실패');
-      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
 
       // ▼ 임시: 1초 후 로그인 페이지로 이동
       await new Promise((r) => setTimeout(r, 1000));

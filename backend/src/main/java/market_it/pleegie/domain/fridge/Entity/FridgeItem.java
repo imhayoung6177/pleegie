@@ -42,4 +42,20 @@ public class FridgeItem extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
+
+    public static FridgeItem create(Fridge fridge, ItemMaster itemMaster, Market market,
+                                    String category, LocalDate exp, Integer price, String imageUrl) {
+        FridgeItem fridgeItem = new FridgeItem();
+        fridgeItem.setFridge(fridge);
+        fridgeItem.setItemMaster(itemMaster);
+        fridgeItem.setMarket(market); // 추가된 부분
+        fridgeItem.setCategory(category);
+        fridgeItem.setExp(exp);
+        fridgeItem.setPrice(price);
+        fridgeItem.setImageUrl(imageUrl);
+        return fridgeItem;
+    }
 }
+
+
+

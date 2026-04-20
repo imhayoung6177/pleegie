@@ -3,6 +3,7 @@ package market_it.pleegie.domain.recipe.entity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import market_it.pleegie.domain.BaseEntity;
 import market_it.pleegie.domain.user.User;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(callSuper = false)
 public class Recipe extends BaseEntity {
 
     @Id

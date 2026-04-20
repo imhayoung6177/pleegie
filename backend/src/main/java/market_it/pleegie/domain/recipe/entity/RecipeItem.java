@@ -16,6 +16,12 @@ public class RecipeItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ✅ 이 부분이 추가되어야 합니다!
+    // Recipe 엔티티의 mappedBy = "recipe"와 이름이 똑같아야 합니다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id", nullable = false)
+    private Recipe recipe;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_master_id", nullable = false)
     private ItemMaster itemMaster; // 재료 마스터 정보

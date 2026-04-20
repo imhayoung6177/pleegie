@@ -1,75 +1,91 @@
 package market_it.pleegie.domain;
 
-import market_it.pleegie.domain.FridgeItem;
 import lombok.*;
+import market_it.pleegie.domain.fridge.Entity.Fridge;
+import market_it.pleegie.domain.fridge.Entity.FridgeItem;
+import market_it.pleegie.domain.item.entity.ItemMaster;
+import market_it.pleegie.domain.market.entity.Market;
 import java.time.LocalDate;
 
 public class FridgeItemDTO {
 
-    @Getter
-    @Setter
+    /* ════════════════════════════════════════
+       재료 등록 요청 DTO (POST)
+       - 프론트에서 보낸 데이터를 받는 용도입니다.
+    ════════════════════════════════════════ */
+    @Getter @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateRequest {
-        private Long fridgeId;       // 어떤 냉장고에 넣을지 (필수)
         private Long itemMasterId;   // 어떤 재료인지 (필수)
-        private Long marketId;       // 어디서 샀는지 (선택)
         private String category;     // 카테고리
         private LocalDate exp;       // 유통기한
         private Integer price;       // 가격
         private String imageUrl;     // 이미지 경로
 
-        // DTO -> Entity 변환
-        public FridgeItem toEntity() {
-            return FridgeItem.builder()
-                    .fridgeId(this.fridgeId)
-                    .itemMasterId(this.itemMasterId)
-                    .marketId(this.marketId)
-                    .category(this.category)
-                    .exp(this.exp)
-                    .price(this.price)
-                    .imageUrl(this.imageUrl)
-                    .build();
+        // 서비스 레이어에서 DB 객체들을 찾아오면, 이를 묶어서 실제 엔티티로 변환합니다.
+        public FridgeItem toEntity(Fridge fridge, ItemMaster itemMaster) {
+            // 현재 서비스 방침에 따라 세 번째 인자인 Market은 null로 고정합니다.
+            return FridgeItem.create(
+                    fridge,
+                    itemMaster,
+                    null,            // ◀ Market: 기능 미사용으로 null 처리
+                    this.category,
+                    this.exp,
+                    this.price,
+                    this.imageUrl
+            );
         }
     }
 
-    @Getter
-    @Setter
+    /* ════════════════════════════════════════
+       재료 수정 요청 DTO (PUT)
+       - 수정할 필드만 담아서 보낼 때 사용합니다.
+    ════════════════════════════════════════ */
+    @Getter @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateRequest {
         private LocalDate exp;
         private Integer price;
         private String category;
-        // 필요에 따라 수정 가능한 필드 추가
     }
 
-    @Getter
-    @Builder
+    /* ════════════════════════════════════════
+       응답 전용 DTO (GET, POST 응답용)
+       - 엔티티 객체의 복잡한 구조를 리액트가 쓰기 편하게 평탄화합니다.
+    ════════════════════════════════════════ */
+    @Getter @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
         private Long id;
         private Long fridgeId;
         private Long itemMasterId;
-        private Long marketId;
+        private String name;         // ItemMaster에서 꺼내온 재료 이름
         private String category;
         private LocalDate exp;
         private Integer price;
         private String imageUrl;
 
-        // Entity -> DTO 변환
+        // [정적 팩토리 메서드] 빌더 대신 사용하여 객체를 생성합니다.
         public static Response from(FridgeItem item) {
-            return Response.builder()
-                    .id(item.getId())
-                    .fridgeId(item.getFridgeId())
-                    .itemMasterId(item.getItemMasterId())
-                    .marketId(item.getMarketId())
-                    .category(item.getCategory())
-                    .exp(item.getExp())
-                    .price(item.getPrice())
-                    .imageUrl(item.getImageUrl())
-                    .build();
+            Response res = new Response();
+            res.setId(item.getId());
+
+            // 연관된 Fridge 객체에서 ID만 추출
+            res.setFridgeId(item.getFridge().getId());
+
+            // 연관된 ItemMaster 객체에서 ID와 이름 추출
+            res.setItemMasterId(item.getItemMaster().getId());
+            res.setName(item.getItemMaster().getName());
+
+            res.setCategory(item.getCategory());
+            res.setExp(item.getExp());
+            res.setPrice(item.getPrice());
+            res.setImageUrl(item.getImageUrl());
+
+            return res;
         }
     }
 }
