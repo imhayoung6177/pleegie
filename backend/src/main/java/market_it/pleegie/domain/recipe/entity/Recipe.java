@@ -1,9 +1,7 @@
 package market_it.pleegie.domain.recipe.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import market_it.pleegie.domain.BaseEntity;
 import market_it.pleegie.domain.user.User;
 
@@ -12,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor // Builder를 쓰기위한 모든 필드를 인자로 받는 생성자
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Recipe extends BaseEntity {
 

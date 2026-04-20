@@ -39,4 +39,4 @@ out/
 **/.env.local
 
 # [Secret Configuration]
-**/application-secret.properties
+**/application-secret.yml

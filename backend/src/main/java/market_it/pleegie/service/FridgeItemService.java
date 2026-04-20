@@ -2,7 +2,7 @@ package market_it.pleegie.service;
 
 import market_it.pleegie.domain.FridgeItem;
 import market_it.pleegie.domain.FridgeItemDTO; // DTO 대문자 확인
-import market_it.pleegie.repository.FridgeItemRepository;
+import market_it.pleegie.repository.fridge.FridgeItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
