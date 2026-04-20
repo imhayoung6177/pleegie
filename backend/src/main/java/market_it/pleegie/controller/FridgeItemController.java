@@ -14,15 +14,15 @@ import java.util.List;
 
 /**
  * FridgeItemController — 냉장고 재료 API
- *
+ * <p>
  * Base URL: /api/fridge
- *
+ * <p>
  * userId 처리 방식:
- *  로그인 시 세션에 저장된 "loginUserId" 를 꺼내서
- *  → FridgeRepository.findByUser_Id() 로 Fridge 조회
- *  → fridgeId 를 Service 에 전달
- *
- *  프론트에서 fridgeId 를 직접 보내지 않아도 됨 (보안상 올바른 방식)
+ * 로그인 시 세션에 저장된 "loginUserId" 를 꺼내서
+ * → FridgeRepository.findByUser_Id() 로 Fridge 조회
+ * → fridgeId 를 Service 에 전달
+ * <p>
+ * 프론트에서 fridgeId 를 직접 보내지 않아도 됨 (보안상 올바른 방식)
  */
 @RestController
 @RequestMapping("/api/fridge")
@@ -31,7 +31,7 @@ import java.util.List;
 public class FridgeItemController {
 
     private final FridgeItemService fridgeItemService;
-    private final FridgeRepository  fridgeRepository;
+    private final FridgeRepository fridgeRepository;
 
     /* ──────────────────────────────────────────
        공통 헬퍼: 세션 → userId → fridgeId

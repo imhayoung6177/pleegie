@@ -6,8 +6,6 @@ import './App.css';
 /* ── 문 카드 컴포넌트 ── */
 const DoorCard = ({ label, title, desc, cardClass }) => (
   <div className={`door-card ${cardClass}`}>
-    {/* <span className="card-deco">🍓</span> */}
-    {/* <span className="card-icon">{label === 'USER' ? '<회원>' : '<사업자>'}</span> */}
     <div className="card-subtitle">{label}</div>
     <div className="card-title">{title}</div>
     <div className="card-bar" />
@@ -17,21 +15,31 @@ const DoorCard = ({ label, title, desc, cardClass }) => (
 
 /* ── 메인 앱 ── */
 const App = () => {
-  const navigate = useNavigate(); 
-  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // role 에 따라 문을 열고 해당 경로로 이동
+  // 어느 쪽 문이 열렸는지 구분
+  // null: 닫힘 / 'left': 왼쪽 열림 / 'right': 오른쪽 열림
+  const [openSide, setOpenSide] = useState(null);
+
   const handleLogin = (role) => {
-    if (isOpen) return;
-    setIsOpen(true);
+    // 이미 열리는 중이면 무시
+    if (openSide !== null) return;
 
-    setTimeout(() => {
-      if (role === '일반회원') navigate('/login');
-if (role === '소상공인') navigate('/shop/login');
-if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
-      // 이동 안 하는 경우 문 다시 닫기
-      if (role !== '일반회원') setIsOpen(false);
-    }, 1300); // 문 열리는 애니메이션(1.3초) 끝나는 타이밍
+    if (role === '일반회원') {
+      setOpenSide('left');
+      // 문 열리는 애니메이션(1.3초) 후 이동
+      setTimeout(() => navigate('/login'), 1300);
+    }
+
+    if (role === '소상공인') {
+      setOpenSide('right');
+      setTimeout(() => navigate('/shop/login'), 1300);
+    }
+
+    if (role === '관리자') {
+      // 관리자는 문 열지 않고 바로 이동 (또는 별도 처리)
+      navigate('/admin');
+    }
   };
 
   return (
@@ -43,14 +51,12 @@ if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
         관리자 페이지로 가기
       </button>
 
-      {/* ── 간판 ── */}
-      {!isOpen && (
-        <div className="sign-wrapper">
-          <div className="sign-board">
-            <span className="sign-text">냉장고 요리소</span>
-          </div>
+      {/* ── 간판 ── 항상 표시 (isOpen 조건 제거) ── */}
+      <div className="sign-wrapper">
+        <div className="sign-board">
+          <span className="sign-text">전통시장 재료 공구 사이트 Pleege</span>
         </div>
-      )}
+      </div>
 
       {/* ── 냉장고 씬 ── */}
       <div className="fridge-scene">
@@ -63,7 +69,7 @@ if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
 
           {/* 내부 (문 열리면 보임) */}
           <div className="fridge-inside">
-            <div className="fridge-inside-title"> 냉장고 내부</div>
+            <div className="fridge-inside-title">냉장고 내부</div>
             <div className="fridge-inside-sub">AI가 레시피를 조합 중입니다...</div>
             <div className="fridge-shelf-line" />
             <div className="ingredient-grid">
@@ -78,7 +84,7 @@ if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
           <motion.div
             className="fridge-door door-left"
             onClick={() => handleLogin('일반회원')}
-            animate={{ rotateY: isOpen ? -118 : 0 }}
+            animate={{ rotateY: openSide === 'left' ? -118 : 0 }}
             transition={{ duration: 1.3, ease: 'easeInOut' }}
             style={{ originX: 0, transformStyle: 'preserve-3d' }}
           >
@@ -95,7 +101,7 @@ if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
           <motion.div
             className="fridge-door door-right"
             onClick={() => handleLogin('소상공인')}
-            animate={{ rotateY: isOpen ? 118 : 0 }}
+            animate={{ rotateY: openSide === 'right' ? 118 : 0 }}
             transition={{ duration: 1.3, ease: 'easeInOut' }}
             style={{ originX: 1, transformStyle: 'preserve-3d' }}
           >

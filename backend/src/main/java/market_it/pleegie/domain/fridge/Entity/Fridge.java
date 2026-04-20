@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import market_it.pleegie.domain.BaseEntity;
 import market_it.pleegie.domain.user.User;
-
+/* Fridge : 냉장고 통(보관함) */
 @Entity
 @Data
 @NoArgsConstructor

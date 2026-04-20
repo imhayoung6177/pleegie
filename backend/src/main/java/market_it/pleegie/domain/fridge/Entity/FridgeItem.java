@@ -9,7 +9,7 @@ import market_it.pleegie.domain.item.entity.ItemMaster;
 import market_it.pleegie.domain.market.entity.Market;
 
 import java.time.LocalDate;
-
+/* 이건 냉장고 속의 실제 재료들을 넣는 재료 */
 @Entity
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,7 +48,6 @@ public class FridgeItem extends BaseEntity {
         FridgeItem fridgeItem = new FridgeItem();
         fridgeItem.setFridge(fridge);
         fridgeItem.setItemMaster(itemMaster);
-        fridgeItem.setMarket(market); // 추가된 부분
         fridgeItem.setCategory(category);
         fridgeItem.setExp(exp);
         fridgeItem.setPrice(price);
