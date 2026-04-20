@@ -1,6 +1,5 @@
 package market_it.pleegie.domain;
 
-import market_it.pleegie.domain.FridgeItem;
 import lombok.*;
 import java.time.LocalDate;
 

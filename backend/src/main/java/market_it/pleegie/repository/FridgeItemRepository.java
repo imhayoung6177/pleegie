@@ -1,5 +1,6 @@
 package market_it.pleegie.repository;
 
+
 import market_it.pleegie.domain.FridgeItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -94,10 +94,31 @@ public class MemberController {
     }
 
     /**
+     * 상인 전용 회원가입 창구
+     * POST http://localhost:8080/api/member/merchant-join
+     */
+    @PostMapping("/merchant-join")
+    public Long merchantJoin(@RequestBody Member member) {
+        // 💡 서비스의 merchantJoin을 호출하면서
+        // 사업자 번호와 상호명을 같이 전달합니다.
+        return memberService.merchantJoin(member, member.getBusinessNumber(), member.getMarketName());
+    }
+
+    /**
      * 로그아웃 (간이 구현)
      */
     @PostMapping("/logout")
     public String logout() {
         return "로그아웃 되었습니다.";
+    }
+
+    /**
+     * 내 도장 목록 조회 창구 추가
+     * GET http://localhost:8080/api/member/my-stamps?userId=사용자아이디
+     */
+    @GetMapping("/my-stamps")
+    public java.util.List<market_it.pleegie.domain.Stamp> getMyStamps(@RequestParam String userId) {
+        // 💡 memberService에게 "이 아이디를 가진 회원의 도장 목록을 가져와!"라고 시킵니다.
+        return memberService.getMyStamps(userId);
     }
 }
