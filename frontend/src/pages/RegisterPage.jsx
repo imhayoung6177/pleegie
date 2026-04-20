@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import '../styles/AuthPage.css';
-import '../styles/RegisterPage.css';
-import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:8080';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/AuthPage.css";
+import "../styles/RegisterPage.css";
+import axios from "axios";
+axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 
 /* ──────────────────────────────────────────
@@ -25,21 +25,21 @@ const RegisterPage = () => {
      값이 바뀌면 화면이 자동으로 다시 렌더링됨
   */
   const [form, setForm] = useState({
-    userId: '',
-    password: '',
-    passwordConfirm: '',
-    name: '',
-    phone: '',
-    email: '',
-    address: '',       // 집 주소 (사용자가 직접 입력)
-    addressDetail: '', // 상세 주소 (동, 호수 등)
+    userId: "",
+    password: "",
+    passwordConfirm: "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "", // 집 주소 (사용자가 직접 입력)
+    addressDetail: "", // 상세 주소 (동, 호수 등)
   });
 
-  const [errors, setErrors]       = useState({});
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [showPw, setShowPw]       = useState(false);
-  const [showPwC, setShowPwC]     = useState(false);
-  const [agree, setAgree]         = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [showPwC, setShowPwC] = useState(false);
+  const [agree, setAgree] = useState(false);
 
   /* ── 공통 입력 변경 핸들러 ──────────────────
      input의 name 속성과 state의 key를 맞춰서
@@ -50,7 +50,7 @@ const RegisterPage = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
     // 타이핑 시작 시 해당 필드 에러 제거
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -58,7 +58,7 @@ const RegisterPage = () => {
      숫자만 입력해도 010-1234-5678 형식으로 자동 변환
   */
   const handlePhoneChange = (e) => {
-    const digits = e.target.value.replace(/\D/g, ''); // 숫자만 추출
+    const digits = e.target.value.replace(/\D/g, ""); // 숫자만 추출
     let formatted = digits;
 
     if (digits.length <= 3) {
@@ -70,7 +70,7 @@ const RegisterPage = () => {
     }
 
     setForm((prev) => ({ ...prev, phone: formatted }));
-    if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+    if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
   };
 
   /* ── 유효성 검사 ──────────────────────────
@@ -82,41 +82,27 @@ const RegisterPage = () => {
     const phoneRegex = /^\d{3}-\d{3,4}-\d{4}$/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!form.userId.trim())
-      newErrors.userId = '아이디를 입력해주세요';
-    else if (form.userId.length < 4)
-      newErrors.userId = '아이디는 4자 이상이어야 합니다';
-    else if (/[^a-zA-Z0-9_]/.test(form.userId))
-      newErrors.userId = '아이디는 영문, 숫자, _ 만 사용 가능합니다';
+    if (!form.userId.trim()) newErrors.userId = "아이디를 입력해주세요";
+    else if (form.userId.length < 4) newErrors.userId = "아이디는 4자 이상이어야 합니다";
+    else if (/[^a-zA-Z0-9_]/.test(form.userId)) newErrors.userId = "아이디는 영문, 숫자, _ 만 사용 가능합니다";
 
-    if (!form.password)
-      newErrors.password = '비밀번호를 입력해주세요';
-    else if (form.password.length < 8)
-      newErrors.password = '비밀번호는 8자 이상이어야 합니다';
+    if (!form.password) newErrors.password = "비밀번호를 입력해주세요";
+    else if (form.password.length < 8) newErrors.password = "비밀번호는 8자 이상이어야 합니다";
 
-    if (!form.passwordConfirm)
-      newErrors.passwordConfirm = '비밀번호를 한 번 더 입력해주세요';
-    else if (form.password !== form.passwordConfirm)
-      newErrors.passwordConfirm = '비밀번호가 일치하지 않습니다';
+    if (!form.passwordConfirm) newErrors.passwordConfirm = "비밀번호를 한 번 더 입력해주세요";
+    else if (form.password !== form.passwordConfirm) newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다";
 
-    if (!form.name.trim())
-      newErrors.name = '이름을 입력해주세요';
+    if (!form.name.trim()) newErrors.name = "이름을 입력해주세요";
 
-    if (!form.phone)
-      newErrors.phone = '전화번호를 입력해주세요';
-    else if (!phoneRegex.test(form.phone))
-      newErrors.phone = '올바른 전화번호 형식이 아닙니다 (010-0000-0000)';
+    if (!form.phone) newErrors.phone = "전화번호를 입력해주세요";
+    else if (!phoneRegex.test(form.phone)) newErrors.phone = "올바른 전화번호 형식이 아닙니다 (010-0000-0000)";
 
-    if (!form.email)
-      newErrors.email = '이메일을 입력해주세요';
-    else if (!emailRegex.test(form.email))
-      newErrors.email = '올바른 이메일 형식이 아닙니다';
+    if (!form.email) newErrors.email = "이메일을 입력해주세요";
+    else if (!emailRegex.test(form.email)) newErrors.email = "올바른 이메일 형식이 아닙니다";
 
-    if (!form.address.trim())
-      newErrors.address = '집 주소를 입력해주세요';
+    if (!form.address.trim()) newErrors.address = "집 주소를 입력해주세요";
 
-    if (!agree)
-      newErrors.agree = '이용약관에 동의해주세요';
+    if (!agree) newErrors.agree = "이용약관에 동의해주세요";
 
     return newErrors;
   };
@@ -133,41 +119,38 @@ const RegisterPage = () => {
       setErrors(newErrors);
       // 첫 번째 에러 필드로 부드럽게 스크롤
       const firstKey = Object.keys(newErrors)[0];
-      document.getElementById(firstKey)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
     setIsLoading(true);
 
-  
     try {
-        /*//DB 저장을 위해 SpringBoot와 연동 할 시 주석 해제 후 사용*/
+      /*//DB 저장을 위해 SpringBoot와 연동 할 시 주석 해제 후 사용*/
 
-         const response = await fetch('/api/auth/register', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             userId:        form.userId,
-             password:      form.password,
-             name:          form.name,
-             phone:         form.phone,
-             email:         form.email,
-             address:       form.address,
-             addressDetail: form.addressDetail,
-           }),
-         });
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: form.userId,
+          password: form.password,
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          addressDetail: form.addressDetail,
+        }),
+      });
 
-         const data = await response.json();
-         if (!response.ok) throw new Error(data.message || '회원가입 실패');
-
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "회원가입 실패");
 
       // ▼ 임시: 1초 후 로그인 페이지로 이동
       await new Promise((r) => setTimeout(r, 1000));
-      alert('회원가입이 완료되었습니다! 로그인 해주세요 🎉');
-      navigate('/login');
-
+      alert("회원가입이 완료되었습니다! 로그인 해주세요 🎉");
+      navigate("/login");
     } catch (err) {
-      setErrors({ general: err.message || '회원가입에 실패했습니다. 다시 시도해주세요.' });
+      setErrors({ general: err.message || "회원가입에 실패했습니다. 다시 시도해주세요." });
     } finally {
       setIsLoading(false);
     }
@@ -180,9 +163,8 @@ const RegisterPage = () => {
       <div className="auth-circle circle-right" />
 
       <div className="auth-card register-card anim-pop">
-
         {/* 로고 */}
-        <div className="auth-logo" onClick={() => navigate('/')}>
+        <div className="auth-logo" onClick={() => navigate("/")}>
           {/* <span className="auth-logo-icon">🧊</span> */}
           <span className="auth-logo-text">냉장고 요리소</span>
         </div>
@@ -195,16 +177,19 @@ const RegisterPage = () => {
 
         {/* 전체 에러 메시지 (API 에러) */}
         {errors.general && (
-          <div className="auth-error-box">//⚠️
-           {errors.general}</div>
+          <div className="auth-error-box">
+            //⚠️
+            {errors.general}
+          </div>
         )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
-
           {/* ── 아이디 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="userId">아이디</label>
-            <div className={`auth-input-wrap ${errors.userId ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="userId">
+              아이디
+            </label>
+            <div className={`auth-input-wrap ${errors.userId ? "error" : ""}`}>
               {/* <span className="auth-input-icon">👤</span> */}
               <input
                 id="userId"
@@ -222,24 +207,22 @@ const RegisterPage = () => {
 
           {/* ── 비밀번호 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="password">비밀번호</label>
-            <div className={`auth-input-wrap ${errors.password ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="password">
+              비밀번호
+            </label>
+            <div className={`auth-input-wrap ${errors.password ? "error" : ""}`}>
               {/* <span className="auth-input-icon">🔒</span> */}
               <input
                 id="password"
-                type={showPw ? 'text' : 'password'}
+                type={showPw ? "text" : "password"}
                 name="password"
                 className="auth-input"
                 placeholder="8자 이상 입력하세요"
                 value={form.password}
                 onChange={handleChange}
               />
-              <button
-                type="button"
-                className="auth-pw-toggle"
-                onClick={() => setShowPw((p) => !p)}
-              >
-                {showPw ? '숨기기' : '보이기'}
+              <button type="button" className="auth-pw-toggle" onClick={() => setShowPw((p) => !p)}>
+                {showPw ? "숨기기" : "보이기"}
               </button>
             </div>
             {errors.password && <p className="auth-field-error"> {errors.password}</p>}
@@ -247,32 +230,28 @@ const RegisterPage = () => {
 
           {/* ── 비밀번호 확인 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="passwordConfirm">비밀번호 확인</label>
-            <div className={`auth-input-wrap ${errors.passwordConfirm ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="passwordConfirm">
+              비밀번호 확인
+            </label>
+            <div className={`auth-input-wrap ${errors.passwordConfirm ? "error" : ""}`}>
               {/* <span className="auth-input-icon">🔒</span> */}
               <input
                 id="passwordConfirm"
-                type={showPwC ? 'text' : 'password'}
+                type={showPwC ? "text" : "password"}
                 name="passwordConfirm"
                 className="auth-input"
                 placeholder="비밀번호를 한 번 더 입력하세요"
                 value={form.passwordConfirm}
                 onChange={handleChange}
               />
-              <button
-                type="button"
-                className="auth-pw-toggle"
-                onClick={() => setShowPwC((p) => !p)}
-              >
-                {showPwC ? '숨기기' : '보이기'}
+              <button type="button" className="auth-pw-toggle" onClick={() => setShowPwC((p) => !p)}>
+                {showPwC ? "숨기기" : "보이기"}
               </button>
             </div>
             {/* 실시간 비밀번호 일치 여부 표시 */}
             {form.passwordConfirm && (
-              <p className={form.password === form.passwordConfirm ? 'auth-field-ok' : 'auth-field-error'}>
-                {form.password === form.passwordConfirm
-                  ? ' 비밀번호가 일치합니다'
-                  : ' 비밀번호가 일치하지 않습니다'}
+              <p className={form.password === form.passwordConfirm ? "auth-field-ok" : "auth-field-error"}>
+                {form.password === form.passwordConfirm ? " 비밀번호가 일치합니다" : " 비밀번호가 일치하지 않습니다"}
               </p>
             )}
             {errors.passwordConfirm && !form.passwordConfirm && (
@@ -282,8 +261,10 @@ const RegisterPage = () => {
 
           {/* ── 이름 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="name">이름</label>
-            <div className={`auth-input-wrap ${errors.name ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="name">
+              이름
+            </label>
+            <div className={`auth-input-wrap ${errors.name ? "error" : ""}`}>
               {/* <span className="auth-input-icon">📝</span> */}
               <input
                 id="name"
@@ -301,8 +282,10 @@ const RegisterPage = () => {
 
           {/* ── 전화번호 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="phone">전화번호</label>
-            <div className={`auth-input-wrap ${errors.phone ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="phone">
+              전화번호
+            </label>
+            <div className={`auth-input-wrap ${errors.phone ? "error" : ""}`}>
               {/* <span className="auth-input-icon">📱</span> */}
               <input
                 id="phone"
@@ -320,8 +303,10 @@ const RegisterPage = () => {
 
           {/* ── 이메일 ── */}
           <div className="auth-field">
-            <label className="auth-label" htmlFor="email">이메일</label>
-            <div className={`auth-input-wrap ${errors.email ? 'error' : ''}`}>
+            <label className="auth-label" htmlFor="email">
+              이메일
+            </label>
+            <div className={`auth-input-wrap ${errors.email ? "error" : ""}`}>
               {/* <span className="auth-input-icon">📧</span> */}
               <input
                 id="email"
@@ -342,7 +327,7 @@ const RegisterPage = () => {
               집 주소
               <span className="reg-addr-badge"> 가까운 시장 추천에 사용됩니다</span>
             </label>
-            <div className={`auth-input-wrap ${errors.address ? 'error' : ''}`}>
+            <div className={`auth-input-wrap ${errors.address ? "error" : ""}`}>
               {/* <span className="auth-input-icon">🏠</span> */}
               <input
                 id="address"
@@ -358,7 +343,7 @@ const RegisterPage = () => {
 
             {/* 상세 주소 — 기본 주소 입력 후에만 표시 */}
             {form.address && (
-              <div className="auth-input-wrap" style={{ marginTop: '8px' }}>
+              <div className="auth-input-wrap" style={{ marginTop: "8px" }}>
                 {/* <span className="auth-input-icon">🏢</span> */}
                 <input
                   type="text"
@@ -381,38 +366,35 @@ const RegisterPage = () => {
               checked={agree}
               onChange={(e) => {
                 setAgree(e.target.checked);
-                if (errors.agree) setErrors((prev) => ({ ...prev, agree: '' }));
+                if (errors.agree) setErrors((prev) => ({ ...prev, agree: "" }));
               }}
             />
             <label htmlFor="agree" className="auth-agree-text">
-              <a onClick={() => alert('이용약관 내용 준비 중입니다!')}>이용약관</a> 및{' '}
-              <a onClick={() => alert('개인정보처리방침 준비 중입니다!')}>개인정보처리방침</a>에
-              동의합니다
+              <a onClick={() => alert("이용약관 내용 준비 중입니다!")}>이용약관</a> 및{" "}
+              <a onClick={() => alert("개인정보처리방침 준비 중입니다!")}>개인정보처리방침</a>에 동의합니다
             </label>
           </div>
           {errors.agree && <p className="auth-field-error">⚠ {errors.agree}</p>}
 
           {/* ── 제출 버튼 ── */}
-          <button
-            type="submit"
-            className="auth-submit-btn"
-            disabled={isLoading}
-          >
+          <button type="submit" className="auth-submit-btn" disabled={isLoading}>
             {isLoading ? (
               <span className="auth-loading">
                 <span className="auth-spinner" /> 가입 중...
               </span>
             ) : (
-              '회원가입 완료'
+              "회원가입 완료"
             )}
           </button>
-
         </form>
 
         {/* 로그인으로 이동 */}
-        <div className="auth-divider"><span>이미 계정이 있으신가요?</span></div>
-        <Link to="/login" className="auth-link-btn">로그인 하기</Link>
-
+        <div className="auth-divider">
+          <span>이미 계정이 있으신가요?</span>
+        </div>
+        <Link to="/login" className="auth-link-btn">
+          로그인 하기
+        </Link>
       </div>
     </div>
   );
