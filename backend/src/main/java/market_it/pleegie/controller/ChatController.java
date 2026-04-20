@@ -2,7 +2,9 @@ package market_it.pleegie.controller;
 
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.domain.AiRouterResponse;
+import market_it.pleegie.domain.ChatRequest;
 import market_it.pleegie.service.AiService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,18 +20,14 @@ public class ChatController {
 //    private final FridgeService fridgeService;
 
     @PostMapping("/chatbot")
-    public String handleChat(@RequestBody String userMessage){
-        AiRouterResponse response = aiService.getRoutingResult(userMessage);
+    public ResponseEntity<?> handleChat(@RequestBody ChatRequest request){
+        AiRouterResponse response = aiService.getRoutingResult(request.getMessage());
 
-        if(response==null) return "AI 서버와 연결할 수 없습니다.";
-
-        String target = response.getTarget();
-
-        return  switch (target){
-            case "TargetTeam.MARKET" -> "시장 정보 로직으로 연결합니다.";
-            case "TargetTeam.RECIPE" -> "레시피 로직으로 연결합니다.";
-            case "TargetTeam.REFRIGERATOR" -> "냉장고 관리 로직으로 연결합니다.";
-            default -> "안녕하세요 PleegieChatBot입니다. 무엇을 도와드릴까요?";
+        return  switch (response.getTarget()){
+//            case "TargetTeam.MARKET" -> ResponseEntity.ok(marketService.findSalesInfo(request.getMessage()));
+//            case "TargetTeam.RECIPE" -> ResponseEntity.ok(recipeService.recommendRecipe(request.getMessage()));
+//            case "TargetTeam.REFRIGERATOR" -> ResponseEntity.ok(fridgeService.manageInventory(request.getMessage()));
+            default -> ResponseEntity.ok("안녕하세요 PleegieChatBot입니다. 무엇을 도와드릴까요?");
 
         };
     }

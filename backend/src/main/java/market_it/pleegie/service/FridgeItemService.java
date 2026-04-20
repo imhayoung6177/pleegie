@@ -8,6 +8,7 @@ import market_it.pleegie.domain.item.entity.ItemMaster;
 import market_it.pleegie.repository.fridge.FridgeItemRepository;
 import market_it.pleegie.repository.FridgeRepository;
 import market_it.pleegie.repository.ItemMasterRepository;
+import market_it.pleegie.repository.fridge.FridgeItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

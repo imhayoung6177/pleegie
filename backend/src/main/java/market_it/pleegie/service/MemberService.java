@@ -1,14 +1,20 @@
 package market_it.pleegie.service;
 
+import market_it.pleegie.common.security.JwtTokenProvider;
+import market_it.pleegie.domain.user.entity.RefreshToken;
 import market_it.pleegie.dto.BusinessVerifyResponseDto;
 import market_it.pleegie.dto.PasswordResetRequestDto;
 import market_it.pleegie.domain.Member;
 import market_it.pleegie.domain.Stamp;
 import market_it.pleegie.repository.MemberRepository;
 import market_it.pleegie.repository.StampRepository;
+import market_it.pleegie.repository.user.RefreshTokenRepository;
 import market_it.pleegie.utils.QRCodeUtil;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +30,8 @@ import java.util.*;
 @Transactional
 public class MemberService {
 
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
@@ -118,16 +126,46 @@ public class MemberService {
     }
 
     /**
-     * 로그인 로직
+     * 로그인 로직 (ara 수정)
      */
-    public Member login(String userId, String password) {
+//    public Member login(String userId, String password) {
+//        Member member = memberRepository.findByUserId(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
+//
+//        if (!passwordEncoder.matches(password, member.getPassword())) {
+//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//        }
+//        return member;
+//    }
+    public Map<String, String> login(String userId, String password) {
         Member member = memberRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
-        return member;
+
+        // Spring Security 인증 객체 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                member.getUserId(), "",
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + member.getRole()))
+        );
+
+        // 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+
+        // Redis에 Refresh Token 저장 (기존 토큰 있으면 덮어쓰기)
+        refreshTokenRepository.save(new RefreshToken(member.getUserId(), refreshToken));
+
+        // 클라이언트에 전달할 응답 구성
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+        tokens.put("name", member.getName());
+        tokens.put("role", member.getRole());
+
+        return tokens;
     }
 
     /**

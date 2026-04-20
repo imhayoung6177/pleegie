@@ -5,6 +5,8 @@ import market_it.pleegie.domain.Member;
 import market_it.pleegie.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
@@ -24,16 +26,26 @@ public class MemberController {
     }
 
     /**
-     * 로그인 창구
+     * 로그인 창구 (ara 수정)
      */
+//    @PostMapping("/login")
+//    public String login(@RequestBody Map<String, String> loginData) {
+//        try {
+//            Member member = memberService.login(loginData.get("userId"), loginData.get("password"));
+//            String roleStr = "MERCHANT".equals(member.getRole()) ? "[상인] " : "[일반] ";
+//            return roleStr + member.getName() + "님, 환영합니다!";
+//        } catch (IllegalArgumentException e) {
+//            return e.getMessage();
+//        }
+//    }
     @PostMapping("/login")
-    public String login(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         try {
-            Member member = memberService.login(loginData.get("userId"), loginData.get("password"));
-            String roleStr = "MERCHANT".equals(member.getRole()) ? "[상인] " : "[일반] ";
-            return roleStr + member.getName() + "님, 환영합니다!";
+            // Service에서 생성된 토큰 맵을 받아와서 반환
+            Map<String, String> response = memberService.login(loginData.get("userId"), loginData.get("password"));
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return e.getMessage();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
