@@ -1,121 +1,134 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+/* ── 문 카드 컴포넌트 ── */
+const DoorCard = ({ label, title, desc, cardClass }) => (
+  <div className={`door-card ${cardClass}`}>
+    {/* <span className="card-deco">🍓</span> */}
+    {/* <span className="card-icon">{label === 'USER' ? '<회원>' : '<사업자>'}</span> */}
+    <div className="card-subtitle">{label}</div>
+    <div className="card-title">{title}</div>
+    <div className="card-bar" />
+    {desc && <div className="card-desc">{desc}</div>}
+  </div>
+);
+
+/* ── 메인 앱 ── */
+const App = () => {
+  const navigate = useNavigate(); 
+  const [isOpen, setIsOpen] = useState(false);
+
+  // role 에 따라 문을 열고 해당 경로로 이동
+  const handleLogin = (role) => {
+    if (isOpen) return;
+    setIsOpen(true);
+
+    setTimeout(() => {
+      if (role === '일반회원') navigate('/login');
+if (role === '소상공인') navigate('/shop/login');
+if (role === '관리자') setIsOpen(false);  // 관리자만 문 다시 닫힘
+      // 이동 안 하는 경우 문 다시 닫기
+      if (role !== '일반회원') setIsOpen(false);
+    }, 1300); // 문 열리는 애니메이션(1.3초) 끝나는 타이밍
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-bg">
 
-      <div className="ticks"></div>
+      {/* ── 관리자 버튼 (우상단 고정) ── */}
+      <button className="admin-btn" onClick={() => handleLogin('관리자')}>
+        <span>⚙️</span>
+        관리자 페이지로 가기
+      </button>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {/* ── 간판 ── */}
+      {!isOpen && (
+        <div className="sign-wrapper">
+          <div className="sign-board">
+            <span className="sign-text">냉장고 요리소</span>
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+      )}
+
+      {/* ── 냉장고 씬 ── */}
+      <div className="fridge-scene">
+
+        {/* 냉장고 본체 */}
+        <div className="fridge-body">
+
+          {/* 외관 껍데기 */}
+          <div className="fridge-shell" />
+
+          {/* 내부 (문 열리면 보임) */}
+          <div className="fridge-inside">
+            <div className="fridge-inside-title"> 냉장고 내부</div>
+            <div className="fridge-inside-sub">AI가 레시피를 조합 중입니다...</div>
+            <div className="fridge-shelf-line" />
+            <div className="ingredient-grid">
+              {['🍅', '🥦', '🥚', '🧅', '🥕', '🥩'].map((e, i) => (
+                <div key={i} className="ingredient-item">{e}</div>
+              ))}
+            </div>
+            <div className="fridge-shelf-line" />
+          </div>
+
+          {/* ── 왼쪽 문 (일반회원) ── */}
+          <motion.div
+            className="fridge-door door-left"
+            onClick={() => handleLogin('일반회원')}
+            animate={{ rotateY: isOpen ? -118 : 0 }}
+            transition={{ duration: 1.3, ease: 'easeInOut' }}
+            style={{ originX: 0, transformStyle: 'preserve-3d' }}
+          >
+            <DoorCard
+              label="USER"
+              title="일반 회원"
+              desc="로그인 / 회원가입"
+              cardClass="user-card"
+            />
+            <div className="door-handle" />
+          </motion.div>
+
+          {/* ── 오른쪽 문 (소상공인) ── */}
+          <motion.div
+            className="fridge-door door-right"
+            onClick={() => handleLogin('소상공인')}
+            animate={{ rotateY: isOpen ? 118 : 0 }}
+            transition={{ duration: 1.3, ease: 'easeInOut' }}
+            style={{ originX: 1, transformStyle: 'preserve-3d' }}
+          >
+            <DoorCard
+              label="SHOP"
+              title="소상공인"
+              desc="사업자 전용 로그인"
+              cardClass="shop-card"
+            />
+            <div className="door-handle" />
+          </motion.div>
+
         </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
+        {/* 하단 서랍 */}
+        <div className="fridge-drawer">
+          <div className="drawer-handle" />
+        </div>
 
-export default App
+        {/* 바닥 그림자 */}
+        <div className="fridge-ground-shadow" />
+      </div>
+
+      {/* 주방 소품 */}
+      <div className="kitchen-deco deco-plant-left">🌿</div>
+      <div className="kitchen-deco deco-plant-right">🌿</div>
+      <div className="kitchen-deco deco-pot-left">🪴</div>
+      <div className="kitchen-deco deco-pot-right">🫙</div>
+
+      {/* 주방 바닥 */}
+      <div className="kitchen-floor" />
+    </div>
+  );
+};
+
+export default App;

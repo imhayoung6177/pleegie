@@ -1,0 +1,21 @@
+/* ============================================
+   Badge.css — 공통 뱃지
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-main);
+  font-size: 0.72rem;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.badge-blue   { background: #dbeeff; color: var(--blue-deeper); border: 1.5px solid #90c0e8; }
+.badge-orange { background: #ffede0; color: var(--orange);      border: 1.5px solid #f0a070; }
+.badge-green  { background: var(--green-pale); color: var(--green); border: 1.5px solid var(--green); }
+.badge-yellow { background: var(--yellow-pale); color: #b08010; border: 1.5px solid #d4a020; }
+.badge-gray   { background: rgba(0,0,0,0.05); color: var(--text-light); border: 1.5px solid rgba(0,0,0,0.1); }

@@ -1,0 +1,349 @@
+/* FridgePage.css — 내 냉장고 재료 등록/목록 */
+
+.fridge-page {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 16vh;
+}
+
+.fridge-content {
+  max-width: 800px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ━━━ 냉장고 시각 패널 ━━━ */
+.fridge-visual-panel {
+  background: linear-gradient(160deg, #dff0ff, #c8e0f4);
+  border: 2.5px solid #90c0e0;
+  border-radius: 22px;
+  padding: 22px 18px;
+  box-shadow: 0 5px 0 #6090c0, 0 8px 24px rgba(0,0,0,0.12);
+  /* ✅ sticky 유지 — 오른쪽 패널 스크롤 중에도 냉장고가 고정되어 보임 */
+  position: sticky;
+  top: 80px;
+  /* ✅ 최대 높이 지정 + 냉장고 내부만 스크롤 */
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.fridge-visual-title {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  color: var(--text-blue);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ✅ 핵심 수정: 냉장고 내부만 스크롤되도록
+   재료가 많아지면 냉장고 안에서만 스크롤 */
+.fridge-illust {
+  background: linear-gradient(180deg, #f4fbff, #e4f4ff);
+  border: 2px solid #b0d8f0;
+  border-radius: 14px;
+  padding: 14px;
+  /* ✅ min-height 제거, overflow-y: auto 추가 */
+  overflow-y: auto;
+  flex: 1;
+  position: relative;
+}
+
+.fridge-illust::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 선반 구분선 */
+.shelf {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(80,140,200,0.4), transparent);
+  border-radius: 2px;
+  margin: 8px 0;
+}
+
+/* ✅ 4열 그리드 — 재료 수에 따라 행이 자동으로 늘어남 */
+.fridge-items-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.fridge-item-slot {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(220,240,255,0.6));
+  border: 2px dashed #90c0e0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  gap: 2px;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.fridge-item-slot.filled {
+  background: linear-gradient(135deg, #f0faff, #dff2ff);
+  border: 2px solid #7ab8e0;
+}
+
+.fridge-item-slot.filled:hover {
+  transform: scale(1.05);
+}
+
+.fridge-item-slot.filled:hover .item-remove {
+  display: flex;
+}
+
+.fridge-item-slot.empty-slot {
+  opacity: 0.5;
+  font-size: 1rem;
+  color: #90b8d0;
+}
+
+.item-name {
+  font-size: 0.55rem;
+  color: #5a90b8;
+  font-family: var(--font-body);
+  text-align: center;
+}
+
+.item-remove {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 18px; height: 18px;
+  background: #f87171;
+  border: none;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  color: white;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* ━━━ 통계 행 ━━━ */
+.fridge-stats-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-shrink: 0;
+}
+
+.fridge-stat {
+  flex: 1;
+  background: rgba(255,255,255,0.65);
+  border: 1.5px solid rgba(144,192,224,0.5);
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.fridge-stat .s-num   { font-family: var(--font-main); font-size: 1.3rem; color: var(--text-blue); }
+.fridge-stat .s-label { font-size: 0.65rem; color: #5a80a8; }
+
+/* ━━━ 오른쪽 등록 패널 ━━━ */
+.register-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.register-card {
+  background: linear-gradient(160deg, var(--cream) 60%, var(--cream-dark));
+  border: 2.5px solid #d4b878;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.register-card-title {
+  font-family: var(--font-main);
+  font-size: 1rem;
+  color: var(--text-dark);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ━━━ 카테고리 탭 ━━━ */
+.category-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.cat-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 13px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-main);
+  font-size: 0.78rem;
+  border: 2px solid #d4b878;
+  background: white;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cat-tab.active {
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-dark));
+  border-color: var(--blue-dark);
+  color: white;
+  box-shadow: 0 2px 0 var(--blue-deeper);
+}
+
+.cat-tab:hover:not(.active) {
+  background: var(--cream);
+  border-color: #b8a060;
+}
+
+/* 카테고리 탭 안 선택된 재료 수 뱃지 */
+.cat-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--orange);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cat-tab.active .cat-tab-badge {
+  background: rgba(255,255,255,0.35);
+}
+
+/* ━━━ 재료 선택 그리드 ━━━ */
+.ingredient-select-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ing-select-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 2px solid #d4b878;
+  background: white;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: all 0.15s;
+}
+
+.ing-select-chip span {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  color: var(--text-mid);
+}
+
+.ing-select-chip:hover {
+  transform: scale(1.06);
+  border-color: var(--blue-main);
+  background: #eef8ff;
+}
+
+.ing-select-chip.selected {
+  background: linear-gradient(135deg, #dff0ff, #c8e4f8);
+  border-color: var(--blue-main);
+  box-shadow: 0 2px 0 var(--blue-mid);
+}
+
+/* ━━━ 직접 입력 ━━━ */
+.direct-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ing-text-input {
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  border: 2px solid #d4b878;
+  background: white;
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.ing-text-input:focus {
+  border-color: var(--blue-main);
+  box-shadow: 0 0 0 3px rgba(106,180,232,0.15);
+}
+
+/* ━━━ 등록된 재료 태그 목록 ━━━ */
+.registered-list {
+  background: linear-gradient(160deg, var(--cream) 60%, var(--cream-dark));
+  border: 2.5px solid #d4b878;
+  border-radius: 20px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 48px;
+  /* ✅ 태그가 많아지면 자연스럽게 늘어남 (max-height 제거) */
+}
+
+.empty-tag-msg {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-light);
+  padding: 8px 0;
+}
+
+/* ━━━ 반응형 ━━━ */
+@media (max-width: 640px) {
+  .fridge-content {
+    grid-template-columns: 1fr;
+  }
+  .fridge-visual-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .fridge-illust {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+}
