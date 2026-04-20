@@ -48,7 +48,6 @@ public class FridgeItem extends BaseEntity {
         FridgeItem fridgeItem = new FridgeItem();
         fridgeItem.setFridge(fridge);
         fridgeItem.setItemMaster(itemMaster);
-        fridgeItem.setMarket(market); // 추가된 부분
         fridgeItem.setCategory(category);
         fridgeItem.setExp(exp);
         fridgeItem.setPrice(price);
