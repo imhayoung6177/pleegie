@@ -1,4 +1,4 @@
-package market_it.pleegie.repository;
+package market_it.pleegie.repository.fridge;
 
 import market_it.pleegie.domain.FridgeItem;
 import org.springframework.data.jpa.repository.JpaRepository;
