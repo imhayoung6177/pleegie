@@ -1,0 +1,408 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap');
+
+:root {
+  --fridge-blue:     #6ab4e8;
+  --fridge-blue-mid: #5aa0d4;
+  --fridge-blue-dark:#4080b8;
+  --fridge-shine:    #aad8f8;
+  --fridge-shadow:   #3a6a90;
+  --door-gap: 6px;
+  --bg-wall:   #f5ede0;
+  --cream:     #fffbf2;
+  --orange:    #e8732a;
+  --orange-lt: #f4954a;
+  --text-dark: #2a1f0e;
+  --text-mid:  #5a4a32;
+  --text-blue: #1a4a80;
+  --card-shadow: 0 4px 0 #b8a070, 0 6px 16px rgba(0,0,0,0.18);
+  --fridge-body-shadow:
+    8px 0 0 #4a90c0,
+    -4px 0 0 #88c4e8,
+    0 16px 40px rgba(0,0,0,0.3),
+    0 4px 0 #3a70a0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Jua', 'Nanum Gothic', sans-serif; }
+
+/* 배경 타일벽 */
+.app-bg {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-wall);
+  background-image:
+    linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+}
+
+.app-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,240,210,0.15) 0%, transparent 50%, rgba(200,180,150,0.2) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 주방 바닥 */
+.kitchen-floor {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 22vh;
+  background: repeating-linear-gradient(90deg, #d4b896 0px, #d4b896 79px, #c8a882 80px, #c8a882 81px),
+              linear-gradient(180deg, #d4b896 0%, #c0a070 100%);
+  border-top: 4px solid #b89060;
+  z-index: 1;
+  box-shadow: inset 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.kitchen-floor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 39px, rgba(0,0,0,0.04) 40px, rgba(0,0,0,0.04) 41px);
+}
+
+/* 관리자 버튼 */
+.admin-btn {
+  position: absolute;
+  top: 22px; right: 32px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #fff8ee, #ffecd0);
+  border: 2.5px solid #d4a050;
+  border-radius: 50px;
+  padding: 9px 20px;
+  font-family: 'Jua', sans-serif;
+  font-size: 0.88rem;
+  color: var(--text-mid);
+  cursor: pointer;
+  box-shadow: 0 3px 0 #b08030, 0 5px 14px rgba(0,0,0,0.12);
+  transition: all 0.15s ease;
+}
+.admin-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #b08030, 0 8px 20px rgba(0,0,0,0.15);
+}
+.admin-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #b08030;
+}
+
+/* 간판 */
+.sign-wrapper {
+  position: relative;
+  z-index: 50;
+  margin-top: 28px;
+  animation: signDrop 0.7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes signDrop {
+  from { opacity: 0; transform: translateY(-40px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sign-board {
+  background: linear-gradient(160deg, #fffbf0 30%, #f5e8c8 100%);
+  border: 3px solid #c8a050;
+  border-radius: 60px;
+  padding: 14px 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 0 #b08040, 0 10px 24px rgba(0,0,0,0.18), inset 0 2px 0 rgba(255,255,255,0.7);
+  position: relative;
+}
+.sign-board::before, .sign-board::after {
+  content: '';
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e8c870, #a07830);
+  box-shadow: inset 1px 1px 3px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.2);
+}
+.sign-board::before { left: 16px; }
+.sign-board::after  { right: 16px; }
+.sign-star { font-size: 2rem; }
+.sign-text {
+  font-family: 'Jua', sans-serif;
+  font-size: 2rem;
+  color: var(--text-dark);
+  text-shadow: 1px 2px 0 rgba(160,120,40,0.25);
+}
+
+/* 냉장고 씬 */
+.fridge-scene {
+  position: relative;
+  z-index: 10;
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 냉장고 본체 */
+.fridge-body {
+  position: relative;
+  width: min(580px, 84vw);
+  height: min(570px, 56vh);
+  perspective: 2600px;
+}
+
+/* 외관 프레임 */
+.fridge-shell {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px 28px 16px 16px;
+  background: linear-gradient(175deg, var(--fridge-shine) 0%, var(--fridge-blue) 25%, var(--fridge-blue-mid) 60%, var(--fridge-blue-dark) 100%);
+  box-shadow: var(--fridge-body-shadow);
+  border: 3px solid #4a90c0;
+  overflow: hidden;
+}
+.fridge-shell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.42) 0%, transparent 100%);
+  border-radius: 26px 26px 0 0;
+  pointer-events: none;
+}
+.fridge-shell::after {
+  content: '';
+  position: absolute;
+  top: 8%; bottom: 8%; left: 12px;
+  width: 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.15), rgba(255,255,255,0.6));
+  border-radius: 4px;
+  filter: blur(2px);
+}
+
+/* 냉장고 내부 */
+.fridge-inside {
+  position: absolute;
+  inset: 6px;
+  background: linear-gradient(180deg, #e8f6ff 0%, #d8eeff 100%);
+  border-radius: 22px 22px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+}
+.fridge-inside-title { font-family: 'Jua', sans-serif; font-size: 1.3rem; color: var(--text-blue); }
+.fridge-inside-sub   { font-size: 0.8rem; color: #7090b0; margin-bottom: 6px; }
+.fridge-shelf-line   { width: 88%; height: 4px; background: linear-gradient(90deg, transparent, rgba(80,140,200,0.35), transparent); border-radius: 2px; }
+.ingredient-grid     { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 12px; }
+.ingredient-item {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, #f0faff, #ddf0ff);
+  border-radius: 12px;
+  border: 2px dashed #90c0e0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+}
+.ingredient-item:hover { transform: scale(1.1); }
+
+/* 냉장고 문 */
+.fridge-door {
+  position: absolute;
+  width: calc(50% - 3px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  border-radius: 20px;
+  background: linear-gradient(175deg, #c8e4f8 0%, var(--fridge-blue) 30%, var(--fridge-blue-mid) 70%, var(--fridge-blue-dark) 100%);
+  border: 3px solid rgba(255,255,255,0.35);
+  overflow: hidden;
+  transition: filter 0.2s;
+}
+.fridge-door:hover { filter: brightness(1.07); }
+.fridge-door::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.fridge-door::after {
+  content: '';
+  position: absolute;
+  top: 10%; bottom: 10%;
+  width: 5px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.15), rgba(255,255,255,0.55));
+  border-radius: 4px;
+  filter: blur(1.5px);
+}
+.door-left  { left: 0;  border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+.door-right { right: 0; border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+.door-left::after  { left: 10px; }
+.door-right::after { right: 10px; }
+
+/* 손잡이 — 가로형 레트로 */
+.door-handle {
+  position: absolute;
+  bottom: 14%;
+  width: 60%;
+  height: 18px;
+  background: linear-gradient(180deg, #e0eef8 0%, #b8d4e8 50%, #d0e8f4 100%);
+  border-radius: 30px;
+  border: 2.5px solid #8ab0cc;
+  box-shadow: 0 4px 0 #5a88a8, 0 6px 14px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.7);
+}
+
+/* 카드 */
+.door-card {
+  background: linear-gradient(160deg, var(--cream) 60%, #f0e8d4);
+  border: 2.5px solid #d4b878;
+  border-radius: 18px;
+  padding: 22px 22px 18px;
+  text-align: center;
+  width: 80%;
+  position: relative;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.door-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 0 #b8a070, 0 12px 24px rgba(0,0,0,0.22);
+}
+.card-deco {
+  position: absolute;
+  top: -16px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
+}
+.card-subtitle {
+  font-family: 'Jua', sans-serif;
+  font-size: 0.68rem;
+  color: #9a8060;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+.card-title {
+  font-family: 'Jua', sans-serif;
+  font-size: 1.3rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+.card-icon {
+  font-size: 2.8rem;
+  margin-bottom: 12px;
+  display: block;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+.card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 18px;
+  border-radius: 30px;
+  font-family: 'Jua', sans-serif;
+  font-size: 0.88rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.25), 0 5px 12px rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+.btn-blue   { background: linear-gradient(135deg, #4a90d8, #2a70c0); color: white; }
+.btn-orange { background: linear-gradient(135deg, var(--orange-lt), var(--orange)); color: white; }
+
+/* 서랍 */
+.fridge-drawer {
+  width: min(580px, 84vw);
+  height: 52px;
+  background: linear-gradient(180deg, var(--fridge-blue-mid) 0%, var(--fridge-blue-dark) 100%);
+  border-radius: 0 0 18px 18px;
+  border: 3px solid #4a90c0;
+  border-top: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 8px 0 #3a6a90, 0 12px 24px rgba(0,0,0,0.22);
+}
+.fridge-drawer::before {
+  content: '';
+  position: absolute;
+  top: 8px; bottom: 8px; left: 50%;
+  width: 3px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 2px;
+}
+.drawer-handle {
+  width: 38%;
+  height: 14px;
+  background: linear-gradient(180deg, #c8ddf0, #a8c4dc);
+  border-radius: 20px;
+  border: 2px solid #88b0cc;
+  box-shadow: 0 3px 0 #5a88a8, inset 0 2px 4px rgba(255,255,255,0.5);
+}
+
+/* 바닥 그림자 */
+.fridge-ground-shadow {
+  width: min(480px, 78vw);
+  height: 18px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  margin-top: 2px;
+  position: relative;
+  z-index: 2;
+}
+
+/* 주방 소품 장식 */
+.kitchen-deco {
+  position: absolute;
+  z-index: 5;
+  font-size: 2.8rem;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+  animation: float 4s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+}
+.deco-plant-left  { left: 4vw;  bottom: 22vh; animation-delay: 0s; }
+.deco-plant-right { right: 4vw; bottom: 22vh; animation-delay: 1.2s; }
+.deco-pot-left    { left: 2vw;  bottom: 21vh; font-size: 2rem; animation-delay: 0.6s; }
+.deco-pot-right   { right: 2vw; bottom: 21vh; font-size: 2rem; animation-delay: 1.8s; }
+
+@media (max-height: 700px) {
+  .sign-wrapper { margin-top: 12px; }
+  .sign-text    { font-size: 1.5rem; }
+  .fridge-scene { margin-top: 12px; }
+  .fridge-body  { height: min(460px, 50vh); }
+  .card-icon    { font-size: 2rem; margin-bottom: 8px; }
+  .card-title   { font-size: 1.05rem; }
+  .fridge-drawer{ height: 42px; }
+}
+@media (max-width: 480px) {
+  .sign-text  { font-size: 1.3rem; }
+  .admin-btn  { font-size: 0.75rem; padding: 7px 12px; top: 12px; right: 12px; }
+  .card-title { font-size: 1rem; }
+}
