@@ -1,0 +1,50 @@
+package market_it.pleegie.local_currency.service;
+
+import lombok.RequiredArgsConstructor;
+import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
+import market_it.pleegie.local_currency.entity.LocalCurrencyLog;
+import market_it.pleegie.local_currency.repository.LocalCurrencyLogRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * [비유] 식당의 '포스기(POS)' 뒷단 로직을 담당하는 팀장님입니다.
+ * 장부를 정리하고, 실제 결제가 일어났을 때 기록을 업데이트합니다.
+ */
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true) // 기본적으로 읽기 전용으로 안전하게 설정
+public class LocalCurrencyService {
+
+    private final LocalCurrencyLogRepository logRepository;
+
+    /**
+     * 특정 사용자의 지역화폐 사용 내역(로그) 조회
+     * (비유: 손님이 자기 결제 내역을 영수증 리스트로 확인하는 과정)
+     */
+    public List<LocalCurrencyResponse> getMyCurrencyLogs(Long userId) {
+        // 1. 창고(Repository)에서 유저 ID로 모든 로그를 가져옵니다.
+        // 2. 가져온 원재료(Entity)를 손님용 접시(DTO)에 담아 반환합니다.
+        return logRepository.findAllByUserIdOrderByRequestedAtDesc(userId)
+                .stream()
+                .map(LocalCurrencyResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 지역화폐 실제 사용(결제) 처리
+     * (비유: 손님이 가게에서 상품권을 내고 결제 버튼을 누르는 순간)
+     */
+    @Transactional // 데이터가 변하므로 쓰기 권한 부여
+    public void useCurrency(Long logId) {
+        // 1. 해당 결제 내역이 존재하는지 확인
+        LocalCurrencyLog log = logRepository.findById(logId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 결제 내역을 찾을 수 없습니다."));
+
+        // 2. 엔티티에 정의된 use() 메서드를 실행하여 상태를 'USED'로 변경
+        log.use();
+    }
+}
