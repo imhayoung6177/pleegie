@@ -7,6 +7,9 @@ from app.ingredients.schema import (
     IngredientExtractRequest,
     IngredientExtractResponse,
     IngredientItem,
+    IngredientInfoRequest,
+    IngredientInfoResponse,
+    IngredientInfo,
 )
 
 llm = ChatGoogleGenerativeAI(
@@ -46,3 +49,51 @@ async def extract_ingredients(
         ingredients = []
 
     return IngredientExtractResponse(ingredients=ingredients)
+
+
+INFO_TEMPLATE = PromptTemplate(
+    input_variables=["ingredients"],
+    template="""
+너는 식재료 전문가야. 아래 재료들의 카테고리와 일반적인 냉장 보관 유통기한(일 단위)을 알려줘.
+
+카테고리 종류 : 채소, 과일, 육류, 해산물, 유제품, 단백질, 곡물, 양념, 기타
+
+반드시 JSON 배열 형식으로만 반환해. 다른말은 하지마. 마크다운 코드블록도 쓰지 마.
+
+예시 입력 : ["당근", "대파"]
+예시 출력: [{{"name":"당근","category": "채소", "defaultExp": 7}},{{"name": "대파", "category": "채소", "defaultExp": 7}}]
+
+입력: {ingredients}
+""",
+)
+
+
+# async def get_ingredient_info(request: IngredientInfoRequest) -> IngredientInfoResponse:
+#     chain = INFO_TEMPLATE | llm | StrOutputParser()
+#     result = await chain.ainvoke({"ingredients": request.ingredients})
+
+#     try:
+#         raw = result.strip()
+#         parsed = json.loads(raw)
+#         ingredients = [IngredientInfo(**item) for item in parsed]
+#     except Exception:
+#         ingredients = []
+
+#     return IngredientInfoResponse(ingredients=ingredients)
+
+
+async def get_ingredient_info(request: IngredientInfoRequest) -> IngredientInfoResponse:
+    chain = INFO_TEMPLATE | llm | StrOutputParser()
+    result = await chain.ainvoke({"ingredients": request.ingredients})
+
+    print("LLM 응답:", result)  # 로그 추가
+
+    try:
+        raw = result.strip()
+        parsed = json.loads(raw)
+        ingredients = [IngredientInfo(**item) for item in parsed]
+    except Exception as e:
+        print("파싱 에러:", e)  # 로그 추가
+        ingredients = []
+
+    return IngredientInfoResponse(ingredients=ingredients)
