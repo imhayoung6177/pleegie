@@ -2,6 +2,7 @@ package market_it.pleegie.service;
 
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.domain.FridgeItemDTO;
+import org.springframework.beans.factory.annotation.Value;
 import market_it.pleegie.domain.fridge.Entity.Fridge;
 import market_it.pleegie.domain.fridge.Entity.FridgeItem;
 import market_it.pleegie.domain.item.entity.ItemMaster;
@@ -11,8 +12,11 @@ import market_it.pleegie.repository.ItemMasterRepository;
 import market_it.pleegie.repository.fridge.FridgeItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +26,14 @@ public class FridgeItemService {
     private final FridgeItemRepository fridgeItemRepository;
     private final FridgeRepository     fridgeRepository;
     private final ItemMasterRepository itemMasterRepository;
+    private final RestTemplate restTemplate = new RestTemplate(); // 외부 API 호출용
+
+    // ✅ 이 두 줄이 빠져서 에러가 나는 것입니다! 여기에 추가해 주세요.
+    @Value("${foodsafety.api.service-key}")
+    private String serviceKey;
+
+    @Value("${foodsafety.api.base-url}")
+    private String baseUrl;
 
     /* ════════════════════════════════════════
        재료 등록 (POST)
@@ -118,5 +130,57 @@ public class FridgeItemService {
                 .stream()
                 .map(FridgeItemDTO.Response::from) // Entity를 Response DTO로 변환
                 .collect(Collectors.toList());
+    }
+
+    /* ════════════════════════════════════════
+       [신규] API 유사도 검색을 통한 재료 등록
+       - 사용자가 입력한 "대패삼겹" -> API에서 "돼지고기" 매칭 -> 저장
+    ════════════════════════════════════════ */
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public FridgeItemDTO.Response addIngredientByApi(Long fridgeId, String userInput) {
+        Fridge fridge = fridgeRepository.findById(fridgeId)
+                .orElseThrow(() -> new IllegalArgumentException("냉장고를 찾을 수 없습니다."));
+
+        // 1. URL 조립
+        String url = baseUrl + "/getFoodRwmatrList01"
+                + "?serviceKey=" + serviceKey
+                + "&nm=" + userInput
+                + "&type=json";
+
+        // 2. API 호출
+        Map<String, Object> apiResponse = restTemplate.getForObject(url, Map.class);
+
+        String matchedNameResult = userInput;
+        String categoryResult = "식재료";
+
+        // 3. API 결과 분석 (캐스팅 에러 해결)
+        if (apiResponse != null && apiResponse.get("response") != null) {
+            Map<String, Object> resp = (Map<String, Object>) apiResponse.get("response");
+            Map<String, Object> body = (Map<String, Object>) resp.get("body");
+            if (body != null && body.get("items") != null) {
+                List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
+                if (!items.isEmpty()) {
+                    Map<String, Object> bestMatch = items.get(0);
+                    matchedNameResult = String.valueOf(bestMatch.get("PRDLST_NM"));
+                }
+            }
+        }
+
+        // 🌟 4. 람다 에러 해결 (final 변수 복사)
+        final String finalMatchedName = matchedNameResult;
+        final String finalCategory = categoryResult;
+
+        // 5. ItemMaster 조회 및 저장
+        ItemMaster itemMaster = itemMasterRepository.findByName(finalMatchedName)
+                .orElseGet(() -> itemMasterRepository.save(new ItemMaster(finalMatchedName, finalCategory)));
+
+        // 6. FridgeItem 저장
+        FridgeItem newItem = FridgeItem.create(
+                fridge, itemMaster, null, finalCategory,
+                LocalDate.now().plusDays(7), 0, null
+        );
+
+        return FridgeItemDTO.Response.from(fridgeItemRepository.save(newItem));
     }
 }

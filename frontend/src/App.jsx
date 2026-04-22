@@ -10,7 +10,7 @@ const App = () => {
   return (
     <Routes>
       {/* 첫 화면 (/)에 우리가 만든 냉장고 페이지를 배치합니다 */}
-      <Route path="/" element={<Homepage />} />
+      <Route path="/*" element={<Homepage />} />
       
       {/* 나머지 주소 설정 */}
       <Route path="/login" element={<LoginPage />} />

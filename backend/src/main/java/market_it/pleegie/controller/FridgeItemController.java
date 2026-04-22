@@ -62,6 +62,29 @@ public class FridgeItemController {
     }
 
     /* ════════════════════════════════════════
+       API 유사도 검색을 통한 재료 등록
+       POST /api/fridge/api-add
+    ════════════════════════════════════════ */
+    @PostMapping("/api-add")
+    public ResponseEntity<?> addBySimilarity(
+            @RequestBody FridgeItemDTO.ExtractionRequest request,
+            HttpSession session) {
+        try {
+            Long fridgeId = getFridgeIdFromSession(session);
+            // 서비스에 구현한 addIngredientByApi 호출
+            FridgeItemDTO.Response response =
+                    fridgeItemService.addIngredientByApi(fridgeId, request.getUserInput());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    /* ════════════════════════════════════════
        재료 등록
        POST /api/fridge
 

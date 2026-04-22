@@ -141,7 +141,7 @@ const FridgePage = () => {
 
   /* ─────────────────────────────────────────
      재료 클릭 → 바로 DB 저장
-     ✅ name, emoji 도 함께 전송
+     ✅ name 도 함께 전송
         → DB에 저장 → 새로고침해도 그대로 유지
   ───────────────────────────────────────── */
   const addIngredient = async (ing) => {
@@ -171,6 +171,7 @@ const FridgePage = () => {
       // 응답의 name으로 프론트 목록에서 이모지 찾기
       const allIngs = Object.values(INGREDIENTS_BY_CAT).flat();
       const found   = allIngs.find((i) => i.name === res.data.name);
+      
       setMyIngredients((prev) => [
         ...prev,
         {
@@ -214,13 +215,35 @@ const FridgePage = () => {
     if (ing) removeIngredient(ing);
   };
 
-  /* ── 직접 입력 ── */
-  const handleDirectAdd = () => {
-    const v = inputVal.trim();
-    if (!v || myIngredients.find((i) => i.name === v)) return;
-    addIngredient({ emoji: '🥘', name: v });
+  /* ── 직접 입력 API 의 유사도 검색을 통한 재료 등록 ── */
+ const handleDirectAdd = async () => {
+  const v = inputVal.trim();
+  if (!v || myIngredients.find((i) => i.name === v)) return;
+
+  setIsLoading(true); // 분석 중 로딩 표시
+  try {
+    // 백엔드에서 만든 유사도 검색 전용 주소로 쏩니다.
+    const res = await axios.post(
+      'http://localhost:8080/api/fridge/api-add', 
+      { userInput: v }, 
+      { withCredentials: true }
+    );
+
+    // 백엔드가 정제해준 이름으로 화면 업데이트
+    const allIngs = Object.values(INGREDIENTS_BY_CAT).flat();
+    const found = allIngs.find((i) => i.name === res.data.name);
+
+    setMyIngredients((prev) => [
+      ...prev,
+      { dbId: res.data.id, name: res.data.name, emoji: found ? found.emoji : '🥘' },
+    ]);
     setInputVal('');
-  };
+  } catch (err) {
+    alert('재료 분석에 실패했습니다.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const categoryCount = CATEGORIES.reduce((acc, cat) => {
     const count = myIngredients.filter((ing) =>

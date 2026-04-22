@@ -11,7 +11,7 @@ public class FridgeItemDTO {
 
     /* ════════════════════════════════════════
        재료 등록 요청 DTO (POST)
-       - 프론트에서 보낸 데이터를 받는 용도입니다.
+       - 프론트에서 보낸 데이터 Spring이 받음
     ════════════════════════════════════════ */
     @Getter @Setter
     @NoArgsConstructor
@@ -49,6 +49,22 @@ public class FridgeItemDTO {
         private LocalDate exp;
         private Integer price;
         private String category;
+    }
+
+    /*API 활용하여 유사도 검색을 통해 DB 저장 기능 */
+    // [바구니 1] 리액트에서 "대패삼겹" 같은 글자를 보낼 때 사용
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class ExtractionRequest {
+        private String userInput;
+    }
+
+    // [바구니 2] 외부 API(공공데이터)에서 받은 원본 데이터를 잠시 담을 때 사용
+    // DB 테이블과 상관없이 API 통신을 위한 임시 규격입니다.
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class ApiStandardResponse {
+        private String itemName;   // API가 준 품목명
+        private String kindName;   // API가 준 품종명
+        private String category;   // API가 준 부류명
     }
 
     /* ════════════════════════════════════════
