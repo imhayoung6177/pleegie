@@ -29,4 +29,12 @@ public class Notice extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    public void update(String title,
+                       String content,
+                       String targetType) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (targetType != null) this.targetType = targetType;
+    }
 }

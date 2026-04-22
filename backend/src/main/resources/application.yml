@@ -1,11 +1,12 @@
 spring:
+  config:
+    import: optional:classpath:application-secret.yml
   application:
     name: pleegie
 
   datasource:
     url: jdbc:mysql://localhost:3306/pleegie?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # recommend username, password in application-sceret.yml
 
   jpa:
     show-sql: true
