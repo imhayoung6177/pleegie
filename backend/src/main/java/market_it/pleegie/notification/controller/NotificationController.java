@@ -1,10 +1,12 @@
 package market_it.pleegie.notification.controller;
 
 import lombok.RequiredArgsConstructor;
-import market_it.pleegie.common.ApiResponse;
+import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.notification.dto.NotificationResponse;
 import market_it.pleegie.notification.service.NotificationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +24,9 @@ public class NotificationController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getNotifications(
-            @RequestParam Long userId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        List<NotificationResponse> responses = notificationService.getMyNotifications(userId);
-
-        return ResponseEntity.ok(ApiResponse.ok("알림 목록 조회 성공", responses));
+        return ResponseEntity.ok(ApiResponse.ok(notificationService.getMyNotifications(userDetails.getUserId())));
     }
 
     /**
@@ -34,9 +34,10 @@ public class NotificationController {
      * PATCH http://localhost:8080/user/notifications/{id}/read
      */
     @PatchMapping("/{id}/read")
-    public ResponseEntity<ApiResponse<Void>> readNotification(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> readNotification(@AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id) {
         // 특정 알림을 '읽음' 상태로 바꿉니다.
-        notificationService.readNotification(id);
+        notificationService.readNotification(userDetails.getUserId(), id);
 
         return ResponseEntity.ok(ApiResponse.ok("알림 읽음 처리 완료", null));
     }
@@ -46,8 +47,8 @@ public class NotificationController {
      * PATCH http://localhost:8080/user/notifications/read-all?userId=1
      */
     @PatchMapping("/read-all")
-    public ResponseEntity<ApiResponse<Void>> readAllNotifications(@RequestParam Long userId) {
-        notificationService.readAllNotifications(userId);
+    public ResponseEntity<ApiResponse<Void>> readAllNotifications(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        notificationService.readAllNotifications(userDetails.getUserId());
 
         return ResponseEntity.ok(ApiResponse.ok("모든 알림 읽음 처리 완료", null));
     }

@@ -42,7 +42,7 @@ public class CartService {
     public void addCart(Long userId, CartCreateRequest request) {
         // [Step 1] 누가 담는지 유저 정보를 찾습니다.
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // [Step 2] 시장 물건을 담는 경우, 해당 상품이 있는지 확인합니다. (없으면 null)
         MarketItem marketItem = null;
@@ -113,7 +113,7 @@ public class CartService {
     public void addMissingIngredients(Long userId, List<Long> recipeItemIds, Long marketId) {
         // [1] 유저의 냉장고 ID 찾기
         Long fridgeId = fridgeRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자의 냉장고를 찾을 수 없습니다."))
+                .orElseThrow(() -> new CustomException(ErrorCode.FRIDGE_NOT_FOUND))
                 .getId();
 
         // [2] 냉장고에 이미 있는 재료들 조회
@@ -131,9 +131,13 @@ public class CartService {
         List<MarketItem> availableMarketItems = marketItemRepository.findByMarketIdAndItemMasterIdIn(marketId, missingItemIds);
 
         // [5] 찾은 시장 상품들을 장바구니에 쏙!
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.USER_NOT_FOUND));
+
         for (MarketItem mi : availableMarketItems) {
             Cart cart = Cart.builder()
-                    .user(userRepository.findById(userId).get())
+                    .user(user)
                     .marketItem(mi)
                     .price(mi.getOnSale() ? mi.getDiscountPrice() : mi.getOriginalPrice())
                     .quantity(1.0f) // 기본 1개 설정
@@ -142,5 +146,20 @@ public class CartService {
                     .build();
             cartRepository.save(cart);
         }
+    }
+
+
+    @Transactional
+    public void deleteCart(Long userId, Long cartId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.CART_NOT_FOUND));
+
+        // 본인 장바구니인지 확인
+        if (!cart.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        cartRepository.delete(cart);
     }
 }

@@ -1,10 +1,12 @@
 package market_it.pleegie.local_currency.controller;
 
 import lombok.RequiredArgsConstructor;
-import market_it.pleegie.common.ApiResponse;
+import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.local_currency.service.LocalCurrencyService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +28,9 @@ public class LocalCurrencyController {
      */
     @GetMapping("/logs")
     public ResponseEntity<ApiResponse<List<LocalCurrencyResponse>>> getMyLogs(
-            @RequestParam Long userId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        // 서비스 팀장님에게 조회를 지시합니다.
-        List<LocalCurrencyResponse> responses = currencyService.getMyCurrencyLogs(userId);
-
-        return ResponseEntity.ok(ApiResponse.ok("지역화폐 내역 조회 성공", responses));
+        return ResponseEntity.ok(ApiResponse.ok(currencyService.getMyCurrencyLogs(userDetails.getUserId())));
     }
 
     /**
@@ -39,10 +38,13 @@ public class LocalCurrencyController {
      * PATCH http://localhost:8080/user/local-currency/logs/{id}/use
      */
     @PatchMapping("/logs/{id}/use")
-    public ResponseEntity<ApiResponse<Void>> useCurrency(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> useCurrency(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id
+    ) {
 
         // 서비스 팀장님에게 결제 완료 처리를 지시합니다.
-        currencyService.useCurrency(id);
+        currencyService.useCurrency(userDetails.getUserId(), id);
 
         return ResponseEntity.ok(ApiResponse.ok("결제가 정상적으로 처리되었습니다.", null));
     }

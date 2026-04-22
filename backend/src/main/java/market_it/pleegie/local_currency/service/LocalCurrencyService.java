@@ -1,6 +1,8 @@
 package market_it.pleegie.local_currency.service;
 
 import lombok.RequiredArgsConstructor;
+import market_it.pleegie.common.exception.CustomException;
+import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.local_currency.entity.LocalCurrencyLog;
 import market_it.pleegie.local_currency.repository.LocalCurrencyLogRepository;
@@ -39,10 +41,20 @@ public class LocalCurrencyService {
      * (비유: 손님이 가게에서 상품권을 내고 결제 버튼을 누르는 순간)
      */
     @Transactional // 데이터가 변하므로 쓰기 권한 부여
-    public void useCurrency(Long logId) {
+    public void useCurrency(Long userId, Long logId) {
         // 1. 해당 결제 내역이 존재하는지 확인
         LocalCurrencyLog log = logRepository.findById(logId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 결제 내역을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+
+        // 본인 지역화폐인지 확인
+        if (!log.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // ISSUED 상태인지 확인
+        if (!log.getStatus().equals("ISSUED")) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
 
         // 2. 엔티티에 정의된 use() 메서드를 실행하여 상태를 'USED'로 변경
         log.use();

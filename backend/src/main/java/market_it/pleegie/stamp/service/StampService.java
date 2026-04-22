@@ -1,6 +1,8 @@
 package market_it.pleegie.stamp.service;
 
 import lombok.RequiredArgsConstructor;
+import market_it.pleegie.common.exception.CustomException;
+import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.coupon.entity.UserCoupon;
 import market_it.pleegie.coupon.repository.UserCouponRepository;
 import market_it.pleegie.market.entity.Market;
@@ -37,17 +39,20 @@ public class StampService {
         LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);   // 오늘 23:59:59
 
         if (stampRepository.existsTodayStamp(userId, marketId, startOfDay, endOfDay)) {
-            throw new IllegalStateException("오늘은 이미 이 시장의 스탬프를 받으셨습니다."); // ✅ 손님에게 정중히 거절!
+            throw new CustomException(ErrorCode.ALREADY_STAMPED); // ✅ 손님에게 정중히 거절!
         }
+
+        // [Step 3] 실제 도장(Stamp) 데이터를 생성하여 저장합니다.
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Market market = marketRepository.findById(marketId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MARKET_NOT_FOUND));
 
         // [Step 2] 이 유저가 이 시장에서 현재 모으고 있는 도장판(UserCoupon)을 찾습니다.
         // 만약 없다면, 새로운 도장판을 하나 만들어줘야 합니다. (Optional 활용)
         UserCoupon userCoupon = userCouponRepository.findByUserIdAndMarketId(userId, marketId)
-                .orElseThrow(() -> new IllegalArgumentException("활성화된 도장판이 없습니다. 먼저 쿠폰을 등록해주세요."));
+                .orElseThrow(() -> new CustomException(ErrorCode.COUPON_NOT_FOUND));
 
-        // [Step 3] 실제 도장(Stamp) 데이터를 생성하여 저장합니다.
-        User user = userRepository.findById(userId).get();
-        Market market = marketRepository.findById(marketId).get();
 
         Stamp stamp = Stamp.builder()
                 .user(user)
@@ -57,13 +62,7 @@ public class StampService {
 
         stampRepository.save(stamp);
 
-        // [Step 4] 도장을 찍은 후, 이 도장판의 총 개수가 목표치에 도달했는지 확인합니다.
-        // (예: 도장 10개가 모였으면 쿠폰 완성!)
-        int currentCount = stampRepository.countByUserCouponId(userCoupon.getId());
-
-        // 쿠폰 엔티티에 설정된 목표 개수(requiredStampCount)를 가져와 비교합니다.
-        if (currentCount >= userCoupon.getCoupon().getRequiredStampCount()) {
-            userCoupon.addStamp(); // ✅ 도장판 완성! 이제 할인 쿠폰으로 사용 가능해집니다.
-        }
+        // stampCount 증가 + 목표 달성 시 isCompleted = true
+        userCoupon.addStamp();
     }
 }
