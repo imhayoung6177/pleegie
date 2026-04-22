@@ -65,4 +65,14 @@ public class User extends BaseEntity {
     public void delete() {
         this.status = "DELETED";
     }
+
+    public void updateInfo(String name, String phone,
+                           String email, Double latitude,
+                           Double longitude) {
+        if (name != null) this.name = name;
+        if (phone != null) this.phone = phone;
+        if (email != null) this.email = email;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
 }
