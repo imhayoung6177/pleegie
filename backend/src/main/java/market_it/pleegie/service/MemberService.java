@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -40,6 +41,9 @@ public class MemberService {
 
     // QR 이미지가 저장될 실제 컴퓨터 폴더 위치
     private final String qrUploadPath = System.getProperty("user.dir") + "/uploads/qr/";
+
+    @Value("${nts.api.service-key}")
+    private String ntsServiceKey;
 
     /**
      * 회원가입 로직 (일반)
@@ -66,7 +70,7 @@ public class MemberService {
     }
 
     /**
-     * 🚀 상인 전용 회원가입 (QR코드 + UUID 생성 기능 추가)
+     * 상인 전용 회원가입 (QR코드 + UUID 생성 기능 추가)
      */
     public Long merchantJoin(Member member, String businessNumber, String marketName) {
         // 1. 사업자 번호 진위 확인 (국세청 API 호출)
@@ -222,8 +226,8 @@ public class MemberService {
      * 사업자 번호 진위 확인 로직
      */
     public boolean verifyBusinessNumber(String businessNumber) {
-        String serviceKey = "29455ed8ce8881371ae1e9bb93c8e5cff37d45c9a606b066ea73da3de5b60f0d";
-        String url = "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=" + serviceKey;
+
+        String url = "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=" + ntsServiceKey;
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("b_no", Collections.singletonList(businessNumber));

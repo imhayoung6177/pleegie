@@ -14,12 +14,21 @@ import java.util.List;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final SimilarityService similarityService;
 
     /**
      * 상품(재료) 등록 로직
      */
     public Long saveItem(Item item) {
-        // 💡 나중에 여기서 "할인 시간이면 가격을 낮춰라" 같은 로직이 들어갑니다.
+        // [A] 유사도 검색 (Similarity Search)
+        // 예: 상인이 "무우"라고 입력하면 API를 통해 표준어인 "무"를 찾아옵니다.
+        String standardName = similarityService.findStandardName(item.getItemName());
+
+        // [B] 데이터 보정
+        // 표준 이름을 별도의 컬럼에 저장해두면 나중에 검색이 훨씬 정확해집니다.
+        item.setItemName(standardName);
+
+        // [C] 최종 저장 (Persistence)
         itemRepository.save(item);
         return item.getId();
     }
@@ -33,11 +42,16 @@ public class ItemService {
     }
 
     /**
-     * 상품 하나만 상세 조회 로직
+     * 손님에게 보여줄 상품 상세 정보 (할인 가격 적용)
      */
     @Transactional(readOnly = true)
-    public Item findOne(Long itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+    public int getCurrentPrice(Long itemId) {
+        // 1. DB에서 상품을 꺼내옵니다.
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없어요!"));
+
+        // 2. 아까 Item 엔티티에 만든 '할인 계산기'를 두드립니다.
+        // 비유: 지금이 마감 세일 시간인지 시계를 보고 가격표를 새로 뽑는 과정입니다.
+        return item.getDiscountedPrice();
     }
 }

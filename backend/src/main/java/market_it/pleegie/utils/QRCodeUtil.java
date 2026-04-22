@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component // 🚀 스프링이 이 클래스를 '공용 도구'로 관리하도록 등록합니다.
+@Component // 스프링이 이 클래스를 '공용 도구'로 관리하도록 등록합니다.
 public class QRCodeUtil {
 
     /**

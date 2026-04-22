@@ -15,7 +15,7 @@ public class MerchantItemController {
     private final ItemService itemService;
 
     /**
-     * 🚀 상인의 재료(상품) 등록 창구
+     * 상인의 재료(상품) 등록 창구
      * POST http://localhost:8080/api/merchant/items/new
      */
     @PostMapping("/new")
