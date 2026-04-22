@@ -26,3 +26,6 @@ spring:
     include: secret
 
 uploadPath: c:/upload/
+
+ai:
+  python-server-url: http://localhost:8000/

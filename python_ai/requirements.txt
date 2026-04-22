@@ -1,6 +1,11 @@
-fastapi==0.104.1
-unicorn[standard]
-python-dotenv==1.0.0
-google-generativeai
-pydantic==2.5.0
-httpx == 0.26.0
+fastapi
+uvicorn[standard]
+pydantic-settings
+google-genai
+langchain
+langchain-core
+langchain-google-genai
+langchain-community
+faiss-cpu #벡터DB
+python-dotenv
+httpx #Spring 내부 호출 시 사용
