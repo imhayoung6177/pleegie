@@ -1,0 +1,20 @@
+.ledger-summary {
+  background: linear-gradient(135deg, #2aaa78, #1e7a58); /* 초록색 포인트 */
+  padding: 24px; border-radius: 20px; color: white;
+  text-align: center; margin-bottom: 25px;
+  box-shadow: 0 8px 20px rgba(42, 170, 120, 0.2);
+}
+
+.summary-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+.summary-amount { font-size: 2rem; font-weight: 800; font-family: 'Gaegu'; }
+
+.ledger-list { background: rgba(255,255,255,0.7); border-radius: 20px; padding: 10px; }
+
+.ledger-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px 10px; border-bottom: 1px dashed rgba(0,0,0,0.1);
+}
+
+.ledger-date { font-size: 0.75rem; color: #888; width: 80px; }
+.ledger-item-name { flex: 1; font-weight: 500; color: #444; }
+.ledger-item-price { font-weight: 700; color: #e04040; }

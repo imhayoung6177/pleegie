@@ -1,7 +1,36 @@
 /* ============================================================
    index.css — 냉장고 요리소 전역 리셋
-   Vite 기본 템플릿 내용 전부 제거 후 새로 작성
    ============================================================ */
+
+/* ── 전역 CSS 변수 ──────────────────────────────────────── */
+:root {
+  /* 폰트 */
+  --font-main: 'Noto Serif KR', 'Georgia', serif;
+  --font-body: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+
+  /* 배경·크림 계열 */
+  --bg-wall:    #f5ede0;
+  --cream:      #fffbf2;
+  --cream-dark: #f0e8d8;
+  --orange:     #e8732a;
+  --orange-lt:  #f4954a;
+
+  /* 텍스트 */
+  --text-dark:  #2a1f0e;
+  --text-mid:   #5a4a32;
+  --text-light: #9a8a70;
+  --text-blue:  #1a4a80;
+
+  /* 파란 계열 (냉장고·버튼) */
+  --blue-main:   #6ab4e8;
+  --blue-mid:    #5aa0d4;
+  --blue-dark:   #4a90c8;
+  --blue-deeper: #3070a8;
+
+  /* 공통 */
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 0 #b8a070, 0 6px 16px rgba(0,0,0,0.18);
+}
 
 /* 박스 모델 통일 */
 *, *::before, *::after {

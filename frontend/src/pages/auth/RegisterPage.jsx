@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/AuthPage.css";
-import "../styles/RegisterPage.css";
-import axios from "axios";
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
+import "../../Styles/auth/AuthPage.css";
+import "../../Styles/auth/RegisterPage.css";
+import { register } from "../../services/authService";
 
 /* ──────────────────────────────────────────
    RegisterPage — 일반 회원 회원가입 페이지
@@ -126,29 +124,18 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      /*//DB 저장을 위해 SpringBoot와 연동 할 시 주석 해제 후 사용*/
-
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: form.userId,
-          password: form.password,
-          name: form.name,
-          phone: form.phone,
-          email: form.email,
-          address: form.address,
-          addressDetail: form.addressDetail,
-        }),
+      await register({
+        userId: form.userId,
+        password: form.password,
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        address: form.address,
+        addressDetail: form.addressDetail,
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "회원가입 실패");
-
-      // ▼ 임시: 1초 후 로그인 페이지로 이동
-      await new Promise((r) => setTimeout(r, 1000));
-      alert("회원가입이 완료되었습니다! 로그인 해주세요 🎉");
-      navigate("/login");
+      alert("회원가입이 완료되었습니다! 로그인 해주세요.");
+      navigate("/user/login");
     } catch (err) {
       setErrors({ general: err.message || "회원가입에 실패했습니다. 다시 시도해주세요." });
     } finally {
@@ -166,7 +153,7 @@ const RegisterPage = () => {
         {/* 로고 */}
         <div className="auth-logo" onClick={() => navigate("/")}>
           {/* <span className="auth-logo-icon">🧊</span> */}
-          <span className="auth-logo-text">냉장고 요리소</span>
+          <span className="auth-logo-text">Pleege</span>
         </div>
 
         {/* 타이틀 */}
@@ -392,7 +379,7 @@ const RegisterPage = () => {
         <div className="auth-divider">
           <span>이미 계정이 있으신가요?</span>
         </div>
-        <Link to="/login" className="auth-link-btn">
+        <Link to="/user/login" className="auth-link-btn">
           로그인 하기
         </Link>
       </div>
