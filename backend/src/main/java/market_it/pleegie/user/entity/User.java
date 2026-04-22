@@ -75,4 +75,8 @@ public class User extends BaseEntity {
         if (latitude != null) this.latitude = latitude;
         if (longitude != null) this.longitude = longitude;
     }
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }

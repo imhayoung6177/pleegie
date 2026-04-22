@@ -29,10 +29,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+        if (StringUtils.hasText(token)
+                && jwtProvider.validateToken(token)) {
+
             Long userId = jwtProvider.getUserId(token);
-            UserDetails userDetails =
-                    userDetailsService.loadUserById(userId);
+            String role = jwtProvider.getRole(token);
+
+            UserDetails userDetails;
+
+            // role에 따라 다른 테이블에서 조회
+            if ("ADMIN".equals(role)) {
+                userDetails = userDetailsService
+                        .loadAdminById(userId);
+            } else {
+                userDetails = userDetailsService
+                        .loadUserById(userId);
+            }
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

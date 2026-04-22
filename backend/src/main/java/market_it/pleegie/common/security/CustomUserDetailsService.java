@@ -1,6 +1,8 @@
 package market_it.pleegie.common.security;
 
 import lombok.RequiredArgsConstructor;
+import market_it.pleegie.admin.entity.Admin;
+import market_it.pleegie.admin.repository.AdminRepository;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.user.entity.User;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     // 일반 로그인 (loginId로 조회)
     @Override
@@ -32,5 +35,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(
                         ErrorCode.USER_NOT_FOUND));
         return new CustomUserDetails(user);
+    }
+
+    public UserDetails loadAdminById(Long adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.USER_NOT_FOUND));
+        return new CustomAdminDetails(admin);
     }
 }
