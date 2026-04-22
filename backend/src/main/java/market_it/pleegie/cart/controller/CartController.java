@@ -5,14 +5,17 @@ import market_it.pleegie.cart.dto.CartCreateRequest;
 import market_it.pleegie.cart.dto.CartPurchaseRequest;
 import market_it.pleegie.cart.dto.CartResponse;
 import market_it.pleegie.cart.service.CartService;
-import market_it.pleegie.common.ApiResponse; // 팀 공통 응답 양식
+import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/carts") // 팀 약속: 리소스는 복수형 사용
+@RequestMapping("/user/cart") // 팀 약속: 리소스는 복수형 사용
 @RequiredArgsConstructor
 public class CartController {
 
@@ -24,10 +27,10 @@ public class CartController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> addCart(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CartCreateRequest request) {
 
-        cartService.addCart(userId, request);
+        cartService.addCart(userDetails.getUserId(), request);
 
         // 성공 시 팀 약속 양식인 ApiResponse에 담아 보냅니다.
         return ResponseEntity.ok(ApiResponse.ok("장바구니 담기 성공", null));
@@ -37,13 +40,21 @@ public class CartController {
      * 2. 내 장바구니 목록 조회
      * GET http://localhost:8080/user/carts/1
      */
-    @GetMapping("/{userId}")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<CartResponse>>> getMyCart(
-            @PathVariable Long userId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        List<CartResponse> cartList = cartService.getMyCart(userId);
+        return ResponseEntity.ok(ApiResponse.ok(cartService.getMyCart(userDetails.getUserId())));
+    }
 
-        return ResponseEntity.ok(ApiResponse.ok("장바구니 목록 조회 성공", cartList));
+    // 장바구니 삭제
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<ApiResponse<Void>> deleteCart(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long cartId
+    ) {
+        cartService.deleteCart(userDetails.getUserId(), cartId);
+        return ResponseEntity.ok(ApiResponse.ok("장바구니에서 삭제되었습니다", null));
     }
 
     /**
@@ -52,10 +63,10 @@ public class CartController {
      */
     @PostMapping("/purchase")
     public ResponseEntity<ApiResponse<Void>> purchaseCarts(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody CartPurchaseRequest request) {
 
-        cartService.purchaseCarts(userId, request);
+        cartService.purchaseCarts(userDetails.getUserId(), request);
 
         return ResponseEntity.ok(ApiResponse.ok("구매 처리가 완료되었습니다.", null));
     }
@@ -64,12 +75,10 @@ public class CartController {
      * 4. 장바구니 총액 조회
      * GET http://localhost:8080/user/carts/total/1
      */
-    @GetMapping("/total/{userId}")
+    @GetMapping("/total")
     public ResponseEntity<ApiResponse<Integer>> getTotalPrice(
-            @PathVariable Long userId) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Integer totalPrice = cartService.getTotalPrice(userId);
-
-        return ResponseEntity.ok(ApiResponse.ok("장바구니 총액 조회 성공", totalPrice));
+        return ResponseEntity.ok(ApiResponse.ok(cartService.getTotalPrice(userDetails.getUserId())));
     }
 }

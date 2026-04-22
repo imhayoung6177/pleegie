@@ -1,6 +1,8 @@
 package market_it.pleegie.notification.service;
 
 import lombok.RequiredArgsConstructor;
+import market_it.pleegie.common.exception.CustomException;
+import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.notification.dto.NotificationResponse;
 import market_it.pleegie.notification.entity.Notification;
 import market_it.pleegie.notification.repository.NotificationRepository;
@@ -32,9 +34,14 @@ public class NotificationService {
      * 특정 알림 읽음 처리 (진동 벨 끄기)
      */
     @Transactional
-    public void readNotification(Long notificationId) {
+    public void readNotification(Long userId, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 알림을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+
+        // 본인 알림인지 확인
+        if (!notification.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         notification.read(); // 엔티티의 비즈니스 로직 호출
     }

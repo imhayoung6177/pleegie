@@ -1,6 +1,8 @@
 package market_it.pleegie.notice.service;
 
 import lombok.RequiredArgsConstructor;
+import market_it.pleegie.common.exception.CustomException;
+import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.notice.dto.NoticeResponse;
 import market_it.pleegie.notice.entity.Notice;
 import market_it.pleegie.notice.repository.NoticeRepository;
@@ -25,10 +27,9 @@ public class NoticeService {
     public List<NoticeResponse> getNoticesForUser() {
         // 1. "ALL"과 "USER" 타입의 공지만 창고에서 가져옵니다.
         List<String> targets = Arrays.asList("ALL", "USER");
-        List<Notice> notices = noticeRepository.findAllByTargetTypeInOrderByCreatedAtDesc(targets);
-
         // 2. 가져온 원재료들을 손님에게 보여줄 예쁜 접시(DTO)에 담습니다.
-        return notices.stream()
+        return noticeRepository.findAllByTargetTypeInOrderByCreatedAtDesc(targets)
+                .stream()
                 .map(NoticeResponse::from)
                 .collect(Collectors.toList());
     }
@@ -38,7 +39,7 @@ public class NoticeService {
      */
     public NoticeResponse getNoticeDetail(Long id) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 공지사항이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
         return NoticeResponse.from(notice);
     }
 }

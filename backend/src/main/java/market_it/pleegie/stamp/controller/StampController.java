@@ -1,13 +1,15 @@
 package market_it.pleegie.stamp.controller;
 
 import lombok.RequiredArgsConstructor;
-import market_it.pleegie.common.ApiResponse;
+import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.stamp.service.StampService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user/stamps") // ✅ 팀 설계 원칙: 복수형 명사 사용
+@RequestMapping("/user/stamp") // ✅ 팀 설계 원칙: 복수형 명사 사용
 @RequiredArgsConstructor
 public class StampController {
 
@@ -21,11 +23,11 @@ public class StampController {
      */
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createStamp(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam Long marketId) {
 
         // 서비스 요리사에게 도장 찍기 명령을 내립니다.
-        stampService.createStamp(userId, marketId);
+        stampService.createStamp(userDetails.getUserId(), marketId);
 
         // 성공하면 팀 공통 응답 양식에 담아 보냅니다.
         return ResponseEntity.ok(ApiResponse.ok("스탬프가 성공적으로 찍혔습니다.", null));
