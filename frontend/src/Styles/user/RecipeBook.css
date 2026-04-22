@@ -1,0 +1,48 @@
+/* RecipeBook.css */
+
+/* 상단 탭 버튼들 */
+.recipe-tab-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.recipe-tab-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid #e0902a;
+    background: white;
+    color: #e0902a;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.recipe-tab-btn.active {
+    background: #e0902a;
+    color: white;
+}
+
+/* 레시피 카드 그리드 */
+.recipe-book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+}
+
+.saved-recipe-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1.5px solid rgba(224, 144, 42, 0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.saved-recipe-card .recipe-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}

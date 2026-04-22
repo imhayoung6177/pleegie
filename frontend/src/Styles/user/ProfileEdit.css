@@ -1,0 +1,45 @@
+/* ProfileEdit.css */
+.mp-detail-content {
+    padding: 20px;
+    animation: mpPopIn 0.3s ease-out;
+}
+
+.mp-section-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.8rem;
+    color: #2a3f55;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* 입력 폼 컨테이너 */
+.mp-edit-form {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 25px;
+    border-radius: 24px;
+    border: 1.5px solid rgba(100, 160, 220, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* 수정 불가능한 필드 (회색) */
+.auth-input-wrap.readonly {
+    background-color: #e9ecef !important;
+    border: 1.5px solid #ced4da !important;
+    cursor: not-allowed;
+}
+
+.auth-input-wrap.readonly .auth-input {
+    color: #868e96 !important;
+}
+
+/* 수정 가능한 필드 (흰색) */
+.auth-input-wrap.editable {
+    background-color: #ffffff !important;
+    border: 1.5px solid #3a90c8 !important;
+    box-shadow: 0 2px 8px rgba(58, 144, 200, 0.1);
+}
+
+.auth-input-wrap.editable:focus-within {
+    border-color: #2a70a8 !important;
+    box-shadow: 0 0 0 3px rgba(58, 144, 200, 0.2);
+}

@@ -28,12 +28,12 @@ const HomePage = () => {
     if (role === '일반회원') {
       setOpenSide('left');
       // 문 열리는 애니메이션(1.3초) 후 이동
-      setTimeout(() => navigate('/login'), 1300);
+      setTimeout(() => navigate('/user/login'), 1300);
     }
 
     if (role === '소상공인') {
       setOpenSide('right');
-      setTimeout(() => navigate('/shop/login'), 1300);
+      setTimeout(() => navigate('/market/login'), 1300);
     }
 
     if (role === '관리자') {

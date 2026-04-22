@@ -1,0 +1,46 @@
+/* 상인 테마 배경색 (시장 느낌의 부드러운 그린/오렌지 톤 추천) */
+.auth-bg.market-theme {
+    background-color: #f0f4f7;
+}
+
+/* 입력창 상태별 스타일 */
+.auth-input-wrap.editable, 
+input.editable {
+    background-color: #ffffff !important;
+    border: 1.5px solid #3a90c8;
+}
+
+.auth-input-wrap.readonly, 
+input.readonly {
+    background-color: #e9ecef !important; /* 수정 불가: 회색 */
+    border: 1.5px solid #ced4da;
+    color: #868e96;
+    cursor: not-allowed;
+}
+
+/* 인증 버튼 레이아웃 */
+.verify-row {
+    display: flex;
+    gap: 8px;
+}
+
+.verify-btn {
+    white-space: nowrap;
+    background: #1e3048;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.verify-btn:disabled {
+    background: #2aaa78; /* 인증 성공 시 초록색 */
+    cursor: default;
+}
+
+.auth-submit-btn.market {
+    background: linear-gradient(135deg, #1e3048, #2a3f55);
+    margin-top: 20px;
+}

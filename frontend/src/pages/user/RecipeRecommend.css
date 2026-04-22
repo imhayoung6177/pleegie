@@ -1,0 +1,61 @@
+/* ══════════════════════════════════════════════════════════
+   RecipeRecommend.css - 레시피 추천 및 상세 화면 스타일
+══════════════════════════════════════════════════════════ */
+
+.recipe-list-view { display: flex; flex-direction: column; gap: 12px; }
+.recipe-list-desc { font-family: var(--font-body); font-size: 0.95rem; color: #5a4a32; margin-bottom: 4px; }
+
+.rc-arrow { font-size: 1.2rem; color: rgba(0,0,0,0.2); }
+.recipe-card:hover .rc-arrow { color: var(--accent-orange); }
+
+.recipe-detail-view { display: flex; flex-direction: column; gap: 16px; }
+
+.back-btn {
+  align-self: flex-start;
+  background: none; border: none; padding: 0;
+  font-family: var(--font-title); font-size: 1.05rem; color: #5a4a32;
+  cursor: pointer; transition: color 0.15s;
+}
+.back-btn:hover { color: var(--accent-orange); }
+
+.rd-section { display: flex; flex-direction: column; gap: 8px; }
+.rd-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ── 없는 재료 버튼 UI (할인 상태 색상 적용) ── */
+.missing-ing-list { display: flex; flex-direction: column; gap: 8px; }
+
+.missing-ing-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 12px 16px;
+  border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1);
+  background: #fff; cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  font-family: var(--font-body); text-align: left;
+}
+.missing-ing-btn:hover { transform: translateY(-2px); }
+
+.missing-ing-info { display: flex; flex-direction: column; gap: 2px; }
+.missing-ing-name { font-size: 1rem; font-weight: 700; color: #2a1f0e; }
+.missing-ing-price { font-size: 0.85rem; color: #5a4a32; opacity: 0.8; }
+
+.sale-badge {
+  padding: 4px 10px; border-radius: 999px;
+  font-family: var(--font-title); font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* 상태 1: NONE (기본 정가) */
+.status-none { border-color: rgba(0,0,0,0.1); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.status-none .sale-badge.none { background: rgba(0,0,0,0.06); color: #5a4a32; }
+.status-none .sale-badge.not-found { background: rgba(0,0,0,0.05); color: #8a7a60; font-weight: normal; }
+
+/* 상태 2: UPCOMING (할인 임박) */
+.status-upcoming { background: rgba(255,107,53,0.05); border-color: rgba(255,107,53,0.4); box-shadow: 0 2px 8px rgba(255,107,53,0.15); }
+.status-upcoming .sale-badge.upcoming { background: rgba(255,107,53,0.15); color: #D94F1E; }
+.status-upcoming .missing-ing-name { color: #D94F1E; }
+
+/* 상태 3: ON_SALE (할인 중) */
+.status-on_sale { background: #E53535; border-color: #C82020; box-shadow: 0 4px 12px rgba(229,53,53,0.3); }
+.status-on_sale .missing-ing-name { color: #fff; }
+.status-on_sale .missing-ing-price { color: rgba(255,255,255,0.8); }
+.status-on_sale .sale-badge.on-sale { background: rgba(255,255,255,0.25); color: #fff; border: 1px solid rgba(255,255,255,0.5); }
