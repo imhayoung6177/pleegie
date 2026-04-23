@@ -35,9 +35,12 @@ public class AiClient {
     }
 
     //냉장고 재료 기반 레시피 추천
-    public AiRouterResponse recommendByFridge(List<String> ingredients){
+    public AiRouterResponse recommendByFridge(List<String> ingredients, List<String> expiringIngredients){
         String url = aiServerUrl + "/recipe/recommend";
-        Map<String,Object> body = Map.of("ingredients",ingredients);
+        Map<String,Object> body = Map.of(
+                "ingredients",ingredients
+                ,"expiringIngredients",expiringIngredients
+        );
         return restTemplate.postForObject(url,body,AiRouterResponse.class);
     }
 

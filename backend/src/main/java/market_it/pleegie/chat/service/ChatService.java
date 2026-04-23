@@ -18,7 +18,7 @@ public class ChatService {
 
         // 의도에 따라 적절한 AI기능으로 라우팅
         return switch (intentResponse.getIntent()){
-            case "RECIPE_RECOMMEND" -> aiClient.recommendByFridge(null); //추후 냉장고 재료 전달
+            case "RECIPE_RECOMMEND" -> aiClient.recommendByFridge(ingredients, expiringIngredients);
             case "RECIPE_SEARCH" -> aiClient.searchRecipe(request.getMessage());
             default -> intentResponse; //chatbot 등 일반대화
         };
