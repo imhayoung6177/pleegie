@@ -9,6 +9,7 @@ __pycache__/
 .Python
 
 # 환경변수
+node_modules/
 .env
 
 # 벡터 DB (용량 큼)
