@@ -63,4 +63,15 @@ public class MarketItem extends BaseEntity {
     public void updateStock(int stock) {
         this.stock = stock;
     }
+
+    public void updateInfo(String name, String category,
+                           Integer originalPrice,
+                           String imageUrl, Integer stock) {
+        if (name != null) this.name = name;
+        if (category != null) this.category = category;
+        if (originalPrice != null)
+            this.originalPrice = originalPrice;
+        if (imageUrl != null) this.imageUrl = imageUrl;
+        if (stock != null) this.stock = stock;
+    }
 }
