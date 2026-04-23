@@ -5,7 +5,6 @@ google-genai
 langchain
 langchain-core
 langchain-google-genai
-langchain-community
-faiss-cpu #벡터DB
 python-dotenv
 httpx #Spring 내부 호출 시 사용
+redis
