@@ -22,7 +22,7 @@ public class AiClient {
 
     //LLM Router 사용자 의도 파악
     public AiRouterResponse detectIntent(String message){
-        String url = aiServerUrl + "api/ai";
+        String url = aiServerUrl + "/api/ai";
         Map<String,String> body = Map.of("message",message);
         return restTemplate.postForObject(url,body, AiRouterResponse.class);
     }
@@ -39,7 +39,7 @@ public class AiClient {
         String url = aiServerUrl + "/recipe/recommend";
         Map<String,Object> body = Map.of(
                 "ingredients",ingredients
-                ,"expiringIngredients",expiringIngredients
+                ,"expiring_ingredients",expiringIngredients
         );
         return restTemplate.postForObject(url,body,AiRouterResponse.class);
     }
