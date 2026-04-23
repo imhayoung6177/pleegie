@@ -6,6 +6,8 @@ import market_it.pleegie.cart.dto.CartPurchaseRequest;
 import market_it.pleegie.cart.dto.CartResponse;
 import market_it.pleegie.cart.entity.Cart;
 import market_it.pleegie.cart.repository.CartRepository;
+import market_it.pleegie.common.exception.CustomException;
+import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.fridge.entity.FridgeItem;
 import market_it.pleegie.fridge.repository.FridgeItemRepository;
 import market_it.pleegie.fridge.repository.FridgeRepository;

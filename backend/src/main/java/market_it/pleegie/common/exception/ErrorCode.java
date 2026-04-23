@@ -15,6 +15,9 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다"),
 
+    // Report
+    DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 대상입니다"),
+
     // Market
     MARKET_NOT_FOUND(HttpStatus.NOT_FOUND, "시장을 찾을 수 없습니다"),
     MARKET_NOT_APPROVED(HttpStatus.FORBIDDEN, "승인되지 않은 시장입니다"),
