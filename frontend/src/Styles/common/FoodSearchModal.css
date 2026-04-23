@@ -1,0 +1,176 @@
+/* ══════════════════════════════════════════════════════════
+   FoodSearchModal.css
+   RecipeRecommendModal.css를 공통으로 사용하고
+   이 파일은 음식 검색 전용 추가 스타일만 담당
+══════════════════════════════════════════════════════════ */
+
+/* ══ 검색 화면 ═════════════════════════════════════════ */
+.fs-search-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 검색창 */
+.fs-search-wrap {
+  display: flex;
+  gap: 8px;
+  background: #ffffff;
+  border: 2px solid rgba(255, 107, 53, 0.35);
+  border-radius: 14px;
+  padding: 4px 4px 4px 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.fs-search-wrap:focus-within {
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+
+.fs-search-inp {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.95rem;
+  color: #2a1f0e;
+  padding: 10px 0;
+}
+.fs-search-inp::placeholder { color: #b8a898; }
+
+.fs-search-btn {
+  padding: 10px 20px;
+  background: #FF6B35;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-family: 'Jua', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.fs-search-btn:hover:not(:disabled) { transform: scale(1.03); }
+.fs-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ══ 최근 검색어 ════════════════════════════════════════ */
+.fs-history-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fs-history-title {
+  font-family: 'Jua', sans-serif;
+  font-size: 0.88rem;
+  color: #8a7a60;
+}
+.fs-history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.fs-history-chip {
+  padding: 6px 14px;
+  background: rgba(255, 107, 53, 0.08);
+  border: 1.5px solid rgba(255, 107, 53, 0.2);
+  border-radius: 999px;
+  color: #d95f2e;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fs-history-chip:hover {
+  background: rgba(255, 107, 53, 0.15);
+  border-color: rgba(255, 107, 53, 0.4);
+}
+.fs-history-clear {
+  padding: 6px 12px;
+  background: none;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 999px;
+  color: #aaa;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+.fs-history-clear:hover {
+  background: rgba(0,0,0,0.05);
+  color: #888;
+}
+
+/* ══ 추천 음식 ══════════════════════════════════════════ */
+.fs-suggest-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fs-suggest-title {
+  font-family: 'Jua', sans-serif;
+  font-size: 0.88rem;
+  color: #8a7a60;
+}
+.fs-suggest-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.fs-suggest-chip {
+  padding: 12px 8px;
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  color: #2a1f0e;
+  font-family: 'Jua', sans-serif;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.fs-suggest-chip:hover {
+  background: rgba(255, 107, 53, 0.08);
+  border-color: rgba(255, 107, 53, 0.3);
+  color: #d95f2e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* ══ 주변 시장 카드 ═════════════════════════════════════ */
+.fs-market-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fs-market-card {
+  background: rgba(255, 107, 53, 0.05);
+  border: 1.5px solid rgba(255, 107, 53, 0.18);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fs-market-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fs-market-name {
+  font-family: 'Jua', sans-serif;
+  font-size: 1rem;
+  color: #FF6B35;
+}
+.fs-market-dist {
+  font-size: 0.78rem;
+  color: #8a7a60;
+  background: rgba(0,0,0,0.05);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.fs-market-spec {
+  font-size: 0.82rem;
+  color: #d95f2e;
+}

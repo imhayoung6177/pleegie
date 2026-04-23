@@ -1,38 +1,167 @@
 import React, { useState } from 'react';
+import '../../Styles/auth/AuthPage.css';
+import '../../Styles/auth/RegisterPage.css';
 
-const ProfileEdit = () => {
+const ProfileEdit = ({ userInfo, onBack }) => {
   const [form, setForm] = useState({
-    userId: "leejongbin", // 수정 불가 (회색)
-    name: localStorage.getItem('userName') || "이종빈", // 수정 가능 (흰색)
-    phone: "010-1234-5678",
-    address: "서울시 구로구 디지털로",
+    userId:   userInfo?.userId   || 'leejongbin',
+    name:     userInfo?.name     || '이종빈',
+    password: '',
+    phone:    userInfo?.phone    || '010-1234-5678',
+    email:    userInfo?.email    || 'leejb@example.com',
+    address:  userInfo?.address  || '서울시 구로구 디지털로 300',
   });
+  const [showPw, setShowPw] = useState(false);
+  const [saved,  setSaved]  = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    // ✅ 나중에 API 연동: await updateProfile(form);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
-    <div className="mp-detail-content anim-pop">
-      <div className="auth-card" style={{ maxWidth: '100%', boxShadow: 'none', background: 'transparent' }}>
-        <h2 className="mp-section-title">✏️ 회원 정보 수정</h2>
-        <form className="auth-form">
+    <div style={{
+      minHeight: '100vh',
+      background: '#fdf6ee',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '32px 16px 60px',
+      boxSizing: 'border-box',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '480px',
+        background: '#ffffff',
+        borderRadius: '20px',
+        borderTop: '4px solid #FF6B35',
+        padding: '32px 28px 40px',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+        boxSizing: 'border-box',
+      }}>
+        {/* 로고 */}
+        <div style={{
+          textAlign: 'center',
+          fontFamily: "'Jua', sans-serif",
+          fontSize: '1.8rem',
+          color: '#FF6B35',
+          fontWeight: 700,
+          marginBottom: '8px',
+        }}>
+          Pleege
+        </div>
+
+        {/* 타이틀 */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <h2 style={{
+            fontFamily: "'Jua', sans-serif",
+            fontSize: '1.5rem',
+            color: '#2a1f0e',
+            margin: '0 0 6px',
+            fontWeight: 700,
+          }}>
+            회원정보 수정
+          </h2>
+          <p style={{ fontSize: '0.88rem', color: '#8a7a60', margin: 0 }}>
+            변경할 정보를 입력해주세요
+          </p>
+        </div>
+
+        <form onSubmit={handleSave}>
+
+          {/* 아이디 (읽기 전용) */}
           <div className="auth-field">
             <label className="auth-label">아이디 (변경 불가)</label>
-            <div className="auth-input-wrap" style={{ backgroundColor: '#e9ecef' }}> {/* 수정불가: 회색 */}
-              <input type="text" className="auth-input" value={form.userId} readOnly style={{ color: '#adb5bd' }} />
+            <div className="auth-input-wrap readonly">
+              <input type="text" className="auth-input" value={form.userId} readOnly />
             </div>
           </div>
+
+          {/* 이름 */}
           <div className="auth-field">
             <label className="auth-label">이름</label>
-            <div className="auth-input-wrap" style={{ backgroundColor: '#ffffff', border: '2px solid #3a90c8' }}> {/* 수정가능: 흰색 */}
-              <input type="text" className="auth-input" value={form.name} onChange={(e)=>setForm({...form, name: e.target.value})} />
+            <div className="auth-input-wrap editable">
+              <input
+                type="text" name="name" className="auth-input"
+                placeholder="실명을 입력하세요"
+                value={form.name} onChange={handleChange} maxLength={10}
+              />
             </div>
           </div>
+
+          {/* 새 비밀번호 */}
+          <div className="auth-field">
+            <label className="auth-label">새 비밀번호 (변경 시만 입력)</label>
+            <div className="auth-input-wrap editable">
+              <input
+                type={showPw ? 'text' : 'password'} name="password" className="auth-input"
+                placeholder="새 비밀번호 (8자 이상)"
+                value={form.password} onChange={handleChange}
+              />
+              <button type="button" className="auth-pw-toggle"
+                onClick={() => setShowPw(p => !p)}>
+                {showPw ? '숨기기' : '보이기'}
+              </button>
+            </div>
+          </div>
+
+          {/* 전화번호 */}
           <div className="auth-field">
             <label className="auth-label">전화번호</label>
-            <div className="auth-input-wrap" style={{ backgroundColor: '#ffffff', border: '2px solid #3a90c8' }}>
-              <input type="text" className="auth-input" value={form.phone} onChange={(e)=>setForm({...form, phone: e.target.value})} />
+            <div className="auth-input-wrap editable">
+              <input
+                type="text" name="phone" className="auth-input"
+                placeholder="010-0000-0000"
+                value={form.phone} onChange={handleChange} maxLength={13}
+              />
             </div>
           </div>
-          <button type="button" className="auth-submit-btn" onClick={() => alert('정보가 수정되었습니다.')}>수정 완료</button>
+
+          {/* 이메일 */}
+          <div className="auth-field">
+            <label className="auth-label">이메일</label>
+            <div className="auth-input-wrap editable">
+              <input
+                type="email" name="email" className="auth-input"
+                placeholder="example@email.com"
+                value={form.email} onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* 집 주소 */}
+          <div className="auth-field">
+            <label className="auth-label">
+              집 주소
+              <span className="reg-addr-badge">가까운 시장 추천에 사용됩니다</span>
+            </label>
+            <div className="auth-input-wrap editable">
+              <input
+                type="text" name="address" className="auth-input"
+                placeholder="예) 서울시 강남구 테헤란로 123"
+                value={form.address} onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="auth-submit-btn" style={{ marginTop: '8px' }}>
+            {saved ? '✅ 저장 완료!' : '수정 완료'}
+          </button>
         </form>
+
+        <div className="auth-divider" style={{ margin: '20px 0 16px' }}>
+          <span>변경사항이 없으신가요?</span>
+        </div>
+        <button className="auth-link-btn" onClick={onBack}>
+          마이페이지로 돌아가기
+        </button>
       </div>
     </div>
   );

@@ -313,7 +313,7 @@ export default function ShopPage() {
       {/* ══ 헤더 ══ */}
       <header className="shop-header">
         <div className="shop-header-logo">
-          <span>🏪</span> 상인 대시보드
+          <span>🏪</span> Pleege Market
         </div>
         <div className="shop-header-right">
           <span className="shop-header-name">{shopName}</span>

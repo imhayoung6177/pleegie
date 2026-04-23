@@ -8,6 +8,11 @@ import MyPage from './pages/user/MyPage';
 import MarketLoginPage from './pages/auth/MarketLoginPage';
 import MarketRegisterPage from './pages/auth/MarketRegisterPage';
 import ShopPage from './pages/market/ShopPage';
+import RecipeRecommendPage from './pages/user/RecipeRecommendPage';
+import FoodSearchPage from './pages/user/FoodSearchPage';
+import ChatbotPage from './pages/user/ChatbotPage'; //  챗봇 페이지
+
+
 
 const App = () => {
   return (
@@ -21,6 +26,12 @@ const App = () => {
       <Route path="/user/register" element={<RegisterPage role="USER" />} />
       <Route path="/user/fridge" element={<FridgePage />} />
       <Route path="/user/mypage" element={<MyPage />} />
+
+      {/* AI 레시피 추천 관련 */}
+      <Route path="/user/recipe-recommend" element={<RecipeRecommendPage />} />
+      <Route path="/user/food-search" element={<FoodSearchPage />} />
+      <Route path="/user/chatbot" element={<ChatbotPage />} />
+
 
       {/* 소상공인 관련 */}
       <Route path="/market/login" element={<MarketLoginPage role="SHOP" />} />

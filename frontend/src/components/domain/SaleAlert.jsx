@@ -1,6 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import './SaleAlert.css';
 
+
+/* ══ 데모용 Mock 마켓 데이터 ══════════════════════════
+   실제 구현 시 백엔드 API에서 가져올 데이터 구조 예시
+══════════════════════════════════════════════════════ */
+export const MOCK_MARKET_ITEMS = [
+  {
+    id: 1,  name: '시금치',   emoji: '🥬', price: 3000,  unit: '봉',
+    shopName: '김씨네 채소', saleStart: '18:00', saleEnd: '20:00', discountRate: 50,
+  },
+  {
+    id: 2,  name: '대파',     emoji: '🌿', price: 2500,  unit: '봉',
+    shopName: '김씨네 채소', saleStart: '19:00', saleEnd: '21:00', discountRate: 30,
+  },
+  {
+    id: 3,  name: '돼지고기', emoji: '🐷', price: 15000, unit: 'kg',
+    shopName: '박씨 정육점', saleStart: '17:00', saleEnd: '19:00', discountRate: 20,
+  },
+  {
+    id: 4,  name: '당근',     emoji: '🥕', price: 1500,  unit: '개',
+    shopName: '이씨 야채가게', saleStart: '', saleEnd: '', discountRate: 0,
+  },
+  {
+    id: 5,  name: '두부',     emoji: '🫙', price: 2000,  unit: '모',
+    shopName: '전통시장 두부집', saleStart: '17:30', saleEnd: '20:00', discountRate: 40,
+  },
+];
+
 /* ══════════════════════════════════════════════════════════
    SaleAlert.css 인라인 스타일 (별도 CSS 없이 사용 가능)
    사용자 냉장고 페이지에서 "없는 재료" 표시 시
@@ -155,30 +182,5 @@ export const SaleAlertList = ({ missingIngredients, marketItems }) => {
   );
 };
 
-/* ══ 데모용 Mock 마켓 데이터 ══════════════════════════
-   실제 구현 시 백엔드 API에서 가져올 데이터 구조 예시
-══════════════════════════════════════════════════════ */
-export const MOCK_MARKET_ITEMS = [
-  {
-    id: 1,  name: '시금치',   emoji: '🥬', price: 3000,  unit: '봉',
-    shopName: '김씨네 채소', saleStart: '18:00', saleEnd: '20:00', discountRate: 50,
-  },
-  {
-    id: 2,  name: '대파',     emoji: '🌿', price: 2500,  unit: '봉',
-    shopName: '김씨네 채소', saleStart: '19:00', saleEnd: '21:00', discountRate: 30,
-  },
-  {
-    id: 3,  name: '돼지고기', emoji: '🐷', price: 15000, unit: 'kg',
-    shopName: '박씨 정육점', saleStart: '17:00', saleEnd: '19:00', discountRate: 20,
-  },
-  {
-    id: 4,  name: '당근',     emoji: '🥕', price: 1500,  unit: '개',
-    shopName: '이씨 야채가게', saleStart: '', saleEnd: '', discountRate: 0,
-  },
-  {
-    id: 5,  name: '두부',     emoji: '🫙', price: 2000,  unit: '모',
-    shopName: '전통시장 두부집', saleStart: '17:30', saleEnd: '20:00', discountRate: 40,
-  },
-];
 
 export default SaleAlertList;
