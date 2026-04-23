@@ -1,0 +1,405 @@
+/* ══════════════════════════════════════════════════════════
+   RecipeRecommendModal.css
+══════════════════════════════════════════════════════════ */
+
+.rr-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.52);
+  backdrop-filter: blur(6px);
+  z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: rrFadeIn 0.2s ease;
+}
+@keyframes rrFadeIn { from{opacity:0} to{opacity:1} }
+
+.rr-modal {
+  width: 100%; max-width: 500px; max-height: 88vh;
+  background: #f5ede0;
+  border-radius: 22px;
+  border: 1px solid rgba(0,0,0,0.08);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.4);
+  animation: rrPop 0.28s cubic-bezier(0.34,1.2,0.64,1);
+  position: relative;
+}
+@keyframes rrPop {
+  from{transform:scale(0.9) translateY(16px);opacity:0}
+  to  {transform:scale(1)   translateY(0);   opacity:1}
+}
+
+/* ── 헤더 ── */
+.rr-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.45);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-left: 4px solid #2EC4B6;
+  flex-shrink: 0;
+}
+.rr-header-title {
+  font-family: 'Jua', sans-serif; font-size: 1.15rem; color: #2a1f0e;
+}
+.rr-back-btn {
+  background: none; border: none; color: #2EC4B6;
+  font-family: 'Jua', sans-serif; font-size: 0.95rem; cursor: pointer; padding: 0;
+}
+.rr-close-btn {
+  background: rgba(0,0,0,0.06); border: none; border-radius: 7px;
+  color: #5a4a32; padding: 4px 10px; cursor: pointer; font-size: 1rem;
+  transition: background 0.15s;
+}
+.rr-close-btn:hover { background: rgba(0,0,0,0.12); }
+
+/* ── 바디 ── */
+.rr-body {
+  flex: 1; overflow-y: auto; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.rr-body::-webkit-scrollbar { width: 3px; }
+.rr-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+/* ── 로딩 ── */
+.rr-loading {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 40px;
+  color: #5a4a32; font-size: 0.95rem; text-align: center;
+}
+.rr-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(0,0,0,0.1);
+  border-top-color: #2EC4B6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ══════════════════════════════════════════════════════════
+   레시피 리스트 카드
+══════════════════════════════════════════════════════════ */
+.rr-list-desc {
+  font-size: 0.82rem; color: #8a7a60; margin-bottom: 4px;
+}
+
+.recipe-list-card {
+  background: rgba(255,255,255,0.65);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 16px; padding: 14px 16px;
+  cursor: pointer; display: flex; flex-direction: column; gap: 10px;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.recipe-list-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: rgba(46,196,182,0.4);
+}
+
+.recipe-card-top { display: flex; align-items: center; gap: 12px; }
+.recipe-card-emoji { font-size: 2rem; flex-shrink: 0; }
+.recipe-card-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.recipe-card-name {
+  font-family: 'Jua', sans-serif; font-size: 1.05rem; color: #2a1f0e;
+}
+.recipe-card-meta { font-size: 0.78rem; color: #8a7a60; }
+.recipe-card-arrow { font-size: 1.3rem; color: #c0b09a; flex-shrink: 0; }
+
+.recipe-card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.recipe-card-match { display: flex; align-items: center; gap: 10px; }
+.match-bar-wrap {
+  flex: 1; height: 6px; background: rgba(0,0,0,0.08);
+  border-radius: 999px; overflow: hidden;
+}
+.match-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2EC4B6, #1A9A8A);
+  border-radius: 999px; transition: width 0.6s ease;
+}
+.match-rate-text { font-size: 0.75rem; color: #8a7a60; white-space: nowrap; }
+
+/* ══════════════════════════════════════════════════════════
+   공통 태그
+══════════════════════════════════════════════════════════ */
+.recipe-tag {
+  padding: 4px 11px; border-radius: 999px;
+  font-size: 0.82rem; white-space: nowrap;
+}
+.recipe-tag--have {
+  background: rgba(46,196,182,0.12); color: #1A9A8A;
+  border: 1px solid rgba(46,196,182,0.3);
+}
+.recipe-tag--missing {
+  background: rgba(255,107,53,0.1); color: #d95f2e;
+  border: 1px solid rgba(255,107,53,0.25);
+}
+.recipe-tag--ingredient {
+  background: rgba(90,74,50,0.07); color: #5a4a32;
+  border: 1px solid rgba(90,74,50,0.15);
+}
+
+/* ══════════════════════════════════════════════════════════
+   할인 배지 — NONE / UPCOMING / ON_SALE
+══════════════════════════════════════════════════════════ */
+.sale-badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0;
+}
+.sale-badge--none {
+  background: rgba(90,74,50,0.07); color: #8a7a60;
+  border: 1.5px solid rgba(90,74,50,0.15);
+}
+.sale-badge--upcoming {
+  background: rgba(255,193,7,0.15); color: #b8860b;
+  border: 1.5px solid rgba(255,193,7,0.4);
+  animation: upcomingPulse 2s ease-in-out infinite;
+}
+@keyframes upcomingPulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(255,193,7,0.3)}
+  50%    {box-shadow:0 0 0 5px rgba(255,193,7,0)}
+}
+.sale-badge--on-sale {
+  background: rgba(229,53,53,0.12); color: #c82020;
+  border: 1.5px solid rgba(229,53,53,0.35);
+  animation: onSalePulse 1.5s ease-in-out infinite;
+}
+@keyframes onSalePulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(229,53,53,0.3)}
+  50%    {box-shadow:0 0 0 6px rgba(229,53,53,0)}
+}
+
+/* ══════════════════════════════════════════════════════════
+   ✅ 없는 재료 카드 — 할인 상태별 테두리 색상
+══════════════════════════════════════════════════════════ */
+.missing-ing-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* 기본 카드 */
+.missing-card {
+  border-radius: 14px; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  background: rgba(255,255,255,0.7);
+  border: 2px solid rgba(0,0,0,0.08);
+  transition: transform 0.15s;
+}
+.missing-card:hover { transform: translateY(-1px); }
+
+/* 할인 중 — 빨간 테두리 + 연한 빨간 배경 */
+.missing-card--on_sale {
+  background: rgba(229,53,53,0.04);
+  border-color: rgba(229,53,53,0.4);
+  box-shadow: 0 2px 12px rgba(229,53,53,0.1);
+}
+/* 할인 예정 — 노란 테두리 + 연한 노란 배경 */
+.missing-card--upcoming {
+  background: rgba(255,193,7,0.04);
+  border-color: rgba(255,193,7,0.4);
+  box-shadow: 0 2px 12px rgba(255,193,7,0.1);
+}
+/* 미등록/없음 — 기본 회색 */
+.missing-card--none {
+  background: rgba(255,255,255,0.7);
+  border-color: rgba(0,0,0,0.08);
+}
+
+.missing-card-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.missing-card-name {
+  font-family: 'Jua', sans-serif; font-size: 1rem; color: #2a1f0e;
+}
+
+/* 시장 정보 행 */
+.missing-card-market {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px; border-radius: 10px;
+  background: rgba(0,0,0,0.03);
+  font-size: 0.82rem;
+}
+.market-name-text { color: #FF6B35; font-weight: 700; }
+.market-price-row { display: flex; align-items: center; gap: 6px; }
+.price-original {
+  text-decoration: line-through; color: #aaa; font-size: 0.75rem;
+}
+.price-sale {
+  font-weight: 700; color: #c82020; font-size: 0.95rem;
+}
+.price-normal { font-weight: 700; color: #2a1f0e; }
+
+/* 할인율 배지 */
+.discount-rate-badge {
+  background: #c82020; color: white;
+  padding: 2px 7px; border-radius: 6px;
+  font-size: 0.72rem; font-weight: 700;
+}
+.upcoming-rate-badge {
+  background: rgba(255,193,7,0.2); color: #b8860b;
+  padding: 2px 8px; border-radius: 6px;
+  font-size: 0.72rem; font-weight: 600;
+}
+
+/* 미등록 안내 */
+.missing-no-market {
+  font-size: 0.78rem; color: #aaa;
+  text-align: center; padding: 6px 0;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ✅ 구매 버튼 — 할인 상태별 색상
+══════════════════════════════════════════════════════════ */
+.missing-buy-btn {
+  width: 100%; padding: 12px;
+  border: none; border-radius: 12px;
+  font-family: 'Jua', sans-serif; font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.missing-buy-btn:hover { transform: translateY(-1px); }
+.missing-buy-btn:active { transform: translateY(1px); }
+
+/* NONE — 민트 초록 */
+.missing-buy-btn--none {
+  background: linear-gradient(135deg, #2EC4B6, #1A9A8A);
+  color: white;
+  box-shadow: 0 3px 0 #0E6A5A;
+}
+/* UPCOMING — 노란색 */
+.missing-buy-btn--upcoming {
+  background: linear-gradient(135deg, #ffc107, #e6a800);
+  color: #3d2e00;
+  box-shadow: 0 3px 0 #b38600;
+  animation: upcomingBtnPulse 2s ease-in-out infinite;
+}
+@keyframes upcomingBtnPulse {
+  0%,100%{box-shadow:0 3px 0 #b38600,0 0 0 0 rgba(255,193,7,0.4)}
+  50%    {box-shadow:0 3px 0 #b38600,0 0 0 8px rgba(255,193,7,0)}
+}
+/* ON_SALE — 빨간색 + 강한 펄스 */
+.missing-buy-btn--on_sale {
+  background: linear-gradient(135deg, #E53535, #C82020);
+  color: white;
+  box-shadow: 0 3px 0 #A01010;
+  animation: onSaleBtnPulse 1.5s ease-in-out infinite;
+}
+@keyframes onSaleBtnPulse {
+  0%,100%{box-shadow:0 3px 0 #A01010,0 0 0 0 rgba(229,53,53,0.4)}
+  50%    {box-shadow:0 3px 0 #A01010,0 0 0 8px rgba(229,53,53,0)}
+}
+
+/* ══════════════════════════════════════════════════════════
+   레시피 상세
+══════════════════════════════════════════════════════════ */
+.recipe-detail-view { display: flex; flex-direction: column; gap: 16px; }
+
+.recipe-detail-back {
+  background: none; border: none; color: #2EC4B6;
+  font-family: 'Jua', sans-serif; font-size: 0.92rem;
+  cursor: pointer; padding: 0; align-self: flex-start;
+}
+
+.recipe-detail-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px; background: rgba(255,255,255,0.6);
+  border-radius: 16px; border: 1px solid rgba(0,0,0,0.07);
+}
+.recipe-detail-emoji { font-size: 2.8rem; }
+.recipe-detail-title-wrap { display: flex; flex-direction: column; gap: 4px; }
+.recipe-detail-title {
+  font-family: 'Jua', sans-serif; font-size: 1.25rem; color: #2a1f0e; margin: 0;
+}
+.recipe-detail-meta { font-size: 0.82rem; color: #8a7a60; }
+
+/* ══════════════════════════════════════════════════════════
+   ✅ 레시피 저장 버튼 — idle / saving / saved 3가지 상태
+══════════════════════════════════════════════════════════ */
+.recipe-save-btn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 15px;
+  border: none; border-radius: 14px;
+  font-family: 'Jua', sans-serif; font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.4s, box-shadow 0.4s;
+}
+
+/* idle: 민트 그라데이션 */
+.recipe-save-btn--idle {
+  background: linear-gradient(135deg, #2EC4B6, #1A9A8A);
+  color: white;
+  box-shadow: 0 4px 0 #0E6A5A, 0 6px 20px rgba(46,196,182,0.3);
+}
+.recipe-save-btn--idle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #0E6A5A, 0 10px 24px rgba(46,196,182,0.35);
+}
+.recipe-save-btn--idle:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 #0E6A5A;
+}
+
+/* saving: 반투명 + 스피너 */
+.recipe-save-btn--saving {
+  background: rgba(46,196,182,0.6);
+  color: white;
+  box-shadow: none;
+  cursor: wait;
+}
+
+/* saved: 회색 완료 상태 */
+.recipe-save-btn--saved {
+  background: #e8ddd0;
+  color: #8a7a60;
+  box-shadow: 0 4px 0 #d0c4b4;
+  cursor: default;
+}
+
+.save-btn-icon { font-size: 1.2rem; }
+.save-btn-text { font-size: 1rem; }
+
+/* ── 섹션 ── */
+.recipe-detail-section { display: flex; flex-direction: column; gap: 10px; }
+.recipe-section-title {
+  font-family: 'Jua', sans-serif; font-size: 0.95rem; color: #2a1f0e;
+  padding-bottom: 6px; border-bottom: 1.5px dashed rgba(0,0,0,0.1);
+}
+.have-title    { color: #1A9A8A; }
+.missing-title { color: #d95f2e; }
+
+.recipe-tag-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* 범례 */
+.missing-legend {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: #8a7a60; flex-wrap: wrap;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.legend-dot--on-sale  { background: #E53535; }
+.legend-dot--upcoming { background: #ffc107; }
+.legend-dot--none     { background: #d0c4b4; }
+
+/* 조리 순서 */
+.recipe-steps-list { display: flex; flex-direction: column; gap: 10px; }
+.recipe-step-item  { display: flex; gap: 12px; align-items: flex-start; }
+.recipe-step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #2EC4B6; color: white;
+  font-family: 'Jua', sans-serif; font-size: 0.82rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.recipe-step-text { font-size: 0.9rem; color: #3a3028; line-height: 1.6; padding-top: 3px; }
+
+/* ── 토스트 ── */
+.rr-toast {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(42,31,14,0.88); color: white;
+  padding: 10px 20px; border-radius: 999px;
+  font-size: 0.88rem; white-space: nowrap; z-index: 10;
+  animation: toastIn 0.2s ease;
+}
+@keyframes toastIn {
+  from{opacity:0;transform:translateX(-50%) translateY(8px)}
+  to  {opacity:1;transform:translateX(-50%) translateY(0)}
+}
