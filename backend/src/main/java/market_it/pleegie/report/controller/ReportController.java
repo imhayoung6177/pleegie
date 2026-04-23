@@ -40,6 +40,6 @@ public class ReportController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<List<ReportResponse>>> getMyReports(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.ok(userDetails.getUserId()));
+        return ResponseEntity.ok(ApiResponse.ok(reportService.getMyReports(userDetails.getUserId())));
     }
 }

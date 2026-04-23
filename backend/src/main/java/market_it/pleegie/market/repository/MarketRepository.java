@@ -19,6 +19,9 @@ public interface MarketRepository extends JpaRepository<Market, Long> {
     // 사업자등록번호 중복 체크
     boolean existsByBusinessNumber(String businessNumber);
 
+    // 유저ID 중복 체크
+    boolean existsByUserId(Long userId);
+
     // 상태별 시장 조회 (관리자 - PENDING / APPROVED / SUSPENDED)
     List<Market> findAllByStatus(String status);
 

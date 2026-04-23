@@ -55,4 +55,14 @@ public class Market extends BaseEntity {
         this.qrToken = qrToken;
         this.qrCodeUrl = qrCodeUrl;
     }
+
+    public void updateInfo(String name, String ceoName,
+                           String phone, Double latitude,
+                           Double longitude) {
+        if (name != null) this.name = name;
+        if (ceoName != null) this.ceoName = ceoName;
+        if (phone != null) this.phone = phone;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
 }
