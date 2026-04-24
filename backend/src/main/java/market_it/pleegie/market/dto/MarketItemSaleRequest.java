@@ -13,4 +13,10 @@ public class MarketItemSaleRequest {
     private Integer discountRate;   // 할인율(%)
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    // 둘 중 하나는 반드시 입력했는지 검증
+    public boolean isValid() {
+        return discountPrice != null
+                || discountRate != null;
+    }
 }
