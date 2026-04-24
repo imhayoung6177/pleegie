@@ -1,0 +1,128 @@
+/* src/pages/admin/AdminCommon.css */
+
+/* 1. 최상위 컨테이너 - 바닥 타일 포함 */
+.admin-login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 88px);
+  width: 100%;
+  background-color: #f5ede0; /* 공통 벽지색 */
+  position: relative;
+  overflow: hidden;
+  font-family: "Jua", sans-serif;
+}
+
+/* 🚀 바닥 타일 - HomePage와 100% 동일 높이 및 무늬 */
+.admin-login-container::after {
+  content: "";
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 88px;
+  background:
+    repeating-linear-gradient(90deg, #d4b896 0px, #d4b896 79px, #c8a882 80px, #c8a882 81px),
+    linear-gradient(180deg, #d4b896 0%, #c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 2. 로그인 화이트 박스 (일반 회원 페이지와 동일한 곡률 및 여백) */
+.admin-login-box {
+  width: 380px;
+  padding: 55px 35px; /* 내부 가로 너비를 위해 패딩 미세 조정 */
+  background-color: #ffffff;
+  border-radius: 40px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  z-index: 10;
+  margin-bottom: 60px;
+  border: 1.5px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 🚀 3. 로고 (pleegie) - 크기와 색상 정밀 매칭 */
+.admin-logo {
+  font-family: "Jua", sans-serif;
+  font-size: 36px;
+  color: #ff6b35; /* 쨍한 오렌지 (Primary Color) */
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+/* 🚀 4. 타이틀 (관리자 로그인) - 진한 주황색 매칭 */
+.admin-title {
+  font-family: "Jua", sans-serif;
+  font-size: 22px;
+  color: #d94f1e;
+  margin-bottom: 30px;
+}
+
+.admin-subtitle {
+  font-size: 13px;
+  color: #4a4a6a;
+  margin-bottom: 35px;
+}
+
+/* 5. 입력창 그룹 - 슬림한 디자인 유지 */
+.admin-input-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.admin-label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 15px; /* 18px에서 줄여서 더 날렵하게 */
+  background: #fffbf4;
+  border: 1.5px solid #e5d9cc;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* 🚀 6. 메인 로그인 버튼 - 준호님 요청: 높이와 크기 정밀 축소 */
+.admin-btn-main {
+  width: 100%;
+  height: 52px; /* 60px에서 52px로 줄여 왼쪽과 일치 */
+  background-color: #ff6b35;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: "Jua", sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-btn-main:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.95);
+}
+
+/* 7. 임시 버튼 스타일 */
+.admin-btn-temp {
+  width: 100%;
+  padding: 12px;
+  background-color: #d0e8f8;
+  color: #4a7090;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
