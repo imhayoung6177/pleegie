@@ -22,7 +22,7 @@ class IngredientInfoRequest(BaseModel):
 class IngredientInfo(BaseModel):
     name: str
     category: str
-    defalutExp: int  # 기본 유통기한 (일 단위)
+    defaultExp: int  # 기본 유통기한 (일 단위)
 
 
 class IngredientInfoResponse(BaseModel):
