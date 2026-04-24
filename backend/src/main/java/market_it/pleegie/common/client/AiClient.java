@@ -28,10 +28,13 @@ public class AiClient {
     }
 
     //챗봇 응답
-    public String chat(String message){
+    public AiRouterResponse chat(String message, String sessionId){
         String url = aiServerUrl +"/chatbot";
-        Map<String,String> body = Map.of("message",message);
-        return restTemplate.postForObject(url,body,String.class);
+        Map<String,String> body = Map.of(
+                "message",message,
+                "session_id",sessionId
+        );
+        return restTemplate.postForObject(url,body,AiRouterResponse.class);
     }
 
     //냉장고 재료 기반 레시피 추천
