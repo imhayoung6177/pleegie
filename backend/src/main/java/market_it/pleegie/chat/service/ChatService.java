@@ -63,6 +63,7 @@ public class ChatService {
                 );
             }
             case "RECIPE_SEARCH" -> aiClient.searchRecipe(request.getMessage());
+            case "MARKET_GUIDE"  -> aiClient.marketGuide(request.getMessage());
             default -> aiClient.chat(request.getMessage(),String.valueOf(userId)); //chatbot 등 일반대화
         };
     }

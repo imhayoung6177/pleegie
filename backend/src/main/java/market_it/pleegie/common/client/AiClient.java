@@ -54,4 +54,10 @@ public class AiClient {
         return restTemplate.postForObject(url,body,AiRouterResponse.class);
     }
 
+    public AiRouterResponse marketGuide(String message) {
+        String url = aiServerUrl + "api/ai/market-guide";
+        Map<String, String> body = Map.of("message", message);
+        return restTemplate.postForObject(url, body, AiRouterResponse.class);
+    }
+
 }
