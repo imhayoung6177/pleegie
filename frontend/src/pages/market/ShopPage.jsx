@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../Styles/market/ShopPage.css';
+import '../../Styles/user/FridgePage.css'; // 냉장고 UI 적용
 
 /* ══════════════════════════════════════════════════════════
    상수 & 유틸
 ══════════════════════════════════════════════════════════ */
-
-// 선택 가능한 이모지 (식재료 카테고리별)
-const EMOJI_LIST = [
-  '🥩','🍗','🥚','🐷','🥓',           // 육류
-  '🥦','🧅','🥕','🌿','🥔','🍅','🥒','🍄','🌶️','🥬', // 채소
-  '🦐','🐟','🦑','🦪','🐚',           // 해산물
-  '🥛','🧈','🧀','🫙','🍶',           // 유제품
-  '🌾','🍞','🍝',                      // 곡류
-  '🍎','🍊','🍋','🍇','🍓','🍑',      // 과일
-];
-
-const UNITS = ['원/kg', '원/개', '원/봉', '원/팩', '원/L'];
 
 // 현재 시각 기준으로 할인 상태 계산
 const getSaleStatus = (item, now) => {
@@ -219,6 +209,7 @@ const ProductCard = ({ item, now, onEdit, onDelete, onDiscount }) => {
    메인 상인 대시보드
 ══════════════════════════════════════════════════════════ */
 export default function ShopPage() {
+  const navigate = useNavigate();
   const shopName = localStorage.getItem('shopName') || '김씨네 채소가게';
 
   // 현재 시각 (1초마다 갱신)
@@ -257,44 +248,12 @@ export default function ShopPage() {
     localStorage.setItem('marketItems', JSON.stringify(products));
   }, [products]);
 
-  // 폼 상태
-  const [form, setForm]           = useState({ name: '', price: '', unit: '원/개', emoji: '🥬', saleStart: '', saleEnd: '', salePrice: '' });
-  const [selectedEmoji, setEmoji] = useState('🥬');
   const [discountTarget, setDiscountTarget] = useState(null); // 할인 설정할 상품
   const [toast, setToast]         = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2500);
-  };
-
-  // 상품 등록
-  const handleAddProduct = () => {
-    if (!form.name.trim() || !form.price) {
-      showToast('상품명과 가격을 입력해주세요!');
-      return;
-    }
-      
-      const priceNum = Number(form.price);
-      const salePriceNum = form.salePrice ? Number(form.salePrice) : null;
-      const calcDiscountRate = salePriceNum ? Math.round((1 - salePriceNum / priceNum) * 100) : 0;
-
-    const newItem = {
-      id: Date.now(),
-      name: form.name,
-      emoji: selectedEmoji,
-        price: priceNum,
-      unit: form.unit.replace('원/', ''),
-        saleStart: form.saleStart,
-        saleEnd: form.saleEnd,
-        salePrice: salePriceNum,
-        discountRate: calcDiscountRate,
-      shopName: shopName, // 사용자 화면에 보일 상점 이름 추가
-    };
-    setProducts(prev => [newItem, ...prev]);
-      setForm({ name: '', price: '', unit: '원/개', emoji: '🥬', saleStart: '', saleEnd: '', salePrice: '' });
-    setEmoji('🥬');
-    showToast(`${newItem.emoji} ${newItem.name} 등록 완료!`);
   };
 
   // 상품 삭제
@@ -316,201 +275,70 @@ export default function ShopPage() {
   const soonCount   = products.filter(p => getSaleStatus(p, now) === 'soon').length;
 
   return (
-    <div className="shop-page">
-
+    <div className="fridge-page">
       {/* ══ 헤더 ══ */}
-      <header className="shop-header">
-        <div className="shop-header-logo">
-          <span>
-            {/* 🏪 */}
-            </span> Pleegie Market
-        </div>
-        <div className="shop-header-right">
-          <span className="shop-header-name">{shopName}</span>
-          <button className="shop-logout-btn" onClick={() => window.location.href = '/'}>
+      <div className="page-header">
+        <h1 className="page-title">pleegie</h1>
+        <div className="header-actions">
+          <button className="header-user-btn" onClick={() => navigate('/market/mypage')}>
+            <span className="header-user-emoji">
+              🏪</span>
+            <span className="header-user-name">{shopName}</span>
+          </button>
+          <button className="header-logout-btn" onClick={() => { localStorage.clear(); window.location.href = '/'; }}>
             로그아웃
           </button>
         </div>
-      </header>
+      </div>
 
-      {/* ══ 상점 정보 배너 ══ */}
-      <div className="shop-info-banner">
-        <div className="shop-info-left">
-          <div className="shop-avatar">🏪</div>
-          <div className="shop-info-text">
-            <div className="shop-name">{shopName}</div>
-            <div className="shop-meta">
-              <div className="shop-status-badge open">
-                <div className="shop-status-dot" />
-                영업 중
+      <div className="fridge-outer">
+        <div className="fridge-top-panel">
+          <span 
+            className="fridge-brand" 
+            onClick={() => navigate('/market/mypage')}
+            style={{ cursor: 'pointer' }}
+          >
+            {shopName}
+          </span>
+        </div>
+        
+        <div className="fridge-ai-bar">
+          <button className="ai-btn ai-btn-orange" onClick={() => navigate('/market/items')}>
+            <strong>재료 등록하기</strong>
+          </button>
+          <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', color: '#5a4a32', fontWeight: 'bold' }}>
+            <span>할인 임박: <span style={{color: '#FF6B35'}}>{soonCount}</span>건</span>
+            <span>할인 중: <span style={{color: '#E53535'}}>{onSaleCount}</span>건</span>
+          </div>
+        </div>
+        
+        <div className="fridge-divider" />
+        
+        <div className="fridge-interior">
+          <div className="fridge-ceiling-light" />
+          <div className="product-grid" style={{ padding: '0 16px 20px', position: 'relative', zIndex: 2 }}>
+            {products.length === 0 ? (
+              <div className="fridge-empty" style={{ gridColumn: '1 / -1' }}>
+                <span className="empty-icon">📦</span>
+                <div className="empty-title">등록된 품목이 없어요</div>
+                <div className="empty-sub">재료 등록하기를 눌러 추가해보세요.</div>
               </div>
-              <span>현재 시각: {now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-            </div>
+            ) : (
+              products.map((item) => (
+                <ProductCard
+                  key={item.id}
+                  item={item}
+                  now={now}
+                  onDiscount={(p) => setDiscountTarget(p)}
+                  onDelete={handleDelete}
+                />
+              ))
+            )}
           </div>
         </div>
-        <div className="shop-stats">
-          <div className="shop-stat">
-            <div className="shop-stat-num">{products.length}</div>
-            <div className="shop-stat-label">등록 품목</div>
-          </div>
-          <div className="shop-stat">
-            <div className="shop-stat-num" style={{ color: '#FF6B35' }}>{soonCount}</div>
-            <div className="shop-stat-label">할인 임박</div>
-          </div>
-          <div className="shop-stat">
-            <div className="shop-stat-num" style={{ color: '#E53535' }}>{onSaleCount}</div>
-            <div className="shop-stat-label">할인 중</div>
-          </div>
-        </div>
-      </div>
-
-      {/* ══ 품목 등록 폼 ══ */}
-      <div className="section-header">
-        <div className="section-title">
-          <span className="section-title-icon">➕</span>
-          품목 등록
-        </div>
-      </div>
-
-      <div className="item-add-card">
-        <div className="item-add-title">새 품목을 등록하세요</div>
-
-        {/* 이모지 선택 */}
-        {/*
-        <div className="emoji-picker-wrap">
-          <div className="item-form-label" style={{ fontFamily: "'Jua', sans-serif", fontSize: '0.82rem', color: '#5a4a32', marginBottom: 6 }}>
-            품목 이미지 선택
-          </div>
-          <div className="emoji-grid">
-            {EMOJI_LIST.map(e => (
-              <button
-                key={e}
-                className={`emoji-btn ${selectedEmoji === e ? 'active' : ''}`}
-                onClick={() => setEmoji(e)}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
-        </div>
-        */}
-
-        {/* 폼 입력 */}
-        <div className="item-form-grid">
-          <div className="item-form-field">
-            <label className="item-form-label">상품명</label>
-            <input
-              className="item-form-inp"
-              type="text"
-              placeholder="예) 시금치, 돼지고기"
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              onKeyDown={e => e.key === 'Enter' && handleAddProduct()}
-            />
-          </div>
-
-          <div className="item-form-field">
-            <label className="item-form-label">단가 (원)</label>
-            <input
-              className="item-form-inp"
-              type="number"
-              placeholder="예) 3000"
-              value={form.price}
-              onChange={e => setForm({ ...form, price: e.target.value })}
-              onKeyDown={e => e.key === 'Enter' && handleAddProduct()}
-            />
-          </div>
-
-          <div className="item-form-field">
-            <label className="item-form-label">단위</label>
-            <select
-              className="item-form-inp"
-              value={form.unit}
-              onChange={e => setForm({ ...form, unit: e.target.value })}
-            >
-              {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
-            </select>
-          </div>
-
-          <div className="item-form-field">
-            <label className="item-form-label">할인 시작 (선택)</label>
-            <input
-              className="item-form-inp"
-              type="time"
-              value={form.saleStart}
-              onChange={e => setForm({ ...form, saleStart: e.target.value })}
-            />
-          </div>
-
-          <div className="item-form-field">
-            <label className="item-form-label">할인 종료 (선택)</label>
-            <input
-              className="item-form-inp"
-              type="time"
-              value={form.saleEnd}
-              onChange={e => setForm({ ...form, saleEnd: e.target.value })}
-            />
-          </div>
-
-          <div className="item-form-field">
-            <label className="item-form-label">할인가 (선택, 원)</label>
-            <input
-              className="item-form-inp"
-              type="number"
-              placeholder="예) 1500"
-              value={form.salePrice}
-              onChange={e => setForm({ ...form, salePrice: e.target.value })}
-              onKeyDown={e => e.key === 'Enter' && handleAddProduct()}
-            />
-          </div>
-
-          {/* 미리보기 */}
-          <div className="item-form-field full-width" style={{ alignItems: 'center', justifyContent: 'center', background: 'rgba(255,248,238,0.6)', borderRadius: 12, border: '1.5px dashed rgba(255,107,53,0.2)', padding: '10px' }}>
-            <div style={{ fontSize: '2.8rem', lineHeight: 1 }}>
-              {/* {selectedEmoji} */}
-              </div>
-            <div style={{ fontFamily: "var(--font-title)", fontSize: '1.3rem', color: '#5a4a32', marginTop: 4 }}>
-              {form.name || '상품명'}
-            </div>
-            <div style={{ fontSize: '0.9rem', color: '#8a7a60' }}>
-              {form.price ? `${Number(form.price).toLocaleString()}${form.unit}` : '가격'}
-            </div>
-          </div>
-        </div>
-
-        <button className="item-add-btn" onClick={handleAddProduct}>
-          품목 등록하기
-        </button>
-      </div>
-
-      {/* ══ 등록된 품목 목록 ══ */}
-      <div className="section-header">
-        <div className="section-title">
-          <span className="section-title-icon">📦</span>
-          등록된 품목 ({products.length}개)
-        </div>
-      </div>
-
-      <div className="items-section">
-        <div className="product-grid">
-          {products.length === 0 ? (
-            <div className="product-empty">
-              <span className="product-empty-icon">📦</span>
-              <div className="product-empty-title">아직 등록된 품목이 없어요</div>
-              <div className="product-empty-sub">위 폼에서 품목을 등록해보세요!</div>
-            </div>
-          ) : (
-            products.map((item, idx) => (
-              <ProductCard
-                key={item.id}
-                item={item}
-                now={now}
-                onDiscount={(p) => setDiscountTarget(p)}
-                onDelete={handleDelete}
-                style={{ animationDelay: `${idx * 0.06}s` }}
-              />
-            ))
-          )}
+        
+        <div className="fridge-bottom">
+          <span className="item-count">등록된 품목 {products.length}개</span>
         </div>
       </div>
 

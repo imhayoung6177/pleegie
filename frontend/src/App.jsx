@@ -8,6 +8,9 @@ import MyPage from "./pages/user/MyPage";
 import MarketLoginPage from "./pages/auth/MarketLoginPage";
 import MarketRegisterPage from "./pages/auth/MarketRegisterPage";
 import ShopPage from "./pages/market/ShopPage";
+import MarketMyPage from "./pages/market/MarketMyPage"; // 상인 마이페이지 불러오기
+import ShopItemAddPage from "./pages/market/ShopItemAddPage"; // 새 품목 등록 페이지 불러오기
+import ShopItemSalePage from "./pages/market/ShopItemSalePage"; // 할인 등록 페이지 불러오기
 import RecipeRecommendPage from "./pages/user/RecipeRecommendPage";
 import FoodSearchPage from "./pages/user/FoodSearchPage";
 import ChatbotPage from "./pages/user/ChatbotPage"; //  챗봇 페이지
@@ -39,6 +42,9 @@ const App = () => {
       <Route path="/market/register" element={<MarketRegisterPage role="SHOP" />} />
       {/* 상인 대시보드 등이 있다면 여기에 추가 */}
       <Route path="/market/main" element={<ShopPage role="SHOP" />} />
+      <Route path="/market/mypage" element={<MarketMyPage />} />
+      <Route path="/market/items" element={<ShopItemAddPage role="SHOP" />} />
+      <Route path="/market/items/:id/sale" element={<ShopItemSalePage role="SHOP" />} />
       {/* 관리자 관련(황준호)*/}
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
