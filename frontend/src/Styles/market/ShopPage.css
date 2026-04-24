@@ -35,7 +35,7 @@
   display: flex;
   flex-direction: column;
   font-family: var(--font-body);
-  background-color: var(--c-bg);
+  background-color:#f5ede0;
 }
 
 /* 주방 바닥 */
@@ -68,6 +68,7 @@
 .shop-header-logo {
   font-family: var(--font-title);
   font-size: 1.2rem;
+  font-weight: bolder;;
   color: var(--c-primary);
   letter-spacing: 0.5px;
   display: flex;
@@ -84,19 +85,23 @@
 }
 
 .shop-header-name {
-  font-family: var(--font-title);
-  font-size: 0.92rem;
-  color: var(--c-text-mid);
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 999px;
+  cursor: pointer; transition: background 0.15s;
 }
 
 .shop-logout-btn {
   padding: 6px 14px;
-  background: rgba(0,0,0,0.05);
+  background: var(--c-primary);
   border: 1.5px solid rgba(0,0,0,0.12);
   border-radius: 999px;
-  color: var(--c-text-mid);
+  color: var(--c-bg);
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: bolder;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -116,7 +121,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: var(--shadow-card);
+  /* box-shadow: var(--shadow-card); */
   position: relative;
   z-index: 1;
 }
@@ -141,6 +146,7 @@
   font-family: var(--font-title);
   font-size: 1.4rem; /* 글자 크기 증가 */
   color: var(--c-text);
+  font-weight: bolder;
 }
 
 .shop-meta {
@@ -163,9 +169,9 @@
 }
 
 .shop-status-badge.open {
-  background: rgba(46,196,182,0.12);
-  color: var(--c-green-dk);
-  border: 1px solid rgba(46,196,182,0.3);
+  background: #ff6b35;
+  color:var(--c-bg);
+  border: 1px solid #ff6b35;
 }
 
 .shop-status-badge.closed {
@@ -239,7 +245,7 @@
   border: 1.5px solid var(--c-border);
   border-radius: 18px;
   padding: 20px 22px;
-  box-shadow: var(--shadow-card);
+  /* box-shadow: var(--shadow-card); */
   position: relative;
   z-index: 1;
   display: flex;
@@ -249,7 +255,7 @@
 
 .item-add-title {
   font-family: var(--font-title);
-  font-size: 1.1rem; /* 글자 크기 증가 */
+  font-size: 1.5rem; /* 글자 크기 증가 */
   color: var(--c-text-mid);
 }
 
@@ -271,7 +277,7 @@
 
 .item-form-label {
   font-family: var(--font-title);
-  font-size: 0.95rem; /* 글자 크기 증가 */
+  font-size: 1.2rem; /* 글자 크기 증가 */
   color: var(--c-text-mid);
 }
 
@@ -284,7 +290,8 @@
   font-size: 1rem; /* 글자 크기 증가 */
   color: var(--c-text);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s;
+  /* box-shadow 0.15s; */
 }
 .item-form-inp:focus {
   border-color: rgba(0,0,0,0.3); /* 포커스 테두리/그림자 삭제 */
@@ -325,6 +332,7 @@
   color: white;
   font-family: var(--font-title);
   font-size: 1.1rem; /* 글자 크기 증가 */
+  font-weight: bolder;
   cursor: pointer;
   box-shadow: none;
   transition: all 0.2s var(--ease-bounce);
@@ -364,7 +372,7 @@
   align-items: center;
   gap: 8px;
   position: relative;
-  box-shadow: var(--shadow-card);
+  /* box-shadow: var(--shadow-card); */
   transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s;
   animation: cardIn 0.35s var(--ease-bounce) both;
 }
