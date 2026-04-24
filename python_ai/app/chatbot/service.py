@@ -8,7 +8,7 @@ from app.core.redis_client import redis_client
 from app.chatbot.schema import ChatbotRequest, ChatbotResponse
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", google_api_key=settings.gemini_api_key
+    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
 )
 
 SYSTEM_PROMPT = """

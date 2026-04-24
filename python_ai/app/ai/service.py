@@ -21,7 +21,7 @@ INTENT_PROMPT = """
 
 async def detect_intent(request: AiRequest) -> AiResponse:
     prompt = INTENT_PROMPT.format(message=request.message)
-    response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+    response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
     intent = response.text.strip()
 
     if intent not in ["RECIPE_RECOMMEND", "RECIPE_SEARCH", "MARKET_GUIDE", "CHATBOT"]:

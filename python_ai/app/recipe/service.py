@@ -13,7 +13,7 @@ from app.recipe.schema import (
 )
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", google_api_key=settings.gemini_api_key
+    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
 )
 
 RECOMMEND_TEMPLATE = PromptTemplate(
