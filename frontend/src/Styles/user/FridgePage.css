@@ -1,25 +1,24 @@
 /* ══════════════════════════════════════════════════════════
    FridgePage.css
 ══════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 :root {
   --base-color:    #1B2A3B;
   --base-border:   rgba(255,255,255,0.08);
-  --accent-green:  #2EC4B6;
+  --accent-green:  #FF6B35; /* 모든 포인트를 주황색으로 통일 */
   --accent-orange: #FF6B35;
   --font-title:    'Jua', sans-serif;
-  --font-body:     'Noto Sans KR', sans-serif;
+  --font-body:     'Jua', sans-serif;
   --ease-bounce:   cubic-bezier(0.34,1.56,0.64,1);
 }
 
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ══ 1. 페이지 레이아웃 ══════════════════════════════════ */
 .fridge-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 88px);
+  height: 100vh;
+  padding-bottom: 88px;
   overflow: hidden;
   font-family: var(--font-body);
   background-color: #f5ede0;
@@ -39,40 +38,69 @@
   pointer-events: none;
 }
 
-/* ══ 2. 페이지 타이틀 ═══════════════════════════════════ */
+/* ══ 2. 페이지 헤더 (타이틀 & 우측 메뉴) ═════════════════ */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px 10px;
+  flex-shrink: 0;
+}
+
 .page-title {
   font-family: var(--font-title);
-  font-size: 1.65rem;
-  color: #2a1f0e;
+  font-size: 1.8rem;
+  color: #FF6B35;
   letter-spacing: 1px;
-  padding: 12px 22px 10px;
-  flex-shrink: 0;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 냉장고 닫힘 상태 (안의 내용물 숨김) */
+.fridge-door-closed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f5ede0; 
+  z-index: 50; 
+  border: 2px solid #e5d9cc;
+  border-radius: 10px;
 }
 
 /* ══ 3. 냉장고 외관 ═════════════════════════════════════ */
 .fridge-outer {
 flex: 1;
   min-height: 0;
-  width: 100%;
+  width: calc(100% - 32px); /* 좌우 여백 확보 */
   position: relative;
+  max-width: 1100px; /* 메인 페이지 냉장고와 가로 폭 완벽히 동일하게 맞춤 */
+  margin: 0 auto 20px auto; /* 중앙 정렬 및 하단 여백 */
   z-index: 1;
-  /* ✅ 기존 var(--base-color) 대신 베이지색으로 변경 */
   background: #f5ede0; 
-  /* ✅ 테두리를 조금 더 진한 베이지로 변경해서 경계를 줌 */
-  border-top: 2px solid #e5d9cc; 
+  border: 3px solid #e5d9cc; /* 둥근 냉장고 외곽선 전체 적용 */
+  border-radius: 20px; /* 박스 안으로 모두 들어가게 함 */
+  /* box-shadow: 0 8px 24px rgba(0,0,0,0.06); */
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding-bottom: 0; /* 불필요한 하단 패딩 제거 */
+  padding-bottom: 0;
 }
 
 /* ══ 4. 상단 브랜드 패널 ════════════════════════════════ */
 .fridge-top-panel {
-  background: #f5ede0;
-  padding: 11px 18px;
+  position: relative;
+  background: #D0E8F8; /* 그라데이션 제거 후 메인 페이지와 동일한 단색 적용 */
+  padding: 14px 18px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* 타이틀 가운데 정렬 */
   border-bottom: 1.5px solid rgba(0,0,0,0.08);
   flex-shrink: 0;
 }
@@ -89,18 +117,27 @@ flex: 1;
 
 .header-user-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 13px 6px 9px;
+  padding: 8px 16px;
   background: rgba(0,0,0,0.05);
   border: 1px solid rgba(0,0,0,0.12);
   border-radius: 999px;
   cursor: pointer; transition: background 0.15s;
 }
 .header-user-btn:hover { background: rgba(0,0,0,0.1); }
-.header-user-emoji { font-size: 1.15rem; }
+.header-user-emoji { font-size: 1.3rem; }
 .header-user-name {
-  font-family: var(--font-body); font-size: 1rem;
+  font-family: var(--font-title); font-size: 1.1rem;
   color: #5a4a32; white-space: nowrap;
 }
+
+.header-logout-btn {
+  padding: 8px 16px;
+  background: var(--accent-orange);
+  color: white; border: none; border-radius: 999px;
+  font-family: var(--font-title); font-size: 1.05rem;
+  cursor: pointer; transition: transform 0.15s;
+}
+.header-logout-btn:hover { transform: translateY(-1px); }
 
 /* ══ 5. AI 버튼 바 ══════════════════════════════════════ */
 .fridge-ai-bar {
@@ -108,7 +145,7 @@ flex: 1;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: #f5ede0;
+  background: #D0E8F8;
   border-bottom: 1.5px solid rgba(0,0,0,0.08);
   padding: 8px 16px;
   flex-shrink: 0;
@@ -135,12 +172,10 @@ flex: 1;
 .ai-btn-green {
   background: var(--accent-green);
   color: #fff;
-  box-shadow: 0 2px 0 #1A9A8A;
 }
 .ai-btn-orange {
   background: var(--accent-orange);
   color: #fff;
-  box-shadow: 0 2px 0 #C84A1A;
 }
 
 .ai-btn-icon { display: none; }
@@ -172,7 +207,7 @@ flex: 1;
 
 /* ══ 7. 냉장고 내부 ═════════════════════════════════════ */
 .fridge-interior {
-  background: linear-gradient(180deg,#e8f4ff 0%,#d8ecff 35%,#cce4ff 70%,#c0d8f8 100%);
+  background: #ffffff;; /* 메인페이지와 동일하게 안쪽을 어둡게 */
   flex: 1;
   min-height: 0;
   padding: 0 16px 24px;
@@ -181,46 +216,37 @@ flex: 1;
 }
 .fridge-interior::-webkit-scrollbar { width: 4px; }
 .fridge-interior::-webkit-scrollbar-thumb {
-  background: rgba(100,150,200,0.25); border-radius: 2px;
+  background: #D0E8F8;; border-radius: 2px;
 }
 
-/* 천장 조명 */
 .fridge-ceiling-light {
   width: calc(100% + 32px);
   margin-left: -16px;
   height: 18px;
-  background: linear-gradient(180deg,rgba(220,240,255,0.9) 0%,transparent 100%);
+  background: #ffffff; /* 그라데이션 제거 */
   margin-bottom: 16px;
   flex-shrink: 0;
   position: relative;
 }
 .fridge-ceiling-light::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 4px;
-  transform: translateX(-50%);
-  width: 50%; height: 5px;
-  background: linear-gradient(90deg,transparent,rgba(200,235,255,0.8),transparent);
-  border-radius: 999px;
-  filter: blur(3px);
+  display: none; /* 그라데이션 제거 */
 }
 
 .fridge-shelf-section { display: flex; flex-direction: column; margin-bottom: 4px; }
 
 .shelf-glass {
   width: 100%; height: 8px;
-  background: linear-gradient(180deg,rgba(160,200,240,0.45) 0%,rgba(80,140,200,0.12) 100%);
-  border-top: 1.5px solid rgba(180,220,255,0.65);
+  background: #f2ede3; /* 하늘색 유리 느낌 */
+  border-top: 1.5px solid rgba(245, 247, 248, 0.6);
   border-radius: 2px;
-  box-shadow: 0 2px 6px rgba(40,100,180,0.15), inset 0 1px 0 rgba(255,255,255,0.5);
   margin-top: 10px;
 }
 
 /* ══ 8. 재료 그리드 & 카드 ══════════════════════════════ */
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(6, 1fr); /* 한 줄에 6개 배치 */
+  gap: 10px;
   position: relative;
   z-index: 2;
 }
@@ -230,14 +256,12 @@ flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 6px 11px;
-  background: linear-gradient(145deg,rgba(255,255,255,0.93),rgba(230,245,255,0.86));
-  border: 1.5px solid rgba(140,190,240,0.45);
+  gap: 8px;
+  padding: 16px 6px 14px; /* 6개에 맞춰 패딩 소폭 축소 */
+  background: linear-gradient(145deg, #F0F9FF, #E1F5FE); /* 하늘색 아이콘 카드 */
+  border: 1.5px solid #B3E5FC;
   border-radius: 18px;
   cursor: pointer;
-  transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s;
-  box-shadow: 0 3px 8px rgba(60,100,160,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
   animation: popIn 0.3s var(--ease-bounce) both;
 }
 @keyframes popIn { from{transform:scale(0.5);opacity:0;} to{transform:scale(1);opacity:1;} }
@@ -249,12 +273,11 @@ flex: 1;
 .fridge-item:hover .remove-btn { opacity: 1; transform: scale(1); }
 
 .item-emoji {
-  font-size: 2.3rem; line-height: 1;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.12));
+  font-size: 2rem; line-height: 1;
 }
 .item-name {
   font-family: var(--font-title);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #2a3f55;
   text-align: center;
   word-break: keep-all;
@@ -262,11 +285,11 @@ flex: 1;
 }
 
 .qty-badge {
-  font-size: 0.8rem; font-weight: 700;
+  font-size: 0.9rem; font-weight: 700;
   color: white;
-  background: var(--accent-green);
+  background: var(--accent-orange);
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   white-space: nowrap;
 }
 .qty-badge--empty {
@@ -280,7 +303,6 @@ flex: 1;
   background: #e04040; border: none; border-radius: 50%;
   color: white; font-size: 0.8rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 6px rgba(200,0,0,0.3);
   opacity: 0; transform: scale(0.6);
   transition: opacity 0.15s, transform 0.15s var(--ease-bounce);
   z-index: 10;
@@ -292,29 +314,28 @@ flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 14px 6px 11px;
-  background: rgba(255,255,255,0.5);
-  border: 2px dashed rgba(100,150,210,0.4);
+  gap: 10px;
+  padding: 20px 8px 16px;
+  background: rgba(225, 245, 254, 0.4);
+  border: 2px dashed #81D4FA; /* 하늘색 점선 */
   border-radius: 18px;
   cursor: pointer;
   transition: all 0.2s var(--ease-bounce);
-  min-height: 100px;
+  min-height: 130px;
 }
 .fridge-add-card:hover {
-  background: rgba(255,255,255,0.75);
+  background: rgba(225, 245, 254, 0.8);
   border-color: var(--accent-green);
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(46,196,182,0.15);
 }
 .add-card-plus {
-  font-size: 1.95rem; color: rgba(80,140,200,0.55);
+  font-size: 1.95rem; color: #81D4FA;
   font-weight: 300; line-height: 1; transition: color 0.2s;
 }
 .fridge-add-card:hover .add-card-plus { color: var(--accent-green); }
 .add-card-text {
   font-family: var(--font-title); font-size: 0.9rem;
-  color: rgba(60,100,150,0.6); text-align: center; transition: color 0.2s;
+  color: #4FC3F7; text-align: center; transition: color 0.2s;
 }
 .fridge-add-card:hover .add-card-text { color: var(--accent-green); }
 
@@ -329,7 +350,7 @@ flex: 1;
 
 /* ══ 9. 하단 액션 바 ════════════════════════════════════ */
 .fridge-bottom {
-  background: #f5ede0;
+  background: #D0E8F8; /* 그라데이션 제거 후 상단과 통일 */
   border-top: 1.5px solid rgba(0,0,0,0.08);
   padding: 8px 16px 8px 20px;
   display: flex;
@@ -343,8 +364,8 @@ flex: 1;
 }
 
 .item-count {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-family: var(--font-title);
+  font-size: 1.2rem;
   color: #5a4a32;
 }
 
@@ -354,27 +375,24 @@ flex: 1;
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--accent-green);
+  width: auto;
+  padding: 0 24px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--accent-orange); /* 주황색 테마 적용 */
   border: none;
   cursor: pointer;
-  box-shadow: 0 5px 0 #0E6A5A, 0 8px 24px rgba(46,196,182,0.4);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   transition: all 0.2s var(--ease-bounce);
-  font-size: 2.15rem;
   z-index: 10;
 }
-.add-btn:hover  { transform: translateY(calc(-50% - 4px)) scale(1.06); }
+.add-btn:hover  { transform: translateY(-50%) scale(1.04); }
 .add-btn:active { transform: translateY(-50%) scale(0.96); }
 .add-btn-label {
   font-family: var(--font-title);
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: white;
   line-height: 1;
 }
@@ -404,7 +422,6 @@ flex: 1;
   max-height: 80vh;
   overflow-y: auto;
   border-top: 4px solid var(--accent-orange);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.14);
 }
 
 /* 드래그 핸들 */
@@ -449,7 +466,6 @@ flex: 1;
 .search-wrap:focus-within {
   border-color: var(--accent-orange);
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 .search-icon { font-size: 1rem; flex-shrink: 0; }
 .search-inp {
@@ -487,7 +503,6 @@ flex: 1;
 .cat-tab-btn.active {
   background: var(--accent-orange); color: white;
   border-color: var(--accent-orange);
-  box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
 }
 
 .tab-badge {
@@ -523,7 +538,6 @@ flex: 1;
 .ing-chip.selected {
   border-color: var(--accent-orange);
   background: rgba(255, 107, 53, 0.08);
-  box-shadow: 0 2px 12px rgba(255, 107, 53, 0.2);
 }
 
 .chip-emoji { font-size: 1.65rem; line-height: 1; }
@@ -556,11 +570,10 @@ flex: 1;
   padding: 10px 18px; background: var(--accent-green);
   border: none; border-radius: 10px; color: white;
   font-family: var(--font-title); font-size: 0.95rem; font-weight: 700;
-  cursor: pointer; box-shadow: 0 3px 0 #1A9A8A; transition: transform 0.15s;
   white-space: nowrap;
 }
 .direct-btn:hover  { transform: translateY(-1px); }
-.direct-btn:active { transform: translateY(1px); box-shadow: none; }
+.direct-btn:active { transform: translateY(1px); }
 
 /* ══ 11. AI 모달 (먹고 싶은 음식) ══════════════════════ */
 .modal-overlay {
@@ -578,7 +591,6 @@ flex: 1;
   background: #f5ede0; border-radius: 22px;
   border: 1px solid rgba(0,0,0,0.08);
   display: flex; flex-direction: column; overflow: hidden;
-  box-shadow: 0 24px 70px rgba(0,0,0,0.45);
   animation: modalPop 0.28s cubic-bezier(0.34,1.2,0.64,1);
 }
 @keyframes modalPop {
@@ -613,6 +625,12 @@ flex: 1;
   background: rgba(255,255,255,0.12); border-radius: 2px;
 }
 
+/* 레시피 AI 요약 숨김 처리 */
+.recipe-ai-summary,
+.ai-summary {
+  display: none !important;
+}
+
 /* 로딩 */
 .loading-wrap {
   display: flex; flex-direction: column; align-items: center;
@@ -635,36 +653,35 @@ flex: 1;
   border-radius: 22px; padding: 26px 24px 22px;
   width: 310px; max-width: 90vw;
   display: flex; flex-direction: column; gap: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
   animation: popIn 0.25s var(--ease-bounce) both;
 }
 .qty-modal-top { display: flex; align-items: center; gap: 12px; }
 .qty-modal-emoji {
   font-size: 2.55rem;
-  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); flex-shrink: 0;
 }
 .qty-modal-name {
   flex: 1; font-family: var(--font-title); font-size: 1.3rem; color: #2a1f0e;
 }
 .qty-modal-label { font-size: 0.95rem; color: #8a7a60; margin-bottom: -4px; }
 
-.qty-input-row { display: flex; gap: 8px; }
+.qty-input-row { display: flex; gap: 8px; align-items: stretch; }
 .qty-number-inp {
-  flex: 1; padding: 11px 12px;
+  flex: 1; padding: 11px 8px;
   background: rgba(255,255,255,0.6);
   border: 1px solid rgba(0,0,0,0.15); border-radius: 11px;
   color: #2a1f0e; font-family: var(--font-body); font-size: 1.1rem; outline: none;
+  min-width: 0;
   transition: border-color 0.15s;
 }
 .qty-number-inp:focus { border-color: var(--accent-green); }
 .qty-number-inp::placeholder { color: rgba(0,0,0,0.3); }
 
 .unit-select {
-  padding: 11px 10px;
+  padding: 11px 4px;
   background: rgba(255,255,255,0.6);
   border: 1px solid rgba(0,0,0,0.15); border-radius: 11px;
   color: #2a1f0e; font-family: var(--font-body); font-size: 1.05rem;
-  outline: none; cursor: pointer; min-width: 75px;
+  outline: none; cursor: pointer; width: 60px;
 }
 
 .qty-btn-row { display: flex; gap: 10px; }
@@ -680,7 +697,7 @@ flex: 1;
   flex: 2; padding: 11px;
   background: var(--accent-green); border: none; border-radius: 11px;
   color: white; font-family: var(--font-title); font-size: 1.05rem;
-  cursor: pointer; box-shadow: 0 2px 0 #1A9A8A; transition: transform 0.15s;
+  cursor: pointer; transition: transform 0.15s;
 }
 .qty-save-btn:hover { transform: translateY(-2px); }
 
@@ -703,9 +720,9 @@ flex: 1;
 .expired-tag { background: #E53535; }
 
 @keyframes pulse-border {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
-  70%  { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
+  0%   { opacity: 1; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 /* 유통기한 date input */
@@ -719,11 +736,18 @@ flex: 1;
 
 /* ══ 14. 반응형 ════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .page-title  { font-size: 1.45rem; }
+  .page-header { padding: 12px 16px 8px; }
+  .page-title  { font-size: 1.5rem; }
+  .header-user-btn { padding: 6px 12px; }
+  .header-user-emoji { font-size: 1.1rem; }
+  .header-user-name { font-size: 0.95rem; }
+  .header-logout-btn { padding: 6px 12px; font-size: 0.95rem; }
   .ai-btn      { padding: 7px 12px; font-size: 0.95rem; }
-  .items-grid  { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
-  .item-emoji  { font-size: 2.15rem; }
+  .items-grid  { grid-template-columns: repeat(4, 1fr); gap: 8px; } /* 모바일에서는 4개로 조정 */
+  .fridge-item { padding: 12px 4px 10px; }
+  .item-emoji  { font-size: 1.8rem; }
   .item-name   { font-size: 0.85rem; }
   .remove-btn  { opacity: 1; transform: scale(1); }
-  .add-btn     { width: 80px; height: 80px; font-size: 1.6rem; right: 14px; }
+  .add-btn     { height: 46px; padding: 0 16px; right: 14px; }
+  .add-btn-label { font-size: 0.95rem; }
 }

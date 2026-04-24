@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import '../../Styles/user/CartPage.css';
 
 const INIT_CART = [
   { id: 1, name: '소고기', price: 15000, emoji: '🥩', desc: '스테이크용 200g' },
   { id: 2, name: '애호박', price: 2000,  emoji: '🥒', desc: '된장찌개용 1개' },
-  { id: 3, name: '두부',   price: 1500,  emoji: '⬜', desc: '찌개용 1모' },
+  { id: 3, name: '두부',   price: 1500,  emoji: '🌫️', desc: '찌개용 1모' },
 ];
 
 const CartPage = ({ onPurchase }) => {
@@ -21,6 +22,13 @@ const CartPage = ({ onPurchase }) => {
     localStorage.setItem('cartItems', JSON.stringify(saved.filter(i => i.name !== item.name)));
   };
 
+  const handleRemove = (item) => {
+    if (!window.confirm(`'${item.name}'을(를) 장바구니에서 삭제하시겠습니까?`)) return;
+    setCartItems(prev => prev.filter(i => i.id !== item.id));
+    const saved = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    localStorage.setItem('cartItems', JSON.stringify(saved.filter(i => i.name !== item.name)));
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {cartItems.length === 0 ? (
@@ -31,8 +39,7 @@ const CartPage = ({ onPurchase }) => {
         <div key={item.id} style={{
           display: 'flex', alignItems: 'center', padding: '16px',
           background: 'white', borderRadius: '18px',
-          border: '1.5px solid rgba(144,80,200,0.2)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          border: '1.5px solid rgba(255,107,53,0.2)',
         }}>
           <span style={{ fontSize: '2rem', marginRight: '15px' }}>{item.emoji}</span>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -43,20 +50,28 @@ const CartPage = ({ onPurchase }) => {
             display: 'flex', flexDirection: 'column',
             alignItems: 'flex-end', gap: '6px',
           }}>
-            <span style={{ fontWeight: 700, color: '#9050c8' }}>
+            <span style={{ fontWeight: 700, color: '#FF6B35' }}>
               {item.price.toLocaleString()}원
             </span>
-            <button
-              onClick={() => handleBuy(item)}
-              style={{
-                background: 'linear-gradient(135deg, #9050c8, #7040a8)',
-                color: 'white', border: 'none', padding: '6px 14px',
-                borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer',
-                boxShadow: '0 3px 0 #5a3088', fontWeight: 700,
-              }}
-            >
-              구매 완료
-            </button>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                className="cart-remove-btn"
+                onClick={() => handleRemove(item)}
+              >
+                삭제
+              </button>
+              <button
+                onClick={() => handleBuy(item)}
+                style={{
+                  background: '#FF6B35',
+                  color: 'white', border: 'none', padding: '6px 14px',
+                  borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer',
+                  fontWeight: 700,
+                }}
+              >
+                구매 완료
+              </button>
+            </div>
           </div>
         </div>
       ))}

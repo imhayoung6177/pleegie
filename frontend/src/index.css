@@ -4,9 +4,10 @@
 
 /* ── 전역 CSS 변수 ──────────────────────────────────────── */
 :root {
-  /* 폰트 */
-  --font-main: 'Noto Serif KR', 'Georgia', serif;
-  --font-body: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  /* 폰트 하나로 통일 */
+  --font-main: 'Jua', sans-serif; /* 대표/메인 폰트 */
+  --font-body: 'Jua', sans-serif; /* 본문용 폰트 */
+  --font-title: 'Jua', sans-serif;
 
   /* 배경·크림 계열 */
   --bg-wall:    #f5ede0;
@@ -29,7 +30,7 @@
 
   /* 공통 */
   --radius-pill: 999px;
-  --shadow-card: 0 4px 0 #b8a070, 0 6px 16px rgba(0,0,0,0.18);
+  --shadow-card: none;
 }
 
 /* 박스 모델 통일 */
@@ -37,6 +38,14 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* 스크롤바 숨기기 (IE, Edge, Firefox) */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 스크롤바 숨기기 (Chrome, Safari, Opera) */
+*::-webkit-scrollbar {
+  display: none;
 }
 
 /* html, body 에 height 절대 고정하지 않음

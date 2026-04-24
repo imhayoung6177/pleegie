@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../../Styles/user/MyPage.css';
 import '../../Styles/auth/AuthPage.css';
 import '../../Styles/auth/RegisterPage.css';
@@ -14,13 +15,15 @@ import CartPage    from './CartPage';
 ══════════════════════════════════════════════════════════ */
 const MENU = [
   { id: 'profile', emoji: '✏️', label: '회원정보 수정', desc: '이름·비밀번호·주소 변경',
-    color: '#3a90c8', bg: 'rgba(58,144,200,0.07)', border: 'rgba(58,144,200,0.18)' },
+    color: '#FF6B35', bg: 'rgba(255,107,53,0.07)', border: 'rgba(255,107,53,0.18)' },
   { id: 'ledger',  emoji: '📒', label: '가계부',       desc: '식재료 지출 내역 관리',
-    color: '#2aaa78', bg: 'rgba(42,170,120,0.07)', border: 'rgba(42,170,120,0.18)' },
+    color: '#FF6B35', bg: 'rgba(255,107,53,0.07)', border: 'rgba(255,107,53,0.18)' },
   { id: 'recipes', emoji: '📖', label: '레시피북',     desc: '저장한 레시피 모아보기',
-    color: '#e0902a', bg: 'rgba(224,144,42,0.07)', border: 'rgba(224,144,42,0.18)' },
+    color: '#FF6B35', bg: 'rgba(255,107,53,0.07)', border: 'rgba(255,107,53,0.18)' },
   { id: 'cart',    emoji: '🛒', label: '장바구니',     desc: '구매 예정 재료 목록',
-    color: '#9050c8', bg: 'rgba(144,80,200,0.07)', border: 'rgba(144,80,200,0.18)' },
+    color: '#FF6B35', bg: 'rgba(255,107,53,0.07)', border: 'rgba(255,107,53,0.18)' },
+  { id: 'stamp',   emoji: '🎫', label: '스탬프 현황',   desc: '나의 리워드 혜택',
+    color: '#FF6B35', bg: 'rgba(255,107,53,0.07)', border: 'rgba(255,107,53,0.18)' },
 ];
 
 /* ══════════════════════════════════════════════════════════
@@ -29,41 +32,24 @@ const MENU = [
      모두 이 흰색 박스 안에 들어감
 ══════════════════════════════════════════════════════════ */
 const PageCard = ({ emoji, title, onBack, children }) => (
-  <div style={{
-    minHeight: '100vh',
-    background: '#fdf6ee',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '32px 16px 60px',
-    boxSizing: 'border-box',
-  }}>
-    <div style={{
-      width: '100%',
-      maxWidth: '480px',
-      background: '#ffffff',
-      borderRadius: '20px',
-      borderTop: '4px solid #FF6B35',
-      padding: '32px 28px 40px',
-      boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-      boxSizing: 'border-box',
-    }}>
+  <div className="mypage-subpage">
+    <div className="mypage-white-box">
       {/* 로고 */}
       <div style={{
         textAlign: 'center',
-        fontFamily: "'Jua', sans-serif",
+        fontFamily: 'var(--font-title)',
         fontSize: '1.8rem',
         color: '#FF6B35',
         fontWeight: 700,
         marginBottom: '8px',
       }}>
-        Pleege
+        pleegie
       </div>
 
       {/* 타이틀 */}
-      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '28px', flexShrink: 0 }}>
         <h2 style={{
-          fontFamily: "'Jua', sans-serif",
+          fontFamily: 'var(--font-title)',
           fontSize: '1.5rem',
           color: '#2a1f0e',
           margin: '0 0 4px',
@@ -74,15 +60,19 @@ const PageCard = ({ emoji, title, onBack, children }) => (
       </div>
 
       {/* 내용 */}
-      {children}
+      <div style={{ width: '100%' }}>
+        {children}
+      </div>
 
       {/* 뒤로가기 */}
-      <div className="auth-divider" style={{ margin: '24px 0 16px' }}>
-        <span>다른 메뉴로 이동할까요?</span>
+      <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+        <div className="auth-divider" style={{ margin: '24px 0 16px' }}>
+          <span>다른 메뉴로 이동할까요?</span>
+        </div>
+        <button className="auth-link-btn" onClick={onBack}>
+          마이페이지로 돌아가기
+        </button>
       </div>
-      <button className="auth-link-btn" onClick={onBack}>
-        마이페이지로 돌아가기
-      </button>
     </div>
   </div>
 );
@@ -110,6 +100,10 @@ const WithdrawModal = ({ userName, onConfirm, onClose }) => (
    메인 MyPage
 ══════════════════════════════════════════════════════════ */
 export default function MyPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'main';
+
   const userName = localStorage.getItem('userName') || '이종빈';
   const userRole = localStorage.getItem('userRole') === 'SHOP' ? '소상공인' : '일반 회원';
 
@@ -121,7 +115,6 @@ export default function MyPage() {
     address: '서울시 구로구 디지털로 300',
   };
 
-  const [activeTab,    setActiveTab]    = useState('main');
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [ledgerItems,  setLedgerItems]  = useState([]);
 
@@ -133,6 +126,7 @@ export default function MyPage() {
     }, ...prev]);
   };
 
+  const setActiveTab = (tab) => setSearchParams(tab === 'main' ? {} : { tab });
   const goBack = () => setActiveTab('main');
 
   // ✅ 각 탭 → PageCard로 감싸서 흰색 박스 안에 렌더링
@@ -164,13 +158,36 @@ export default function MyPage() {
     );
   }
 
+  if (activeTab === 'stamp') {
+    return (
+      <PageCard emoji="🎫" title="스탬프 현황" onBack={goBack}>
+        <div className="stamp-board">
+          <div className="stamp-summary">
+            <div className="stamp-summary-title">현재 모은 스탬프</div>
+            <div className="stamp-summary-count">4 / 10</div>
+          </div>
+          <div className="stamp-grid">
+            {Array.from({ length: 10 }, (_, i) => (
+              <div key={i} className={`stamp-cell ${i < 4 ? 'filled' : ''}`}>
+                {i < 4 ? '💮' : ''}
+              </div>
+            ))}
+          </div>
+          <div className="stamp-info">
+            스탬프 10개를 모두 모으면 특별한 혜택이 주어집니다!
+          </div>
+        </div>
+      </PageCard>
+    );
+  }
+
   // ✅ main 탭
   return (
     <div className="mypage">
 
       {/* 헤더 */}
       <div className="mp-header">
-        <button className="mp-back-btn" onClick={() => window.history.back()}>
+        <button className="mp-back-btn" onClick={() => navigate(-1)}>
           ← 냉장고
         </button>
         <span className="mp-header-title">마이페이지</span>
@@ -202,15 +219,10 @@ export default function MyPage() {
               <span className="mp-detail-val">{userInfo.address}</span>
             </div>
           </div>
-          <div className="mp-stamp-row">
-            {Array.from({ length: 10 }, (_, i) => (
-              <div key={i} className={`mp-stamp-dot ${i < 4 ? 'filled' : ''}`} />
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* 2×2 메뉴 그리드 */}
+      {/* 메뉴 리스트 */}
       <div className="mp-menu-list">
         {MENU.map(item => (
           <button
@@ -228,6 +240,7 @@ export default function MyPage() {
               <strong className="mp-item-label">{item.label}</strong>
               <span className="mp-item-desc">{item.desc}</span>
             </div>
+            <span className="mp-item-arrow">›</span>
           </button>
         ))}
       </div>
@@ -236,7 +249,7 @@ export default function MyPage() {
       {withdrawOpen && (
         <WithdrawModal
           userName={userInfo.name}
-          onConfirm={() => { localStorage.clear(); window.location.href = '/'; }}
+          onConfirm={() => { localStorage.clear(); navigate('/'); }}
           onClose={() => setWithdrawOpen(false)}
         />
       )}

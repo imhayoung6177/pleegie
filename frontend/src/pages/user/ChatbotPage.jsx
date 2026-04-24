@@ -5,7 +5,7 @@ import "../../Styles/user/ChatbotPage.css"; // 전용 CSS
 const ChatbotPage = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([
-    { id: 1, type: "bot", text: "안녕하세요! Pleege AI 챗봇입니다. 🍎\n냉장고 재료 관리나 레시피, 시장 할인 정보에 대해 무엇이든 물어보세요!" }
+    { id: 1, type: "bot", text: "안녕하세요! Pleegie AI 챗봇입니다. 🍎\n냉장고 재료 관리나 레시피, 시장 할인 정보에 대해 무엇이든 물어보세요!" }
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -50,7 +50,7 @@ const ChatbotPage = () => {
           <button className="chat-back-btn" onClick={() => navigate(-1)}>←</button>
           <div className="chat-header-info">
             <span className="chat-bot-status">●</span>
-            <h2 className="chat-title">Pleege AI 가이드</h2>
+            <h2 className="chat-title">Pleegie AI 가이드</h2>
           </div>
           <button className="chat-close-btn" onClick={() => navigate("/user/fridge")}>✕</button>
         </div>

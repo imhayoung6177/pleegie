@@ -1,13 +1,12 @@
 /* ══════════════════════════════════════════════════════════
    RecipeRecommendPage.css
 ══════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 :root {
-  --accent-green:  #2EC4B6;
+  --accent-green:  #FF6B35; /* 모든 포인트를 주황색으로 통일 */
   --accent-orange: #FF6B35;
   --font-title:    'Jua', sans-serif;
-  --font-body:     'Noto Sans KR', sans-serif;
+  --font-body:     'Jua', sans-serif;
   --bg-cream:      #f5ede0;
   --text-dark:     #2a1f0e;
   --text-muted:    #8a7a60;
@@ -15,11 +14,24 @@
 
 /* ══ 페이지 레이아웃 ═══════════════════════════════════ */
 .rrp-page {
-  min-height: 100vh;
+  height: calc(100vh - 88px);
   background: var(--bg-cream);
   display: flex;
   flex-direction: column;
   font-family: var(--font-body);
+}
+
+.rrp-page::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 88px;
+  background:
+    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
+    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ══ 헤더 ══════════════════════════════════════════════ */
@@ -28,13 +40,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  background: rgba(255,255,255,0.6);
-  border-bottom: 1.5px solid rgba(0,0,0,0.07);
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
+  background: transparent;
+  border-bottom: none;
+  position: relative; /* sticky 고정을 해제하여 스크롤 시 자연스럽게 올라가게 함 (중첩 방지) */
   z-index: 10;
   flex-shrink: 0;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .rrp-header-back {
@@ -59,10 +72,15 @@
 /* ══ 바디 ═══════════════════════════════════════════════ */
 .rrp-body {
   flex: 1;
-  padding: 20px 18px 40px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 32px 28px 40px;
   max-width: 600px;
   width: 100%;
-  margin: 0 auto;
+  margin: 10px auto 20px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   box-sizing: border-box;
 }
 
@@ -112,7 +130,6 @@
 }
 .rrp-recipe-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
   border-color: rgba(46,196,182,0.4);
 }
 .rrp-card-left {
@@ -140,7 +157,7 @@
 }
 .rrp-match-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-green), #1A9A8A);
+  background: var(--accent-orange);
   border-radius: 999px;
   transition: width 0.6s ease;
 }
@@ -154,8 +171,8 @@
   font-size: 0.82rem; white-space: nowrap;
 }
 .rrp-tag--have {
-  background: rgba(46,196,182,0.12); color: #1A9A8A;
-  border: 1px solid rgba(46,196,182,0.3);
+  background: rgba(255,107,53,0.1); color: var(--accent-orange);
+  border: 1px solid rgba(255,107,53,0.3);
 }
 .rrp-tag--missing {
   background: rgba(255,107,53,0.1); color: #d95f2e;
@@ -182,8 +199,8 @@
   animation: rrpUpcomingPulse 2s ease-in-out infinite;
 }
 @keyframes rrpUpcomingPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,193,7,0.3); }
-  50%     { box-shadow: 0 0 0 5px rgba(255,193,7,0); }
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.6; }
 }
 .rrp-badge--on-sale {
   background: rgba(229,53,53,0.12); color: #c82020;
@@ -191,8 +208,8 @@
   animation: rrpOnSalePulse 1.5s ease-in-out infinite;
 }
 @keyframes rrpOnSalePulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(229,53,53,0.3); }
-  50%     { box-shadow: 0 0 0 6px rgba(229,53,53,0); }
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.6; }
 }
 
 /* ══ 상세 뷰 ════════════════════════════════════════════ */
@@ -212,7 +229,7 @@
   padding: 8px 16px;
   font-family: var(--font-title);
   font-size: 0.88rem;
-  color: var(--accent-green);
+  color: var(--accent-orange);
   cursor: pointer;
   align-self: flex-start;
   transition: background 0.15s;
@@ -239,13 +256,7 @@
    ✅ AI 요약 섹션
 ══════════════════════════════════════════════════════════ */
 .rrp-ai-section {
-  background: linear-gradient(135deg, rgba(46,196,182,0.08), rgba(46,196,182,0.04));
-  border: 1.5px solid rgba(46,196,182,0.25);
-  border-radius: 16px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: none !important; /* 요청하신 대로 AI 요약 영역 완전히 제거 */
 }
 
 .rrp-ai-header {
@@ -256,26 +267,25 @@
 .rrp-ai-label {
   font-family: var(--font-title);
   font-size: 1rem;
-  color: #1A9A8A;
+  color: var(--accent-orange);
 }
 
 /* AI 요약 버튼 */
 .rrp-ai-btn {
   display: flex; align-items: center; gap: 6px;
   padding: 9px 18px;
-  background: linear-gradient(135deg, var(--accent-green), #1A9A8A);
+  background: var(--accent-orange);
   border: none; border-radius: 10px;
   color: white;
   font-family: var(--font-title);
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 3px 0 #0E6A5A;
   transition: transform 0.15s;
 }
 .rrp-ai-btn:hover:not(:disabled) { transform: translateY(-1px); }
-.rrp-ai-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.rrp-ai-btn:active:not(:disabled) { transform: translateY(1px); }
 .rrp-ai-btn--loading {
-  background: rgba(46,196,182,0.6);
+  background: rgba(255,107,53,0.6);
   box-shadow: none;
   cursor: wait;
 }
@@ -294,7 +304,7 @@
   background: rgba(255,255,255,0.6);
   border-radius: 12px;
   padding: 14px 16px;
-  border: 1px solid rgba(46,196,182,0.2);
+  border: 1px solid rgba(255,107,53,0.2);
 }
 .rrp-ai-text {
   font-family: var(--font-body);
@@ -307,7 +317,7 @@
 /* 타이핑 커서 */
 .rrp-ai-cursor {
   display: inline-block;
-  color: var(--accent-green);
+  color: var(--accent-orange);
   font-weight: 700;
   animation: rrpBlink 0.7s step-end infinite;
 }
@@ -332,19 +342,18 @@
   transition: transform 0.15s, background 0.4s, box-shadow 0.4s;
 }
 .rrp-save-btn--idle {
-  background: linear-gradient(135deg, var(--accent-green), #1A9A8A);
+  background: var(--accent-orange);
   color: white;
-  box-shadow: 0 4px 0 #0E6A5A, 0 6px 20px rgba(46,196,182,0.25);
 }
 .rrp-save-btn--idle:hover { transform: translateY(-2px); }
-.rrp-save-btn--idle:active { transform: translateY(1px); box-shadow: 0 2px 0 #0E6A5A; }
+.rrp-save-btn--idle:active { transform: translateY(1px); }
 .rrp-save-btn--saving {
-  background: rgba(46,196,182,0.5);
-  color: white; box-shadow: none; cursor: wait;
+  background: rgba(255,107,53,0.5);
+  color: white; cursor: wait;
 }
 .rrp-save-btn--saved {
   background: #e8ddd0; color: #8a7a60;
-  box-shadow: 0 4px 0 #d0c4b4; cursor: default;
+  cursor: default;
 }
 
 /* ══ 섹션 ═══════════════════════════════════════════════ */
@@ -355,7 +364,7 @@
   padding-bottom: 8px;
   border-bottom: 1.5px dashed rgba(0,0,0,0.1);
 }
-.rrp-section-title--have    { color: #1A9A8A; }
+.rrp-section-title--have    { color: var(--accent-orange); }
 .rrp-section-title--missing { color: #d95f2e; }
 
 /* 범례 */
@@ -375,7 +384,7 @@
 .rrp-step  { display: flex; gap: 12px; align-items: flex-start; }
 .rrp-step-num {
   width: 28px; height: 28px; border-radius: 50%;
-  background: var(--accent-green); color: white;
+  background: var(--accent-orange); color: white;
   font-family: var(--font-title); font-size: 0.85rem;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
@@ -395,12 +404,10 @@
 .rrp-missing-card--on_sale {
   background: rgba(229,53,53,0.04);
   border-color: rgba(229,53,53,0.4);
-  box-shadow: 0 2px 12px rgba(229,53,53,0.1);
 }
 .rrp-missing-card--upcoming {
   background: rgba(255,193,7,0.04);
   border-color: rgba(255,193,7,0.4);
-  box-shadow: 0 2px 12px rgba(255,193,7,0.1);
 }
 
 .rrp-missing-top {
@@ -446,26 +453,26 @@
 .rrp-buy-btn:hover  { transform: translateY(-1px); }
 .rrp-buy-btn:active { transform: translateY(1px); }
 .rrp-buy-btn--none {
-  background: linear-gradient(135deg, var(--accent-green), #1A9A8A);
-  color: white; box-shadow: 0 3px 0 #0E6A5A;
+  background: var(--accent-orange);
+  color: white;
 }
 .rrp-buy-btn--upcoming {
-  background: linear-gradient(135deg, #ffc107, #e6a800);
-  color: #3d2e00; box-shadow: 0 3px 0 #b38600;
+  background: #ffc107;
+  color: #3d2e00;
   animation: rrpUpcomingBtn 2s ease-in-out infinite;
 }
 @keyframes rrpUpcomingBtn {
-  0%,100% { box-shadow: 0 3px 0 #b38600, 0 0 0 0 rgba(255,193,7,0.4); }
-  50%     { box-shadow: 0 3px 0 #b38600, 0 0 0 8px rgba(255,193,7,0); }
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.7; }
 }
 .rrp-buy-btn--on_sale {
-  background: linear-gradient(135deg, #E53535, #C82020);
-  color: white; box-shadow: 0 3px 0 #A01010;
+  background: #E53535;
+  color: white;
   animation: rrpOnSaleBtn 1.5s ease-in-out infinite;
 }
 @keyframes rrpOnSaleBtn {
-  0%,100% { box-shadow: 0 3px 0 #A01010, 0 0 0 0 rgba(229,53,53,0.4); }
-  50%     { box-shadow: 0 3px 0 #A01010, 0 0 0 8px rgba(229,53,53,0); }
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0.7; }
 }
 
 /* ══ 토스트 ══════════════════════════════════════════════ */

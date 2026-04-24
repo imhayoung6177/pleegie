@@ -1,13 +1,11 @@
 /* SubPages.css — 서브페이지 공통 레이아웃 */
 
-@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
-
 /* ── 페이지 래퍼 ──────────────────────────────────────── */
 .subpage {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   background-color: #f5ede0;
   background-image:
     linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
@@ -51,7 +49,7 @@
   border: 1.5px solid rgba(100,160,220,0.3);
   border-radius: 999px;
   color: rgba(160,210,250,0.9);
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   padding: 6px 14px;
   cursor: pointer;
@@ -62,7 +60,7 @@
 .sp-back-btn:hover { background: rgba(255,255,255,0.14); }
 
 .sp-header-title {
-  font-family: 'Gaegu', cursive;
+  font-family: var(--font-title);
   font-size: 1.25rem;
   color: #a8d8f0;
   letter-spacing: 1px;
@@ -91,7 +89,7 @@
 
 /* ── 섹션 타이틀 ───────────────────────────────────────── */
 .sp-section-title {
-  font-family: 'Gaegu', cursive;
+  font-family: var(--font-title);
   font-size: 1rem;
   color: #a8d8f0;
   margin-bottom: 14px;
@@ -115,7 +113,7 @@
   border: 1.5px solid rgba(80,140,200,0.3);
   border-radius: 12px;
   color: #c8e8ff;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -135,15 +133,15 @@
 /* ── 버튼 공통 ─────────────────────────────────────────── */
 .sp-btn-primary {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #3a90c8, #2870a8);
+  background: #FF6B35;
   border: none;
   border-radius: 12px;
   color: white;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 0 #1a5080;
+  box-shadow: 0 3px 0 #C04010;
   transition: transform 0.15s;
   width: 100%;
 }
@@ -157,7 +155,7 @@
   border: 1.5px solid rgba(80,140,200,0.25);
   border-radius: 10px;
   color: rgba(160,200,240,0.8);
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   cursor: pointer;
   transition: background 0.15s;
@@ -171,7 +169,7 @@
   border: 1.5px solid rgba(200,50,50,0.3);
   border-radius: 10px;
   color: #ff9090;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
   cursor: pointer;
   transition: background 0.15s;

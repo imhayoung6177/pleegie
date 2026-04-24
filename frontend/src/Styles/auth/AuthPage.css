@@ -1,31 +1,30 @@
 /* AuthPage.css — 구해줘 재료즈 / 컬러풀 & 생동감 */
-@import url('https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 :root {
   --c-primary:#FF6B35; --c-primary-dk:#D94F1E;
   --c-green:#2EC4B6; --c-green-dk:#1A9A8A;
   --c-yellow:#FFD166; --c-purple:#9B5DE5; --c-pink:#F15BB5;
   --c-bg:#FFF8EE; --c-text:#1A1A2E; --c-text-mid:#4A4A6A;
-  --font-display:'Black Han Sans','Jua',sans-serif;
+  --font-display:'Jua',sans-serif;
   --font-title:'Jua',sans-serif;
-  --font-body:'Noto Sans KR',sans-serif;
+  --font-body:'Jua',sans-serif;
   --ease-bounce:cubic-bezier(0.34,1.56,0.64,1);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
 /* 배경 */
 .auth-bg {
-  min-height:100vh;
-  display:flex; align-items:center; justify-content:center;
-  padding:24px 16px 120px;
-  position:relative; overflow:hidden;
-  background-color:#FFF8EE;
+  height: calc(100vh - 88px);
+  display: flex; flex-direction: column;
+  padding: 24px 16px;
+  position: relative; 
+  overflow-y: auto; overflow-x: hidden;
+  background-color:#f5ede0;
 }
 .auth-bg::after {
   content:''; position:fixed; bottom:0; left:0; right:0; height:88px;
-  background:repeating-linear-gradient(90deg,#E8D0A8 0px,#E8D0A8 59px,#D8BC90 60px,#D8BC90 61px),
-    linear-gradient(180deg,#E8D0A8 0%,#C8A870 100%);
-  border-top:3px solid #C09860; z-index:0; pointer-events:none;
+  background:repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
+    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
+  border-top:3px solid #b89060; z-index:0; pointer-events:none;
 }
 .auth-circle{position:absolute;border-radius:50%;pointer-events:none;}
 .circle-left{width:400px;height:400px;top:-120px;left:-120px;background:radial-gradient(circle,rgba(255,107,53,0.08),transparent 70%);}
@@ -36,15 +35,15 @@
 .auth-card {
   width:100%; max-width:440px;
   background:rgba(255,255,255,0.97);
-  border-radius:28px; border:2px solid rgba(255,107,53,0.12);
+  border-radius:28px; border:1px solid rgba(0,0,0,0.08); /* 로그인 카드 테두리 삭제 */
   padding:36px 32px 32px;
   display:flex; flex-direction:column; gap:0;
   position:relative; z-index:1;
-  box-shadow:0 6px 0 rgba(255,107,53,0.08),0 12px 48px rgba(0,0,0,0.1);
+  margin: auto; /* 스크롤 잘리지 않고 세로 중앙 정렬 보장 */
 }
 .auth-card::before {
   content:''; position:absolute; top:0;left:0;right:0;height:5px;
-  background:#FF6B35;
+  /* background:#FF6B35; */
   border-radius:28px 28px 0 0;
 }
 .register-card{max-width:480px;}
@@ -54,7 +53,7 @@
 /* 로고 */
 .auth-logo{display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:24px;transition:transform 0.2s var(--ease-bounce);}
 .auth-logo:hover{transform:scale(1.03);}
-.auth-logo-text{font-family:var(--font-display);font-size:1.7rem;letter-spacing:-0.5px;color:#FF6B35;}
+.auth-logo-text{font-family:var(--font-title);font-size:1.8rem;letter-spacing:-0.5px;color:#FF6B35;text-transform:lowercase;}
 
 /* 헤더 */
 .auth-header{text-align:center;margin-bottom:28px;}
@@ -85,8 +84,8 @@
   padding:0 14px;
   transition:border-color 0.2s,box-shadow 0.2s;
 }
-.auth-input-wrap:focus-within{border-color:#FF6B35;box-shadow:0 0 0 3px rgba(255,107,53,0.1);}
-.auth-input-wrap.error{border-color:#E53935;background:#FFF5F5;box-shadow:0 0 0 3px rgba(229,57,53,0.08);}
+.auth-input-wrap:focus-within{border-color:rgba(0,0,0,0.3);} /* 포커스 색상 제거 */
+.auth-input-wrap.error{border-color:#E53935;background:#FFF5F5;}
 .auth-input{flex:1;border:none;background:transparent;outline:none;font-family:var(--font-body);font-size:0.95rem;color:#1A1A2E;padding:14px 0;}
 .auth-input::placeholder{color:rgba(150,130,110,0.5);}
 .auth-pw-toggle{background:none;border:none;font-size:0.72rem;color:rgba(255,107,53,0.6);cursor:pointer;font-family:var(--font-body);white-space:nowrap;padding:4px;transition:color 0.15s;}
@@ -104,13 +103,13 @@
 .auth-agree-text a{color:var(--c-primary);text-decoration:underline;cursor:pointer;font-weight:500;}
 
 /* 제출 버튼 */
-.auth-submit-btn{padding:14px;background:#FF6B35;border:none;border-radius:14px;color:white;font-family:var(--font-title);font-size:1.05rem;letter-spacing:0.5px;cursor:pointer;box-shadow:0 4px 0 #C03010;transition:all 0.2s var(--ease-bounce);margin-top:8px;}
+.auth-submit-btn{padding:14px;background:#FF6B35;border:none;border-radius:14px;color:white;font-family:var(--font-title);font-size:1.05rem;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s var(--ease-bounce);margin-top:8px;}
 
-.auth-submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #C03010;}
+.auth-submit-btn:hover{transform:translateY(-2px);}
 
-.auth-submit-btn:active{transform:translateY(0);box-shadow:0 2px 0 #C03010;}
+.auth-submit-btn:active{transform:translateY(0);}
 .auth-submit-btn:disabled{opacity:0.6;cursor:wait;transform:none;}
-.auth-submit-btn.shop{background:#FF6B35;box-shadow:0 4px 0 #B04010;color:white;}
+.auth-submit-btn.shop{background:#FF6B35;color:white;}
 .auth-loading{display:flex;align-items:center;justify-content:center;gap:8px;}
 .auth-spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -125,13 +124,13 @@
 .social-btn:hover{transform:translateY(-2px);}
 .social-btn:active{transform:translateY(0);}
 .social-img-icon{width:22px;height:22px;object-fit:contain;flex-shrink:0;}
-.social-btn.kakao{background:#FEE500;color:#1A1A1A;border-color:#E5CC00;box-shadow:0 3px 0 #C8B200,0 5px 14px rgba(254,229,0,0.25);}
-.social-btn.naver{background:#03C75A;color:white;border-color:#02A84B;box-shadow:0 3px 0 #028A3E,0 5px 14px rgba(3,199,90,0.25);}
-.social-btn.google{background:white;color:#3C4043;border-color:rgba(0,0,0,0.12);box-shadow:0 3px 0 rgba(0,0,0,0.08),0 5px 14px rgba(0,0,0,0.08);}
+.social-btn.kakao{background:#FEE500;color:#1A1A1A;border-color:#E5CC00;}
+.social-btn.naver{background:#03C75A;color:white;border-color:#02A84B;}
+.social-btn.google{background:white;color:#3C4043;border-color:rgba(0,0,0,0.12);}
 
 /* 하단 링크 */
 .auth-link-btn{display:block;width:100%;padding:13px;background:rgba(255,107,53,0.06);border:2px solid rgba(255,107,53,0.2);border-radius:14px;color:var(--c-primary);font-family:var(--font-title);font-size:0.92rem;text-align:center;text-decoration:none;cursor:pointer;transition:all 0.2s var(--ease-bounce);letter-spacing:0.3px;}
-.auth-link-btn:hover{background:rgba(255,107,53,0.1);border-color:rgba(255,107,53,0.4);transform:translateY(-2px);box-shadow:0 4px 14px rgba(255,107,53,0.12);}
+.auth-link-btn:hover{background:rgba(255,107,53,0.1);border-color:rgba(255,107,53,0.4);transform:translateY(-2px);}
 
 @media(max-width:480px){
   .auth-card{padding:28px 20px 24px;border-radius:22px;}
