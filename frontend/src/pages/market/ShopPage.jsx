@@ -321,7 +321,9 @@ export default function ShopPage() {
       {/* ══ 헤더 ══ */}
       <header className="shop-header">
         <div className="shop-header-logo">
-          <span>🏪</span> Pleegie Market
+          <span>
+            {/* 🏪 */}
+            </span> Pleegie Market
         </div>
         <div className="shop-header-right">
           <span className="shop-header-name">{shopName}</span>
@@ -464,11 +466,13 @@ export default function ShopPage() {
 
           {/* 미리보기 */}
           <div className="item-form-field full-width" style={{ alignItems: 'center', justifyContent: 'center', background: 'rgba(255,248,238,0.6)', borderRadius: 12, border: '1.5px dashed rgba(255,107,53,0.2)', padding: '10px' }}>
-            <div style={{ fontSize: '2.8rem', lineHeight: 1 }}>{selectedEmoji}</div>
-            <div style={{ fontFamily: "var(--font-title)", fontSize: '0.88rem', color: '#5a4a32', marginTop: 4 }}>
+            <div style={{ fontSize: '2.8rem', lineHeight: 1 }}>
+              {/* {selectedEmoji} */}
+              </div>
+            <div style={{ fontFamily: "var(--font-title)", fontSize: '1.3rem', color: '#5a4a32', marginTop: 4 }}>
               {form.name || '상품명'}
             </div>
-            <div style={{ fontSize: '0.78rem', color: '#8a7a60' }}>
+            <div style={{ fontSize: '0.9rem', color: '#8a7a60' }}>
               {form.price ? `${Number(form.price).toLocaleString()}${form.unit}` : '가격'}
             </div>
           </div>

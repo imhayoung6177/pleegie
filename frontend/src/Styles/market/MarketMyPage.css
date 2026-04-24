@@ -1,0 +1,726 @@
+/* ══════════════════════════════════════════════════════════
+   MarketMyPage.css  ─  상인 마이페이지
+   MyPage.css 디자인 시스템 동일 적용
+══════════════════════════════════════════════════════════ */
+
+/* ══ 1. 페이지 래퍼 ══ */
+.mmp-page {
+  height: calc(100vh - 88px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  background-color: var(--bg-page);
+}
+
+.mmp-page::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 88px;
+  background:
+    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
+    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ══ 2. 헤더 ══ */
+.mmp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: transparent;
+  border-bottom: 1.5px solid rgba(0,0,0,0.08);
+  position: relative;
+  z-index: 10;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.mmp-back-btn {
+  background: rgba(0,0,0,0.06);
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 999px;
+  color: var(--c-text-mid);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 90px;
+  white-space: nowrap;
+}
+.mmp-back-btn:hover { background: rgba(0,0,0,0.1); }
+
+.mmp-header-title {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  color: var(--c-text);
+  letter-spacing: 0.5px;
+}
+
+/* ══ 3. 프로필 카드 ══ */
+.mmp-profile-card {
+  margin: 20px auto 0;
+  width: calc(100% - 40px);
+  max-width: 600px;
+  border-radius: 20px;
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.82);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07), 0 2px 0 rgba(0,0,0,0.04);
+}
+
+.mmp-avatar {
+  font-size: 2.8rem;
+  width: 68px; height: 68px;
+  background: rgba(255,107,53,0.06);
+  border: 1.5px solid rgba(255,107,53,0.2);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.mmp-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  align-items: center;
+}
+
+.mmp-shop-name {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  color: var(--c-text);
+  letter-spacing: 0.3px;
+}
+
+.mmp-role-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mmp-role-badge {
+  font-size: 0.8rem;
+  color: var(--c-text-soft);
+  background: rgba(255,107,53,0.08);
+  border: 1px solid rgba(255,107,53,0.2);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+.mmp-logout-btn {
+  padding: 5px 12px;
+  background: rgba(220,50,50,0.07);
+  border: 1.5px solid rgba(220,50,50,0.22);
+  border-radius: 999px;
+  color: #C82020;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mmp-logout-btn:hover {
+  background: rgba(220,50,50,0.14);
+  border-color: rgba(220,50,50,0.45);
+}
+
+/* 통계 행 */
+.mmp-stats-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(0,0,0,0.07);
+  width: 100%;
+  justify-content: center;
+}
+
+.mmp-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.mmp-stat-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(0,0,0,0.08);
+}
+
+.mmp-stat-num {
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  color: var(--c-text);
+}
+
+.mmp-stat-label {
+  font-size: 0.75rem;
+  color: var(--c-text-soft);
+}
+
+/* ══ 4. 메뉴 리스트 ══ */
+.mmp-menu-list {
+  margin: 20px auto 40px;
+  width: calc(100% - 40px);
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.mmp-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.88);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.06);
+  animation: mmpStaggerIn 0.35s var(--ease-bounce) both;
+}
+
+@keyframes mmpStaggerIn {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.mmp-menu-item:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+.mmp-menu-item:active { transform: translateY(0) scale(1); }
+
+.mmp-item-emoji {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  line-height: 1;
+}
+
+.mmp-item-text { display: flex; flex-direction: column; gap: 3px; }
+
+.mmp-item-label {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: var(--c-text);
+  line-height: 1.2;
+}
+
+.mmp-item-desc {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--c-text-soft);
+}
+
+.mmp-item-arrow {
+  display: block;
+  margin-left: auto;
+  font-size: 1.6rem;
+  color: rgba(0,0,0,0.15);
+  transition: color 0.2s;
+  line-height: 1;
+}
+.mmp-menu-item:hover .mmp-item-arrow { color: var(--c-primary); }
+
+/* ══ 5. 서브페이지 공통 ══ */
+.mmp-subpage {
+  height: calc(100vh - 88px);
+  background-color: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px 20px;
+  font-family: var(--font-body);
+  position: relative;
+}
+
+.mmp-subpage::after {
+  content: '';
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 88px;
+  background:
+    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
+    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mmp-white-box {
+  width: 100%;
+  max-width: 600px;
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 28px 40px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.mmp-logo {
+  text-align: center;
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  color: #FF6B35;
+  font-weight: 700;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+/* 서브페이지 뒤로가기 divider & 버튼 */
+.mmp-back-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 16px;
+  color: rgba(150,130,110,0.7);
+  font-size: 0.76rem;
+}
+.mmp-back-divider::before,
+.mmp-back-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,53,0.2), transparent);
+}
+.mmp-back-divider span { white-space: nowrap; }
+
+.mmp-back-link-btn {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: rgba(255,107,53,0.06);
+  border: 2px solid rgba(255,107,53,0.2);
+  border-radius: 14px;
+  color: var(--c-primary);
+  font-family: var(--font-title);
+  font-size: 0.92rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-bounce);
+  letter-spacing: 0.3px;
+}
+.mmp-back-link-btn:hover {
+  background: rgba(255,107,53,0.1);
+  border-color: rgba(255,107,53,0.4);
+  transform: translateY(-2px);
+}
+
+/* ══ 6. 공통 폼 요소 ══ */
+.mmp-inp {
+  width: 100%;
+  padding: 11px 14px;
+  background: white;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--c-text);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.mmp-inp:focus { border-color: rgba(0,0,0,0.3); }
+.mmp-inp::placeholder { color: rgba(0,0,0,0.28); }
+
+.mmp-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mmp-form-label {
+  font-family: var(--font-title);
+  font-size: 0.88rem;
+  color: var(--c-text-mid);
+}
+
+.mmp-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: white;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--c-text);
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.mmp-textarea:focus { border-color: rgba(0,0,0,0.3); }
+.mmp-textarea::placeholder { color: rgba(0,0,0,0.28); }
+
+/* ══ 7. 버튼 ══ */
+.mmp-primary-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--c-primary);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+  margin-top: 4px;
+}
+.mmp-primary-btn:hover { transform: translateY(-2px); }
+
+.mmp-danger-btn {
+  width: 100%;
+  padding: 13px;
+  background: #C82020;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+  margin-top: 4px;
+}
+.mmp-danger-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.mmp-danger-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.mmp-edit-btn {
+  padding: 6px 14px;
+  background: var(--c-primary);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+  white-space: nowrap;
+}
+.mmp-edit-btn:hover { transform: translateY(-1px); }
+
+.mmp-delete-btn {
+  padding: 6px 14px;
+  background: rgba(220,50,50,0.1);
+  border: 1.5px solid rgba(220,50,50,0.25);
+  border-radius: 8px;
+  color: #C82020;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.mmp-delete-btn:hover { background: rgba(220,50,50,0.2); }
+
+.mmp-preset-btn {
+  padding: 5px 12px;
+  background: rgba(0,0,0,0.05);
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 999px;
+  color: var(--c-text-mid);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mmp-preset-btn:hover {
+  background: rgba(255,107,53,0.1);
+  border-color: rgba(255,107,53,0.3);
+}
+
+/* ══ 8. 품목 목록 ══ */
+.mmp-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mmp-product-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  animation: mmpStaggerIn 0.3s var(--ease-bounce) both;
+}
+
+.mmp-product-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mmp-product-row-name {
+  font-family: var(--font-title);
+  font-size: 0.98rem;
+  color: var(--c-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mmp-product-row-price {
+  font-size: 0.82rem;
+  color: var(--c-text-mid);
+}
+
+.mmp-product-row-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mmp-badge-active {
+  font-size: 0.72rem;
+  color: #E53535;
+  font-family: var(--font-body);
+}
+
+.mmp-badge-soon {
+  font-size: 0.72rem;
+  color: #FF6B35;
+  font-family: var(--font-body);
+}
+
+/* ══ 9. 빈 상태 ══ */
+.mmp-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--c-text-soft);
+  font-size: 0.88rem;
+  background: rgba(255,255,255,0.5);
+  border-radius: 14px;
+  border: 1.5px dashed rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.mmp-empty span { font-size: 2.5rem; }
+
+/* ══ 10. QR 코드 ══ */
+.mmp-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.mmp-qr-desc {
+  text-align: center;
+  font-size: 0.84rem;
+  color: var(--c-text-soft);
+  line-height: 1.6;
+  margin: 0 0 4px;
+}
+
+.mmp-qr-box {
+  padding: 16px;
+  background: white;
+  border: 2px solid rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.mmp-qr-canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.mmp-qr-shop {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: var(--c-text);
+}
+
+.mmp-qr-url {
+  font-size: 0.76rem;
+  color: var(--c-text-soft);
+  word-break: break-all;
+  text-align: center;
+}
+
+/* ══ 11. 할인 가격 미리보기 ══ */
+.mmp-price-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255,107,53,0.05);
+  border: 1.5px solid rgba(255,107,53,0.15);
+  border-radius: 12px;
+  justify-content: center;
+}
+
+.mmp-price-original {
+  text-decoration: line-through;
+  color: var(--c-text-soft);
+  font-size: 0.88rem;
+}
+
+.mmp-price-sale {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: #E53535;
+}
+
+/* ══ 12. 신고 섹션 ══ */
+.mmp-report-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255,107,53,0.06);
+  border: 1.5px solid rgba(255,107,53,0.15);
+  border-radius: 12px;
+  font-size: 0.88rem;
+  color: var(--c-text-mid);
+}
+
+.mmp-report-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.mmp-report-done-title {
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  color: var(--c-text);
+}
+
+.mmp-report-done-desc {
+  font-size: 0.86rem;
+  color: var(--c-text-soft);
+  line-height: 1.7;
+}
+
+/* ══ 13. 인라인 토스트 ══ */
+.mmp-inline-toast {
+  padding: 10px 16px;
+  background: rgba(220,50,50,0.08);
+  border: 1px solid rgba(220,50,50,0.2);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #C82020;
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+.mmp-inline-success {
+  padding: 10px 16px;
+  background: rgba(46,196,182,0.08);
+  border: 1px solid rgba(46,196,182,0.2);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #1A9A8A;
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+/* ══ 14. 모달 ══ */
+.mmp-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: 400;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: mmpFadeBg 0.2s ease;
+}
+@keyframes mmpFadeBg { from { opacity: 0; } to { opacity: 1; } }
+
+.mmp-modal {
+  background: rgba(255,255,255,0.97);
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 24px;
+  padding: 32px 26px 26px;
+  width: 340px; max-width: 90vw;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  animation: mmpPopIn 0.26s var(--ease-bounce) both;
+}
+@keyframes mmpPopIn {
+  from { transform: scale(0.87); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.mmp-modal-icon  { font-size: 3rem; }
+.mmp-modal-title {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  color: var(--c-text);
+  text-align: center;
+}
+.mmp-modal-desc  {
+  font-size: 0.84rem;
+  color: var(--c-text-mid);
+  text-align: center;
+  line-height: 1.7;
+}
+.mmp-modal-btns  { display: flex; gap: 10px; width: 100%; margin-top: 6px; }
+
+.mmp-modal-cancel {
+  flex: 1; padding: 12px;
+  background: rgba(0,0,0,0.05);
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 12px; color: var(--c-text-mid);
+  font-family: var(--font-body); font-size: 0.9rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.mmp-modal-cancel:hover { background: rgba(0,0,0,0.09); }
+
+.mmp-modal-confirm {
+  flex: 1; padding: 12px;
+  background: #C82020; border: none; border-radius: 12px;
+  color: white; font-family: var(--font-title); font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.mmp-modal-confirm:hover { transform: translateY(-2px); }
+
+/* ══ 15. 반응형 ══ */
+@media (max-width: 480px) {
+  .mmp-menu-item { padding: 16px; gap: 12px; }
+  .mmp-item-emoji { font-size: 1.8rem; }
+  .mmp-item-label { font-size: 1.05rem; }
+  .mmp-item-desc  { font-size: 0.8rem; }
+  .mmp-white-box  { padding: 24px 18px 32px; }
+}
