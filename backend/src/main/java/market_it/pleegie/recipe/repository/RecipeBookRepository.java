@@ -28,4 +28,7 @@ public interface RecipeBookRepository extends JpaRepository<RecipeBook, Long> {
             ORDER BY saveCount DESC
             """)
     List<Object[]> findMostSavedRecipes();
+
+    // 유저 ID + 레시피 제목으로 조회 (중복 저장 방지)
+    boolean existsByUserIdAndTitle(Long userId, String title);
 }

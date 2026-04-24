@@ -9,6 +9,7 @@ import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.fridge.entity.FridgeItem;
 import market_it.pleegie.fridge.repository.FridgeItemRepository;
 import market_it.pleegie.fridge.repository.FridgeRepository;
+import market_it.pleegie.recipe.dto.RecipeRecommendResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ public class ChatService {
     private final FridgeRepository fridgeRepository;
     private final FridgeItemRepository fridgeItemRepository;
 
-    public AiRouterResponse chat(Long userId, ChatRequest request){
+    public Object chat(Long userId, ChatRequest request){
 
         //사용자 메시지 의도 파악
         AiRouterResponse intentResponse = aiClient.detectIntent(request.getMessage());

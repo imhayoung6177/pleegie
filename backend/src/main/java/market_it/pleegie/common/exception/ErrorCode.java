@@ -21,6 +21,7 @@ public enum ErrorCode {
     // Market
     MARKET_NOT_FOUND(HttpStatus.NOT_FOUND, "시장을 찾을 수 없습니다"),
     MARKET_NOT_APPROVED(HttpStatus.FORBIDDEN, "승인되지 않은 시장입니다"),
+    INVALID_DISCOUNT(HttpStatus.BAD_REQUEST, "할인율 또는 할인 가격 중 하나는 입력해야 합니다."),
 
     // Fridge
     FRIDGE_NOT_FOUND(HttpStatus.NOT_FOUND, "냉장고를 찾을 수 없습니다"),

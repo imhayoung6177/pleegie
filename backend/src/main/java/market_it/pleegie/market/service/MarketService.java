@@ -229,12 +229,36 @@ public class MarketService {
     public MarketItemResponse startSale(Long userId,
                                         Long itemId, MarketItemSaleRequest request) {
 
+        // 둘 다 없으면 예외
+        if (!request.isValid()) {
+            throw new CustomException(ErrorCode.INVALID_DISCOUNT);
+        }
+
         MarketItem marketItem =
                 getMarketItemWithAuth(userId, itemId);
 
+        // 할인율만 입력한 경우 → 할인 가격 자동 계산
+        Integer discountPrice = request.getDiscountPrice();
+        Integer discountRate = request.getDiscountRate();
+
+        if (discountPrice == null && discountRate != null) {
+            // 할인율로 할인 가격 계산
+            // 예) 원가 10000원, 할인율 20% → 8000원
+            discountPrice = marketItem.getOriginalPrice()
+                    * (100 - discountRate) / 100;
+        }
+
+        if (discountRate == null && discountPrice != null) {
+            // 할인 가격으로 할인율 계산
+            // 예) 원가 10000원, 할인가 8000원 → 20%
+            discountRate = (marketItem.getOriginalPrice()
+                    - discountPrice) * 100
+                    / marketItem.getOriginalPrice();
+        }
+
         marketItem.startSale(
-                request.getDiscountPrice(),
-                request.getDiscountRate(),
+                discountPrice,
+                discountRate,
                 request.getStartTime(),
                 request.getEndTime());
 
