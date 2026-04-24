@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import '../Styles/HomePage.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import "../Styles/HomePage.css";
 
 /* ── 문 카드 컴포넌트 ── */
 const DoorCard = ({ label, title, desc, cardClass }) => (
@@ -25,28 +25,27 @@ const HomePage = () => {
     // 이미 열리는 중이면 무시
     if (openSide !== null) return;
 
-    if (role === '일반회원') {
-      setOpenSide('left');
+    if (role === "일반회원") {
+      setOpenSide("left");
       // 문 열리는 애니메이션(1.3초) 후 이동
-      setTimeout(() => navigate('/user/login'), 1300);
+      setTimeout(() => navigate("/user/login"), 1300);
     }
 
-    if (role === '소상공인') {
-      setOpenSide('right');
-      setTimeout(() => navigate('/market/login'), 1300);
+    if (role === "소상공인") {
+      setOpenSide("right");
+      setTimeout(() => navigate("/market/login"), 1300);
     }
 
-    if (role === '관리자') {
-      // 관리자는 문 열지 않고 바로 이동 (또는 별도 처리)
-      navigate('/admin');
+    if (role === "관리자") {
+      // 관리자는 문 열지 않고 바로 이동 (또는 별도 처리) - 황준호
+      navigate("/admin/login");
     }
   };
 
   return (
     <div className="app-bg">
-
       {/* ── 관리자 버튼 (우상단 고정) ── */}
-      <button className="admin-btn" onClick={() => handleLogin('관리자')}>
+      <button className="admin-btn" onClick={() => handleLogin("관리자")}>
         <span>⚙️</span>
         관리자 페이지로 가기
       </button>
@@ -60,10 +59,8 @@ const HomePage = () => {
 
       {/* ── 냉장고 씬 ── */}
       <div className="fridge-scene">
-
         {/* 냉장고 본체 */}
         <div className="fridge-body">
-
           {/* 외관 껍데기 */}
           <div className="fridge-shell" />
 
@@ -73,8 +70,10 @@ const HomePage = () => {
             <div className="fridge-inside-sub">AI가 레시피를 조합 중입니다...</div>
             <div className="fridge-shelf-line" />
             <div className="ingredient-grid">
-              {['🍅', '🥦', '🥚', '🧅', '🥕', '🥩'].map((e, i) => (
-                <div key={i} className="ingredient-item">{e}</div>
+              {["🍅", "🥦", "🥚", "🧅", "🥕", "🥩"].map((e, i) => (
+                <div key={i} className="ingredient-item">
+                  {e}
+                </div>
               ))}
             </div>
             <div className="fridge-shelf-line" />
@@ -83,37 +82,26 @@ const HomePage = () => {
           {/* ── 왼쪽 문 (일반회원) ── */}
           <motion.div
             className="fridge-door door-left"
-            onClick={() => handleLogin('일반회원')}
-            animate={{ rotateY: openSide === 'left' ? -118 : 0 }}
-            transition={{ duration: 1.3, ease: 'easeInOut' }}
-            style={{ originX: 0, transformStyle: 'preserve-3d' }}
+            onClick={() => handleLogin("일반회원")}
+            animate={{ rotateY: openSide === "left" ? -118 : 0 }}
+            transition={{ duration: 1.3, ease: "easeInOut" }}
+            style={{ originX: 0, transformStyle: "preserve-3d" }}
           >
-            <DoorCard
-              label="USER"
-              title="일반 회원"
-              desc="로그인 / 회원가입"
-              cardClass="user-card"
-            />
+            <DoorCard label="USER" title="일반 회원" desc="로그인 / 회원가입" cardClass="user-card" />
             <div className="door-handle" />
           </motion.div>
 
           {/* ── 오른쪽 문 (소상공인) ── */}
           <motion.div
             className="fridge-door door-right"
-            onClick={() => handleLogin('소상공인')}
-            animate={{ rotateY: openSide === 'right' ? 118 : 0 }}
-            transition={{ duration: 1.3, ease: 'easeInOut' }}
-            style={{ originX: 1, transformStyle: 'preserve-3d' }}
+            onClick={() => handleLogin("소상공인")}
+            animate={{ rotateY: openSide === "right" ? 118 : 0 }}
+            transition={{ duration: 1.3, ease: "easeInOut" }}
+            style={{ originX: 1, transformStyle: "preserve-3d" }}
           >
-            <DoorCard
-              label="SHOP"
-              title="소상공인"
-              desc="사업자 전용 로그인"
-              cardClass="shop-card"
-            />
+            <DoorCard label="SHOP" title="소상공인" desc="사업자 전용 로그인" cardClass="shop-card" />
             <div className="door-handle" />
           </motion.div>
-
         </div>
 
         {/* 하단 서랍 */}

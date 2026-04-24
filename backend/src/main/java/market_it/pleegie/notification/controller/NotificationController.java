@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user/notifications") // ✅ 설계 원칙: 복수형 명사 사용
+@RequestMapping("/user/notifications") //  설계 원칙: 복수형 명사 사용
 @RequiredArgsConstructor
 public class NotificationController {
 
