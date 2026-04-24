@@ -126,7 +126,14 @@
   z-index: 1;
 }
 
-.shop-info-left { display: flex; align-items: center; gap: 16px; }
+.shop-info-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.shop-info-left:hover { opacity: 0.8; }
 
 .shop-avatar {
   width: 58px; height: 58px;
@@ -521,20 +528,6 @@
   color: var(--c-red);
 }
 .product-delete-btn:hover { background: rgba(229,53,53,0.14); }
-
-/* ── 빈 상태 ── */
-.product-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px 20px;
-  background: rgba(255,255,255,0.6);
-  border: 2px dashed rgba(0,0,0,0.1);
-  border-radius: 18px;
-  color: var(--c-text-soft);
-}
-.product-empty-icon  { font-size: 3rem; opacity: 0.35; display: block; margin-bottom: 10px; }
-.product-empty-title { font-family: var(--font-title); font-size: 1rem; color: var(--c-text-mid); margin-bottom: 4px; }
-.product-empty-sub   { font-size: 0.82rem; }
 
 /* ══ 7. 할인 설정 모달 ══════════════════════════════════ */
 .modal-backdrop {
