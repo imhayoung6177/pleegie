@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import '../Styles/HomePage.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import "../Styles/HomePage.css";
 
 /* ── 문 카드 컴포넌트 ── */
 const DoorCard = ({ label, title, cardClass }) => (
@@ -19,16 +19,21 @@ const HomePage = () => {
 
   const handleLogin = (role) => {
     if (openSide !== null) return;
-    if (role === '일반회원') {
-      setOpenSide('left');
-      setTimeout(() => navigate('/user/login'), 1300);
+
+    if (role === "일반회원") {
+      setOpenSide("left");
+      // 문 열리는 애니메이션(1.3초) 후 이동
+      setTimeout(() => navigate("/user/login"), 1300);
     }
-    if (role === '소상공인') {
-      setOpenSide('right');
-      setTimeout(() => navigate('/market/login'), 1300);
+
+    if (role === "소상공인") {
+      setOpenSide("right");
+      setTimeout(() => navigate("/market/login"), 1300);
     }
-    if (role === '관리자') {
-      navigate('/admin');
+
+    if (role === "관리자") {
+      // 관리자는 문 열지 않고 바로 이동 (또는 별도 처리) - 황준호
+      navigate("/admin/login");
     }
   };
 

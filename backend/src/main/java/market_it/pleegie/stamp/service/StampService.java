@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-
 @Service
 @RequiredArgsConstructor
 @Transactional // ✅ 이 어노테이션이 있어야 도장 찍기와 쿠폰 완성이 '한 번에' 안전하게 처리됩니다.
