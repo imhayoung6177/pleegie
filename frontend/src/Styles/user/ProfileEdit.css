@@ -5,7 +5,7 @@
 }
 
 .mp-section-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Jua', sans-serif;
     font-size: 1.8rem;
     color: #2a3f55;
     margin-bottom: 20px;
@@ -35,11 +35,9 @@
 /* 수정 가능한 필드 (흰색) */
 .auth-input-wrap.editable {
     background-color: #ffffff !important;
-    border: 1.5px solid #3a90c8 !important;
-    box-shadow: 0 2px 8px rgba(58, 144, 200, 0.1);
+    border: 1.5px solid rgba(0,0,0,0.12) !important;
 }
 
 .auth-input-wrap.editable:focus-within {
-    border-color: #2a70a8 !important;
-    box-shadow: 0 0 0 3px rgba(58, 144, 200, 0.2);
+    border-color: rgba(0,0,0,0.3) !important;
 }

@@ -1,8 +1,5 @@
-/* 폰트 임포트: 타이틀용 Gaegu & 본문용 Noto Sans KR */
-@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap');
-
 :root {
-  --market-navy: #1e3048;      /* 상인 테마 메인 (진한 네이비) */
+  --market-navy: #FF6B35;      /* 일반 회원 메인 컬러와 주황색으로 통일 */
   --market-blue-lt: #a8d8f0;   /* 강조 포인트 (연한 블루) */
   --market-gray-bg: #f0f2f5;   /* 수정 불가 배경 (회색) */
   --market-white-bg: #ffffff;  /* 수정 가능 배경 (흰색) */
@@ -13,12 +10,13 @@
 
 /* 1. 기본 레이아웃 */
 .auth-bg.market-theme {
-  min-height: 100vh;
+  height: calc(100vh - 88px);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: var(--bg-cream); /* 타일 배경이 깔리는 기본 색상 */
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Jua', sans-serif;
   padding: 20px;
 }
 
@@ -29,7 +27,6 @@
   background: var(--market-white-bg);
   border-radius: 28px;
   padding: 45px 35px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(30, 48, 72, 0.1);
   position: relative;
   z-index: 1;
@@ -43,10 +40,11 @@
 }
 
 .auth-logo-text {
-  font-family: 'Gaegu', cursive;
+  font-family: var(--font-title);
   font-size: 2.3rem;
   color: var(--market-navy);
   letter-spacing: -1px;
+  text-transform: lowercase;
 }
 
 .auth-header {
@@ -90,8 +88,7 @@
 }
 
 .auth-input-wrap.editable:focus-within {
-  border-color: var(--market-navy);
-  box-shadow: 0 0 0 3px rgba(30, 48, 72, 0.1);
+  border-color: rgba(0,0,0,0.3);
 }
 
 /* 수정 불가능 필드 (회색 배경) */
@@ -128,16 +125,14 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 15px;
-  background: linear-gradient(135deg, var(--market-navy), #2c4a70);
-  color: var(--market-blue-lt);
-  box-shadow: 0 5px 15px rgba(30, 48, 72, 0.25);
+  background: var(--market-navy); /* 그라데이션 제거 및 통일 */
+  color: white;
   transition: all 0.2s ease;
 }
 
 .auth-submit-btn.market:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.2);
-  box-shadow: 0 8px 20px rgba(30, 48, 72, 0.35);
 }
 
 .auth-submit-btn.market:active {

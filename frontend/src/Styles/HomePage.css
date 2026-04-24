@@ -1,213 +1,156 @@
 /* ══════════════════════════════════════════════════════════
    HomePage.css  —  구해줘 재료즈
-   분위기: 전통시장 축제 × 스마트 앱 / 컬러풀 & 생동감
-══════════════════════════════════════════════════════════ */
+   
+   ★ 핵심 전략 ★
+   FridgePage와 완전히 동일한 flex 뼈대를 사용.
+   
+   FridgePage 구조:
+     .fridge-page          → height: calc(100vh - 88px), flex-direction: column
+       .page-header        → flex-shrink: 0  (패딩 16px+10px, 내용물 높이)
+       .fridge-outer       → flex: 1, flex-direction: column
+         .fridge-top-panel → flex-shrink: 0
+         .fridge-ai-bar    → flex-shrink: 0
+         .fridge-divider   → flex-shrink: 0
+         .fridge-interior  → flex: 1  ← 이 높이와 일치시켜야 함
+         .fridge-bottom    → flex-shrink: 0
+     (바닥 88px은 ::after fixed로 처리)
 
-@import url('https://fonts.googleapis.com/css2?family=Jua&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+   HomePage 대응 구조:
+     .app-bg               → height: calc(100vh - 88px), flex-direction: column
+       .home-header        → flex-shrink: 0  (page-header와 동일 높이)
+       .fridge-outer-wrap  → flex: 1, flex-direction: column  (fridge-outer 대응)
+         .fridge-top-dummy → flex-shrink: 0  (fridge-top-panel 동일 높이)
+         .fridge-ai-dummy  → flex-shrink: 0  (fridge-ai-bar 동일 높이)
+         .fridge-divider   → flex-shrink: 0  (동일)
+         .fridge-scene     → flex: 1         (fridge-interior 대응 ← 냉장고 들어갈 자리)
+         .fridge-bottom-dummy → flex-shrink: 0 (fridge-bottom 동일 높이)
+     (바닥 88px 동일하게 ::after fixed)
+
+══════════════════════════════════════════════════════════ */
 
 :root {
   --c-primary:    #FF6B35;
   --c-primary-dk: #D94F1E;
   --c-green:      #2EC4B6;
-  --c-green-dk:   #1A9A8A;
-  --c-yellow:     #FFD166;
-  --c-purple:     #9B5DE5;
-  --c-pink:       #F15BB5;
   --c-bg:         #FFFBF4;
   --c-text:       #1A1A2E;
   --c-text-mid:   #4A4A6A;
-  --font-display: 'Black Han Sans', 'Jua', sans-serif;
+  --font-display: 'Jua', sans-serif;
   --font-title:   'Jua', sans-serif;
-  --font-body:    'Noto Sans KR', sans-serif;
+  --font-body:    'Jua', sans-serif;
   --ease-bounce:  cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-body); }
-
-/* ══ 배경 ════════════════════════════════════════════════ */
+/* ══ 1. 최상위 컨테이너 ══════════════════════════════════
+   FridgePage: .fridge-page { height: calc(100vh - 88px) }
+   완전히 동일하게 맞춤
+══════════════════════════════════════════════════════════ */
 .app-bg {
-  width: 100vw;
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
+  height: calc(100vh - 88px); /* FridgePage .fridge-page 와 동일 */
   overflow: hidden;
-  background-color: #FFF8EE;
+  background-color: #f5ede0;
+  position: relative;
 }
 
-/* app-bg::before 제거 */
-
-/* ══ 주방 바닥 ═══════════════════════════════════════════ */
-.kitchen-floor {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 20vh;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      #E8D0A8 0px, #E8D0A8 59px,
-      #D8BC90 60px, #D8BC90 61px
-    ),
-    linear-gradient(180deg, #E8D0A8 0%, #C8A870 100%);
-  border-top: 4px solid #C09860;
-  z-index: 1;
-  box-shadow: inset 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.kitchen-floor::before {
+/* 바닥 타일 — FridgePage .fridge-page::after 와 동일 */
+.app-bg::after {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 39px,
-    rgba(0,0,0,0.03) 40px, rgba(0,0,0,0.03) 41px
-  );
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 88px;
+  background:
+    repeating-linear-gradient(90deg, #d4b896 0px, #d4b896 79px, #c8a882 80px, #c8a882 81px),
+    linear-gradient(180deg, #d4b896 0%, #c0a070 100%);
+  border-top: 3px solid #b89060;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* ══ 관리자 버튼 ═════════════════════════════════════════ */
+/* ── .kitchen-floor 는 JSX에 남아있으면 숨김 처리 ── */
+.kitchen-floor { display: none; }
+
+/* ══ 2. 헤더 영역 (page-header 와 동일 높이) ════════════
+   FridgePage .page-header: padding 16px 24px 10px
+   → 같은 padding으로 맞춰서 자동으로 동일 높이
+══════════════════════════════════════════════════════════ */
+.home-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 16px 24px 10px; /* ← FridgePage .page-header 와 완전히 동일 */
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+/* 관리자 버튼 */
 .admin-btn {
-  position: absolute;
-  top: 20px; right: 24px;
-  z-index: 200;
   display: flex;
   align-items: center;
   gap: 6px;
   background: rgba(255,255,255,0.88);
   backdrop-filter: blur(8px);
-  border: 2px solid rgba(255,107,53,0.25);
+  border: 1.5px solid rgba(0,0,0,0.1);
   border-radius: 999px;
   padding: 8px 18px;
   font-family: var(--font-title);
-  font-size: 0.82rem;
+  font-size: 1rem;
   color: var(--c-text-mid);
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(255,107,53,0.12), 0 2px 0 rgba(255,107,53,0.15);
   transition: all 0.2s var(--ease-bounce);
 }
-
 .admin-btn:hover {
   transform: translateY(-2px);
   background: white;
-  border-color: rgba(255,107,53,0.5);
-  box-shadow: 0 8px 24px rgba(255,107,53,0.2), 0 4px 0 rgba(255,107,53,0.2);
+  border-color: rgba(0,0,0,0.2);
 }
 
-/* ══ 간판 ════════════════════════════════════════════════ */
-.sign-wrapper {
+/* ══ 3. 냉장고 외곽 래퍼 (fridge-outer 와 완벽히 동일) ════ */
+.fridge-outer-wrap {
+  flex: 1;
+  min-height: 0;
+  width: calc(100% - 32px);
+  max-width: 500px;
+  margin: 0 auto 20px auto;
+  border: 3px solid #e5d9cc;
+  border-radius: 20px;
   position: relative;
-  z-index: 50;
-  margin-top: 28px;
-  animation: signDrop 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+  z-index: 1;
+  background: #f5ede0;
 }
 
-@keyframes signDrop {
-  from { opacity: 0; transform: translateY(-50px) scale(0.85) rotate(-2deg); }
-  to   { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
-}
-
-.sign-board {
-  background: #FFFFFF;
-  border: 3px solid #F0A050;
-  border-radius: 60px;
-  padding: 16px 56px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  position: relative;
-  box-shadow:
-    0 6px 0 #D08030,
-    0 12px 32px rgba(208,128,48,0.22),
-    inset 0 2px 0 rgba(255,255,255,0.9);
-}
-
-.sign-board::before,
-.sign-board::after {
-  content: '';
-  position: absolute;
-  top: 50%; transform: translateY(-50%);
-  width: 15px; height: 15px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #F0D080, #A07828);
-  box-shadow: inset 1px 1px 3px rgba(255,255,255,0.5), 0 2px 4px rgba(0,0,0,0.2);
-}
-.sign-board::before { left: 18px; }
-.sign-board::after  { right: 18px; }
-
-.sign-text {
-  font-family: var(--font-display);
-  font-size: 2rem;
-  color: #2a1f0e;
-  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.05));
-  letter-spacing: -0.5px;
-}
-
-/* ══ 냉장고 씬 ═══════════════════════════════════════════ */
+/* ══ 4. 냉장고 씬 (전체 영역 꽉 채움) ════════════════════ */
 .fridge-scene {
-  position: relative;
-  z-index: 10;
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  inset: 0;
+  margin: 0;
 }
 
-/* ══ 냉장고 본체 ════════════════════════════════════════ */
 .fridge-body {
-  position: relative;
-  width: min(580px, 86vw);
-  height: min(520px, 52vh);
+  position: absolute;
+  inset: 0; /* 상하좌우 전부 0 → fridge-scene 크기 = fridge-interior 크기 */
   perspective: 2800px;
+  width: 100%;
+  height: 100%;
 }
 
+/* ══ 5. 냉장고 외관 쉘 ══════════════════════════════════ */
 .fridge-shell {
   position: absolute;
   inset: 0;
-  border-radius: 30px 30px 18px 18px;
-  background: linear-gradient(175deg,
-    #E8F4FF 0%, #C8DCED 20%,
-    #B0C8E0 55%, #8098B8 100%
-  );
-  box-shadow:
-    8px 0 0 #7090B0,
-    -4px 0 0 #B8D0E8,
-    0 16px 48px rgba(0,0,0,0.22),
-    0 4px 0 #6080A0,
-    inset 2px 0 0 rgba(255,255,255,0.3);
-  border: 2px solid #A0B8D0;
+  background: #B8D4EC; /* 냉장고 겉 색상 (FridgePage보다 약간 어둡게) */
+  border-radius: 16px; /* 각진 모서리가 문 밖으로 삐져나오지 않게 처리 */
+  border: none;
 }
 
-.fridge-shell::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 45%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.55), transparent);
-  border-radius: 28px 28px 0 0;
-  pointer-events: none;
-}
-
-.fridge-shell::after {
-  content: '';
-  position: absolute;
-  top: 6%; bottom: 6%; left: 12px;
-  width: 7px;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.8), rgba(255,255,255,0.2), rgba(255,255,255,0.7)
-  );
-  border-radius: 4px;
-  filter: blur(2px);
-}
-
-/* ══ 냉장고 내부 ════════════════════════════════════════ */
+/* ══ 6. 냉장고 내부 (문 열렸을 때) ═════════════════════ */
 .fridge-inside {
   position: absolute;
-  inset: 6px;
-  background: linear-gradient(180deg, #EEF9FF 0%, #D8F0FF 100%);
-  border-radius: 24px 24px 12px 12px;
+  inset: 0;
+  background: #FFFFFF; /* 냉장고 내부 흰색 */
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -215,87 +158,94 @@ body { font-family: var(--font-body); }
   gap: 10px;
   overflow: hidden;
 }
-
 .fridge-inside::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 22px;
   background: linear-gradient(180deg, rgba(230,248,255,0.9), transparent);
-  border-radius: 24px 24px 0 0;
+  pointer-events: none;
 }
-
 .fridge-inside-title {
   font-family: var(--font-title);
   font-size: 1.2rem;
   color: #4A7090;
 }
-
 .fridge-inside-sub {
   font-size: 0.78rem;
   color: #7090B0;
   margin-bottom: 4px;
 }
-
 .fridge-shelf-line {
-  width: 88%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, rgba(80,140,200,0.3), transparent);
+  width: 88%; height: 4px;
+  background: linear-gradient(90deg, transparent, #81D4FA, transparent); /* 하늘색 선반 라인 */
   border-radius: 2px;
 }
-
 .ingredient-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 0 16px;
 }
-
 .ingredient-item {
   width: 62px; height: 62px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(220,240,255,0.8));
+  background: #E1F5FE; /* 하늘색 아이콘 카드 */
   border-radius: 14px;
-  border: 2px solid rgba(100,160,210,0.2);
+  border: 2px solid #81D4FA;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.8);
   transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-  animation: float 3s ease-in-out infinite;
 }
+.ingredient-item:hover { transform: scale(1.12); }
 
-.ingredient-item:nth-child(2) { animation-delay: 0.4s; }
-.ingredient-item:nth-child(3) { animation-delay: 0.8s; }
-.ingredient-item:nth-child(4) { animation-delay: 0.2s; }
-.ingredient-item:nth-child(5) { animation-delay: 0.6s; }
-.ingredient-item:nth-child(6) { animation-delay: 1.0s; }
-
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-
-.ingredient-item:hover { transform: scale(1.12) translateY(-4px); }
-
-/* ══ 냉장고 문 ══════════════════════════════════════════ */
+/* ══ 7. 냉장고 문 ═══════════════════════════════════════ */
 .fridge-door {
   position: absolute;
-  width: calc(50% - 3px);
+  width: 50%;
   height: 100%;
+  top: 0;
+  cursor: pointer;
+  z-index: 20;
+  /* 3D 변환을 위한 설정 */
+  transform-style: preserve-3d;
+}
+
+/* 문 앞/뒤 공통 스타일 */
+.door-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 핵심: 뒷면을 숨겨서 앞/뒤가 겹치지 않게 함 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  border-radius: 22px;
-  background: linear-gradient(175deg, #D0E8F8 0%, #B8D4EC 30%, #A0C0DF 65%, #88A8CC 100%);
-  border: 2.5px solid rgba(255,255,255,0.4);
   overflow: hidden;
-  transition: filter 0.2s;
+  border-radius: inherit; /* 바깥 문의 둥근 모서리를 앞뒤 면에 그대로 상속 */
 }
 
-.fridge-door:hover { filter: brightness(1.06); }
+/* 문 앞면 (기존 .fridge-door 스타일 대부분 이전) */
+.door-front {
+  background: #B8D4EC; /* 냉장고 겉 색상 통일 */
+  border: 2px solid #A0C0DF;
+  transition: filter 0.2s;
+}
+.fridge-door:hover .door-front { filter: brightness(0.96); }
 
+/* 문 뒷면 (열렸을 때 보이는 안쪽 면) */
+.door-back {
+  background: #D0E8F8; /* 내부 색상 통일 */
+  border: 2px solid #B8D4EC;
+  transform: rotateY(180deg);
+}
+
+/* 기존 .fridge-door의 가상요소들을 .door-front로 이동 */
 .fridge-door::before {
+  display: none;
+}
+.door-front::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -306,6 +256,9 @@ body { font-family: var(--font-body); }
 }
 
 .fridge-door::after {
+  display: none;
+}
+.door-front::after {
   content: '';
   position: absolute;
   top: 8%; bottom: 8%;
@@ -315,45 +268,54 @@ body { font-family: var(--font-body); }
   filter: blur(1.5px);
 }
 
-.door-left  { left: 0;  border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
-.door-right { right: 0; border-top-left-radius: 6px;  border-bottom-left-radius: 6px; }
-.door-left::after  { left: 10px; }
-.door-right::after { right: 10px; }
+.door-left  {
+  left: 0;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+.door-left .door-front {
+  border-right: 1.5px solid rgba(255,255,255,0.3);
+}
 
-/* ── 카드 ── */
+.door-right {
+  right: 0;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+.door-right .door-front {
+  border-left: 1.5px solid rgba(255,255,255,0.3);
+}
+.door-left .door-front::after  { left: 10px; }
+.door-right .door-front::after { right: 10px; }
+
+/* ── 문 카드 ── */
 .door-card {
   background: linear-gradient(160deg, #FFFEFB 40%, #FFF8EE 100%);
-  border: 2.5px solid rgba(255,107,53,0.2);
+  border: 1.5px solid rgba(0,0,0,0.08); /* 냉장고 문 카드 테두리 삭제 */
   border-radius: 20px;
-  padding: 22px 18px 18px;
+  padding: 16px;
   text-align: center;
-  width: 82%;
+  width: 65%;
+  max-width: 150px;
+  aspect-ratio: 1; /* 정사각형 카드 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   position: relative;
-  box-shadow:
-    0 6px 0 rgba(0,0,0,0.07),
-    0 10px 24px rgba(0,0,0,0.09),
-    inset 0 1px 0 rgba(255,255,255,0.9);
-  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
-
-.door-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 12px 0 rgba(0,0,0,0.07), 0 18px 32px rgba(0,0,0,0.12);
-}
-
-.user-card { border-color: rgba(46,196,182,0.35); }
+.door-card:hover { transform: translateY(-5px) scale(1.02); }
+.user-card { border-color: rgba(255,107,53,0.35); }
 .shop-card { border-color: rgba(255,107,53,0.35); }
 
-/* 컬러 상단 바 */
 .card-bar {
-  width: 44px;
-  height: 4px;
+  width: 44px; height: 4px;
   border-radius: 999px;
   margin: 0 auto 14px;
 }
-
-.user-card .card-bar { background: linear-gradient(90deg, #2EC4B6, #5ED4CB); }
-.shop-card .card-bar { background: linear-gradient(90deg, #FF6B35, #FF8F5E); }
+.user-card .card-bar { background: #FF6B35; }
+.shop-card .card-bar { background: #FF6B35; }
 
 .card-subtitle {
   font-family: var(--font-title);
@@ -364,112 +326,36 @@ body { font-family: var(--font-body); }
   margin-bottom: 6px;
   margin-top: 4px;
 }
-
 .card-title {
   font-family: var(--font-display);
   font-size: 1.35rem;
   margin-bottom: 8px;
   letter-spacing: -0.5px;
 }
-
-.user-card .card-title { color: #1A9A8A; }
+.user-card .card-title { color: #D94F1E; }
 .shop-card .card-title { color: #D94F1E; }
 
-.card-desc {
-  font-size: 0.72rem;
-  color: #8A8070;
-  line-height: 1.55;
-  font-family: var(--font-body);
-}
-
-/* ── 손잡이 ── */
-.door-handle {
-  position: absolute;
-  bottom: 13%;
-  width: 58%;
-  height: 18px;
-  background: linear-gradient(180deg, #E8F4FF 0%, #C0D8EE 50%, #D8ECF8 100%);
-  border-radius: 30px;
-  border: 2.5px solid #9ABCD4;
-  box-shadow:
-    0 4px 0 #70A0C0,
-    0 7px 14px rgba(0,0,0,0.16),
-    inset 0 2px 4px rgba(255,255,255,0.8);
-}
-
-/* ══ 서랍 ════════════════════════════════════════════════ */
-.fridge-drawer {
-  width: min(580px, 86vw);
-  height: 50px;
-  background: linear-gradient(180deg, #A0C0D8 0%, #88A8C0 100%);
-  border-radius: 0 0 20px 20px;
-  border: 2px solid #90B0C8;
-  border-top: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  box-shadow: 0 8px 0 #7090B0, 0 12px 28px rgba(0,0,0,0.2);
-}
-
-.fridge-drawer::before {
-  content: '';
-  position: absolute;
-  top: 8px; bottom: 8px; left: 50%;
-  width: 3px;
-  background: rgba(0,0,0,0.12);
-  border-radius: 2px;
-}
-
-.drawer-handle {
-  width: 38%;
-  height: 14px;
-  background: linear-gradient(180deg, #D0E8F8, #B0CCDC);
-  border-radius: 20px;
-  border: 2px solid #90B0C8;
-  box-shadow: 0 3px 0 #6090B0, inset 0 2px 4px rgba(255,255,255,0.6);
-}
-
-/* ══ 바닥 그림자 ════════════════════════════════════════ */
-.fridge-ground-shadow {
-  width: min(460px, 76vw);
-  height: 16px;
-  background: radial-gradient(ellipse, rgba(0,0,0,0.18) 0%, transparent 70%);
-  border-radius: 50%;
-  margin-top: 2px;
-  position: relative;
-  z-index: 2;
-}
-
-/* ══ 주방 소품 ══════════════════════════════════════════ */
+/* ══ 13. 주방 소품 ══════════════════════════════════════ */
 .kitchen-deco {
-  position: absolute;
+  position: fixed;
   z-index: 5;
   font-size: 2.6rem;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-  animation: float 4s ease-in-out infinite;
   user-select: none;
   pointer-events: none;
 }
+.deco-plant-left  { left: 4vw;  bottom: 100px; }
+.deco-plant-right { right: 4vw; bottom: 100px; }
+.deco-pot-left    { left: 2vw;  bottom: 96px; font-size: 2rem; }
+.deco-pot-right   { right: 2vw; bottom: 96px; font-size: 2rem; }
 
-.deco-plant-left  { left: 4vw;  bottom: 21vh; animation-delay: 0.0s; }
-.deco-plant-right { right: 4vw; bottom: 21vh; animation-delay: 1.2s; }
-.deco-pot-left    { left: 2vw;  bottom: 20vh; font-size: 2rem; animation-delay: 0.6s; }
-.deco-pot-right   { right: 2vw; bottom: 20vh; font-size: 2rem; animation-delay: 1.8s; }
-
-/* ══ 반응형 ════════════════════════════════════════════ */
+/* ══ 14. 반응형 ══════════════════════════════════════════ */
 @media (max-height: 700px) {
-  .sign-wrapper  { margin-top: 14px; }
-  .sign-text     { font-size: 1.5rem; }
-  .fridge-scene  { margin-top: 10px; }
-  .fridge-body   { height: min(440px, 48vh); }
-  .fridge-drawer { height: 40px; }
   .card-title    { font-size: 1.1rem; }
+  .fridge-ai-dummy { min-height: 40px; }
 }
 
 @media (max-width: 480px) {
-  .sign-text  { font-size: 1.3rem; }
-  .admin-btn  { font-size: 0.72rem; padding: 7px 12px; top: 12px; right: 12px; }
+  .admin-btn  { font-size: 0.8rem; padding: 7px 12px; }
   .card-title { font-size: 1rem; }
-  .sign-board { padding: 12px 40px; }
+  .home-header { padding: 12px 16px 8px; }
 }

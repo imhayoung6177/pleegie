@@ -3,8 +3,8 @@
 .cart-card {
   display: flex; align-items: center; padding: 16px;
   background: white; border-radius: 18px;
-  border: 1.5px solid rgba(144, 80, 200, 0.2); /* 보라색 포인트 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .cart-emoji { font-size: 2rem; margin-right: 15px; }
@@ -13,12 +13,29 @@
 .cart-desc { font-size: 0.8rem; color: #888; }
 
 .cart-action { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-.cart-price { font-weight: 700; color: #9050c8; }
+.cart-price { font-weight: 700; color: #FF6B35; }
 
 .buy-btn {
-  background: linear-gradient(135deg, #9050c8, #7040a8);
+  background: #FF6B35;
   color: white; border: none; padding: 6px 12px;
   border-radius: 8px; font-size: 0.8rem; cursor: pointer;
-  box-shadow: 0 3px 0 #5a3088;
 }
-.buy-btn:active { transform: translateY(2px); box-shadow: none; }
+.buy-btn:active { transform: translateY(2px); }
+
+.cart-remove-btn {
+  background: #FF6B35;
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cart-remove-btn:hover {
+  transform: translateY(-1px);
+}
+.cart-remove-btn:active {
+  transform: translateY(2px);
+}

@@ -153,7 +153,7 @@ const RegisterPage = () => {
         {/* 로고 */}
         <div className="auth-logo" onClick={() => navigate("/")}>
           {/* <span className="auth-logo-icon">🧊</span> */}
-          <span className="auth-logo-text">Pleege</span>
+          <span className="auth-logo-text">Pleegie</span>
         </div>
 
         {/* 타이틀 */}

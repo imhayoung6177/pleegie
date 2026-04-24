@@ -19,7 +19,7 @@ const UNITS = ['원/kg', '원/개', '원/봉', '원/팩', '원/L'];
 
 // 현재 시각 기준으로 할인 상태 계산
 const getSaleStatus = (item, now) => {
-  if (!item.saleStart || !item.saleEnd || !item.discountRate) return 'none';
+  if (!item.saleStart || !item.saleEnd || (!item.discountRate && !item.salePrice)) return 'none';
 
   const [startH, startM] = item.saleStart.split(':').map(Number);
   const [endH,   endM]   = item.saleEnd.split(':').map(Number);
@@ -37,8 +37,9 @@ const getSaleStatus = (item, now) => {
 
 // 가격 계산
 const getDisplayPrice = (item, status) => {
-  if ((status === 'active') && item.discountRate) {
-    return Math.round(item.price * (1 - item.discountRate / 100));
+  if (status === 'active') {
+    if (item.salePrice) return item.salePrice;
+    if (item.discountRate) return Math.round(item.price * (1 - item.discountRate / 100));
   }
   return item.price;
 };
@@ -64,10 +65,10 @@ const getTimeLeft = (item, now, status) => {
 const DiscountModal = ({ item, onSave, onClose }) => {
   const [saleStart,    setSaleStart]    = useState(item.saleStart    || '18:00');
   const [saleEnd,      setSaleEnd]      = useState(item.saleEnd      || '20:00');
-  const [discountRate, setDiscountRate] = useState(item.discountRate || 30);
+  const [salePrice,    setSalePrice]    = useState(item.salePrice    || (item.discountRate ? Math.round(item.price * (1 - item.discountRate / 100)) : item.price));
 
+  const currentDiscountRate = item.price && salePrice ? Math.round((1 - salePrice / item.price) * 100) : 0;
   const PRESETS = [10, 20, 30, 50, 70];
-  const salePrice = Math.round(item.price * (1 - discountRate / 100));
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -81,22 +82,21 @@ const DiscountModal = ({ item, onSave, onClose }) => {
         </div>
 
         <div className="discount-form">
-          {/* 할인율 */}
+          {/* 할인가 */}
           <div className="discount-field">
-            <label className="discount-label">할인율 (%)</label>
+            <label className="discount-label">할인가 (원)</label>
             <input
               className="discount-inp"
               type="number"
-              min="1" max="99"
-              value={discountRate}
-              onChange={e => setDiscountRate(Number(e.target.value))}
+              value={salePrice}
+              onChange={e => setSalePrice(Number(e.target.value))}
             />
             <div className="discount-presets">
               {PRESETS.map(p => (
                 <button
                   key={p}
-                  className={`discount-preset-btn ${discountRate === p ? 'active' : ''}`}
-                  onClick={() => setDiscountRate(p)}
+                  className={`discount-preset-btn ${currentDiscountRate === p ? 'active' : ''}`}
+                  onClick={() => setSalePrice(Math.round(item.price * (1 - p / 100)))}
                 >
                   {p}%
                 </button>
@@ -137,7 +137,7 @@ const DiscountModal = ({ item, onSave, onClose }) => {
 
           <button
             className="modal-submit-btn"
-            onClick={() => { onSave({ saleStart, saleEnd, discountRate }); onClose(); }}
+            onClick={() => { onSave({ saleStart, saleEnd, salePrice, discountRate: currentDiscountRate }); onClose(); }}
           >
             할인 설정 저장
           </button>
@@ -182,9 +182,9 @@ const ProductCard = ({ item, now, onEdit, onDelete, onDiscount }) => {
         <span className={`product-price ${status === 'active' ? 'discounted' : ''}`}>
           {displayPrice.toLocaleString()}원/{item.unit}
         </span>
-        {item.discountRate && status !== 'active' && status !== 'none' && (
+        {(item.discountRate || item.salePrice) && status !== 'active' && status !== 'none' && (
           <span style={{ fontSize: '0.72rem', color: '#FF6B35' }}>
-            {item.discountRate}% 할인 예정
+            {item.discountRate || Math.round((1 - item.salePrice / item.price) * 100)}% 할인 예정
           </span>
         )}
       </div>
@@ -235,19 +235,19 @@ export default function ShopPage() {
     return [
       {
         id: 1, name: '시금치',   emoji: '🥬', price: 3000, unit: '봉', shopName: shopName,
-        saleStart: '18:00', saleEnd: '20:00', discountRate: 50,
+        saleStart: '18:00', saleEnd: '20:00', discountRate: 50, salePrice: 1500,
       },
       {
         id: 2, name: '대파',     emoji: '🌿', price: 2500, unit: '봉', shopName: shopName,
-        saleStart: '19:00', saleEnd: '21:00', discountRate: 30,
+        saleStart: '19:00', saleEnd: '21:00', discountRate: 30, salePrice: 1750,
       },
       {
         id: 3, name: '계란',     emoji: '🥚', price: 8000, unit: '판', shopName: shopName,
-        saleStart: '', saleEnd: '', discountRate: 0,
+        saleStart: '', saleEnd: '', discountRate: 0, salePrice: null,
       },
       {
         id: 4, name: '돼지고기', emoji: '🐷', price: 15000, unit: 'kg', shopName: shopName,
-        saleStart: '17:00', saleEnd: '19:00', discountRate: 20,
+        saleStart: '17:00', saleEnd: '19:00', discountRate: 20, salePrice: 12000,
       },
     ];
   });
@@ -258,7 +258,7 @@ export default function ShopPage() {
   }, [products]);
 
   // 폼 상태
-  const [form, setForm]           = useState({ name: '', price: '', unit: '원/개', emoji: '🥬' });
+  const [form, setForm]           = useState({ name: '', price: '', unit: '원/개', emoji: '🥬', saleStart: '', saleEnd: '', salePrice: '' });
   const [selectedEmoji, setEmoji] = useState('🥬');
   const [discountTarget, setDiscountTarget] = useState(null); // 할인 설정할 상품
   const [toast, setToast]         = useState('');
@@ -274,17 +274,25 @@ export default function ShopPage() {
       showToast('상품명과 가격을 입력해주세요!');
       return;
     }
+      
+      const priceNum = Number(form.price);
+      const salePriceNum = form.salePrice ? Number(form.salePrice) : null;
+      const calcDiscountRate = salePriceNum ? Math.round((1 - salePriceNum / priceNum) * 100) : 0;
+
     const newItem = {
       id: Date.now(),
       name: form.name,
       emoji: selectedEmoji,
-      price: Number(form.price),
+        price: priceNum,
       unit: form.unit.replace('원/', ''),
-      saleStart: '', saleEnd: '', discountRate: 0,
+        saleStart: form.saleStart,
+        saleEnd: form.saleEnd,
+        salePrice: salePriceNum,
+        discountRate: calcDiscountRate,
       shopName: shopName, // 사용자 화면에 보일 상점 이름 추가
     };
     setProducts(prev => [newItem, ...prev]);
-    setForm({ name: '', price: '', unit: '원/개', emoji: '🥬' });
+      setForm({ name: '', price: '', unit: '원/개', emoji: '🥬', saleStart: '', saleEnd: '', salePrice: '' });
     setEmoji('🥬');
     showToast(`${newItem.emoji} ${newItem.name} 등록 완료!`);
   };
@@ -296,9 +304,9 @@ export default function ShopPage() {
   };
 
   // 할인 저장
-  const handleSaveDiscount = ({ saleStart, saleEnd, discountRate }) => {
+  const handleSaveDiscount = ({ saleStart, saleEnd, salePrice, discountRate }) => {
     setProducts(prev => prev.map(p =>
-      p.id === discountTarget.id ? { ...p, saleStart, saleEnd, discountRate } : p
+      p.id === discountTarget.id ? { ...p, saleStart, saleEnd, salePrice, discountRate } : p
     ));
     showToast(`${discountTarget.emoji} ${discountTarget.name} 할인 설정 완료!`);
   };
@@ -313,7 +321,7 @@ export default function ShopPage() {
       {/* ══ 헤더 ══ */}
       <header className="shop-header">
         <div className="shop-header-logo">
-          <span>🏪</span> Pleege Market
+          <span>🏪</span> Pleegie Market
         </div>
         <div className="shop-header-right">
           <span className="shop-header-name">{shopName}</span>
@@ -366,6 +374,7 @@ export default function ShopPage() {
         <div className="item-add-title">새 품목을 등록하세요</div>
 
         {/* 이모지 선택 */}
+        {/*
         <div className="emoji-picker-wrap">
           <div className="item-form-label" style={{ fontFamily: "'Jua', sans-serif", fontSize: '0.82rem', color: '#5a4a32', marginBottom: 6 }}>
             품목 이미지 선택
@@ -382,6 +391,7 @@ export default function ShopPage() {
             ))}
           </div>
         </div>
+        */}
 
         {/* 폼 입력 */}
         <div className="item-form-grid">
@@ -420,10 +430,42 @@ export default function ShopPage() {
             </select>
           </div>
 
+          <div className="item-form-field">
+            <label className="item-form-label">할인 시작 (선택)</label>
+            <input
+              className="item-form-inp"
+              type="time"
+              value={form.saleStart}
+              onChange={e => setForm({ ...form, saleStart: e.target.value })}
+            />
+          </div>
+
+          <div className="item-form-field">
+            <label className="item-form-label">할인 종료 (선택)</label>
+            <input
+              className="item-form-inp"
+              type="time"
+              value={form.saleEnd}
+              onChange={e => setForm({ ...form, saleEnd: e.target.value })}
+            />
+          </div>
+
+          <div className="item-form-field">
+            <label className="item-form-label">할인가 (선택, 원)</label>
+            <input
+              className="item-form-inp"
+              type="number"
+              placeholder="예) 1500"
+              value={form.salePrice}
+              onChange={e => setForm({ ...form, salePrice: e.target.value })}
+              onKeyDown={e => e.key === 'Enter' && handleAddProduct()}
+            />
+          </div>
+
           {/* 미리보기 */}
-          <div className="item-form-field" style={{ alignItems: 'center', justifyContent: 'center', background: 'rgba(255,248,238,0.6)', borderRadius: 12, border: '1.5px dashed rgba(255,107,53,0.2)', padding: '10px' }}>
+          <div className="item-form-field full-width" style={{ alignItems: 'center', justifyContent: 'center', background: 'rgba(255,248,238,0.6)', borderRadius: 12, border: '1.5px dashed rgba(255,107,53,0.2)', padding: '10px' }}>
             <div style={{ fontSize: '2.8rem', lineHeight: 1 }}>{selectedEmoji}</div>
-            <div style={{ fontFamily: "'Jua', sans-serif", fontSize: '0.88rem', color: '#5a4a32', marginTop: 4 }}>
+            <div style={{ fontFamily: "var(--font-title)", fontSize: '0.88rem', color: '#5a4a32', marginTop: 4 }}>
               {form.name || '상품명'}
             </div>
             <div style={{ fontSize: '0.78rem', color: '#8a7a60' }}>

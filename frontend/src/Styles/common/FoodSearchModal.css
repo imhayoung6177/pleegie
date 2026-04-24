@@ -15,15 +15,14 @@
 .fs-search-wrap {
   display: flex;
   gap: 8px;
-  background: #ffffff;
-  border: 2px solid rgba(255, 107, 53, 0.35);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
   padding: 4px 4px 4px 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .fs-search-wrap:focus-within {
-  border-color: #FF6B35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 .fs-search-inp {
@@ -31,7 +30,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Jua', sans-serif;
   font-size: 0.95rem;
   color: #2a1f0e;
   padding: 10px 0;
@@ -73,11 +72,11 @@
 }
 .fs-history-chip {
   padding: 6px 14px;
-  background: rgba(255, 107, 53, 0.08);
-  border: 1.5px solid rgba(255, 107, 53, 0.2);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
   color: #d95f2e;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Jua', sans-serif;
   font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.15s;
@@ -131,8 +130,8 @@
   transition: all 0.15s;
 }
 .fs-suggest-chip:hover {
-  background: rgba(255, 107, 53, 0.08);
-  border-color: rgba(255, 107, 53, 0.3);
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.15);
   color: #d95f2e;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
@@ -145,8 +144,8 @@
   gap: 10px;
 }
 .fs-market-card {
-  background: rgba(255, 107, 53, 0.05);
-  border: 1.5px solid rgba(255, 107, 53, 0.18);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;

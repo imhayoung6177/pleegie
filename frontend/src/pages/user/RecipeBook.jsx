@@ -20,7 +20,7 @@ const RECIPE_DB = [
 ];
 
 const RecipeBook = () => {
-  const [allRecipes] = useState(() => {
+  const [allRecipes, setAllRecipes] = useState(() => {
     const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
     const combined = [...saved, ...RECIPE_DB];
     return Array.from(new Map(combined.map(item => [item.id, item])).values());
@@ -34,6 +34,17 @@ const RecipeBook = () => {
     setSearchResult(q ? allRecipes.filter(r => r.name.includes(q)) : allRecipes);
   };
 
+  const handleRemove = (e, recipe) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 방지
+    if (!window.confirm(`'${recipe.name}' 레시피를 삭제하시겠습니까?`)) return;
+
+    setAllRecipes(prev => prev.filter(r => r.id !== recipe.id));
+    setSearchResult(prev => prev.filter(r => r.id !== recipe.id));
+
+    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+    localStorage.setItem('savedRecipes', JSON.stringify(saved.filter(r => r.id !== recipe.id)));
+  };
+
   // 상세 보기
   if (selected) {
     return (
@@ -41,7 +52,7 @@ const RecipeBook = () => {
         <button
           onClick={() => setSelected(null)}
           style={{
-            background: 'none', border: 'none', color: '#e0902a',
+            background: 'none', border: 'none', color: '#FF6B35',
             fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
             marginBottom: '16px', padding: 0,
           }}
@@ -53,7 +64,7 @@ const RecipeBook = () => {
           <span style={{ fontSize: '2.5rem' }}>{selected.emoji}</span>
           <div>
             <div style={{
-              fontFamily: "'Jua', sans-serif",
+              fontFamily: "var(--font-title)",
               fontSize: '1.3rem', color: '#2a1f0e',
             }}>
               {selected.name}
@@ -65,14 +76,14 @@ const RecipeBook = () => {
         </div>
 
         <div style={{ marginBottom: '18px' }}>
-          <div style={{ fontWeight: 700, color: '#e0902a', marginBottom: '10px' }}>
+          <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
             🥬 필요 재료
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {selected.ingredients.map(ing => (
               <span key={ing} style={{
-                background: 'rgba(224,144,42,0.1)',
-                border: '1px solid rgba(224,144,42,0.25)',
+                background: 'rgba(0,0,0,0.05)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 borderRadius: '999px', padding: '4px 12px',
                 fontSize: '0.82rem', color: '#5a4a32',
               }}>
@@ -83,7 +94,7 @@ const RecipeBook = () => {
         </div>
 
         <div>
-          <div style={{ fontWeight: 700, color: '#e0902a', marginBottom: '10px' }}>
+          <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
             📋 조리 순서
           </div>
           {selected.steps.map((step, i) => (
@@ -93,7 +104,7 @@ const RecipeBook = () => {
             }}>
               <div style={{
                 width: '24px', height: '24px', borderRadius: '50%',
-                background: '#e0902a', color: 'white', fontWeight: 700,
+                background: '#FF6B35', color: 'white', fontWeight: 700,
                 fontSize: '0.8rem', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', flexShrink: 0,
               }}>
@@ -122,7 +133,7 @@ const RecipeBook = () => {
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
           style={{
             flex: 1, padding: '12px 16px', borderRadius: '12px',
-            border: '1.5px solid rgba(224,144,42,0.3)',
+            border: '1.5px solid rgba(0,0,0,0.15)',
             fontSize: '0.88rem', outline: 'none',
           }}
         />
@@ -130,7 +141,7 @@ const RecipeBook = () => {
           onClick={handleSearch}
           style={{
             padding: '12px 20px', borderRadius: '12px',
-            background: '#e0902a', color: 'white',
+            background: '#FF6B35', color: 'white',
             border: 'none', fontWeight: 700, cursor: 'pointer',
           }}
         >
@@ -151,8 +162,8 @@ const RecipeBook = () => {
             style={{
               display: 'flex', alignItems: 'center', gap: '14px',
               padding: '14px 16px',
-              background: 'rgba(224,144,42,0.05)',
-              border: '1.5px solid rgba(224,144,42,0.15)',
+              background: 'rgba(0,0,0,0.02)',
+              border: '1.5px solid rgba(0,0,0,0.08)',
               borderRadius: '16px', cursor: 'pointer',
             }}
           >
@@ -165,7 +176,22 @@ const RecipeBook = () => {
                 ⏱ {r.time} &nbsp;·&nbsp; 난이도: {r.difficulty}
               </div>
             </div>
-            <span style={{ color: '#e0902a', fontSize: '1.2rem' }}>›</span>
+            <button
+              onClick={(e) => handleRemove(e, r)}
+              style={{
+                background: '#FF6B35',
+                border: 'none',
+                color: 'white',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              삭제
+            </button>
+            <span style={{ color: '#FF6B35', fontSize: '1.2rem', marginLeft: '4px' }}>›</span>
           </div>
         ))}
       </div>

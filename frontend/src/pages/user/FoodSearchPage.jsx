@@ -73,6 +73,7 @@ export default function FoodSearchPage() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [saveState, setSaveState] = useState('idle');
   const [toast, setToast] = useState('');
   const [marketItems, setMarketItems] = useState([]);
 
@@ -80,6 +81,13 @@ export default function FoodSearchPage() {
     const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
     setMarketItems(market);
   }, []);
+
+  useEffect(() => {
+    if (result?.recipe) {
+      const savedList = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+      setSaveState(savedList.some(r => r.id === result.recipe.id) ? 'saved' : 'idle');
+    }
+  }, [result]);
 
   const handleSearch = () => {
     if (!query.trim()) return;
@@ -89,27 +97,79 @@ export default function FoodSearchPage() {
     // ✅ 데모용 데이터 (나중엔 백엔드 API 연결)
     setTimeout(() => {
       const fridgeItems = JSON.parse(localStorage.getItem('fridgeItems') || '[]');
+      const myIngredientNames = fridgeItems.map(i => i.name);
+
+      // 음식별 레시피 데이터 (검색 매칭용 DB)
+      const FOOD_DB = {
+        '파스타': {
+          recipe: {
+            id: 201, emoji: '🍝', name: '토마토 파스타', time: '25분', difficulty: '보통',
+            ingredients: ['파스타 200g', '올리브오일 3큰술', '마늘 3쪽', '베이컨 100g', '파마산치즈', '소금', '후추'],
+            steps: [
+              '소금물에 파스타를 8~10분간 삶습니다.',
+              '팬에 올리브오일을 두르고 마늘을 볶습니다.',
+              '베이컨을 넣고 함께 볶아줍니다.',
+              '삶은 파스타를 넣고 버무립니다.',
+              '파마산치즈를 뿌리고 후추로 마무리합니다.',
+            ],
+            summary: '집에서 즐기는 이탈리아의 맛! 간단한 재료로 근사한 파스타를 완성해보세요.'
+          },
+          allIngredients: ['파스타', '올리브오일', '마늘', '베이컨', '파마산치즈', '소금', '후추'],
+        },
+        '된장찌개': {
+          recipe: {
+            id: 202, emoji: '🥘', name: '된장찌개', time: '20분', difficulty: '쉬움',
+            ingredients: ['된장 2큰술', '두부 1/2모', '애호박 1/4개', '양파 1/4개', '멸치육수 2컵', '청양고추'],
+            steps: [
+              '멸치육수를 냄비에 넣고 끓입니다.',
+              '된장을 풀어 넣습니다.',
+              '두부, 애호박, 양파를 넣고 10분 끓입니다.',
+              '청양고추를 넣어 완성합니다.',
+            ],
+            summary: '구수한 된장 향이 일품인 한국인의 소울푸드! 밥 한 공기 뚝딱 비우게 될 거예요.'
+          },
+          allIngredients: ['된장', '두부', '애호박', '양파', '멸치육수', '청양고추'],
+        },
+        '볶음밥': {
+          recipe: {
+            id: 203, emoji: '🍳', name: '계란볶음밥', time: '15분', difficulty: '쉬움',
+            ingredients: ['계란 2개', '밥 1공기', '간장 1큰술', '파 약간', '참기름', '소금'],
+            steps: [
+              '파를 잘게 썰어 파기름을 냅니다.',
+              '계란을 풀어서 스크램블을 만듭니다.',
+              '밥을 넣고 볶다가 간장과 소금으로 간을 합니다.',
+              '참기름을 살짝 두르고 마무리합니다.'
+            ],
+            summary: '냉장고 파먹기의 정석! 고소한 계란과 파기름의 조화가 완벽해요.'
+          },
+          allIngredients: ['계란', '밥', '간장', '파', '참기름', '소금'],
+        }
+      };
+
+      const found = Object.entries(FOOD_DB).find(([key]) => query.includes(key) || key.includes(query));
       
-      const mockResult = {
+      const foodData = found ? found[1] : {
         recipe: {
           id: Date.now(),
-          emoji: '🍛',
+          emoji: '🍽',
           name: query,
           time: '30분',
           difficulty: '보통',
-          ingredients: [query + ' 재료 200g', '양파 1/2개', '마늘 1큰술'],
+          ingredients: [`${query}용 메인 재료`, '양파 1/2개', '마늘 1큰술', '소금', '후추'],
           steps: [
-            `${query}를 먹기 좋은 크기로 썹니다.`,
-            '팬에 기름을 두르고 양파와 함께 볶습니다.',
-            '양념을 넣고 중불에서 10분간 더 졸여 완성합니다.'
+            '재료를 깨끗하게 손질하고 알맞은 크기로 썹니다.',
+            '팬에 기름을 두르고 야채와 메인 재료를 볶아줍니다.',
+            '양념을 넣고 중불에서 10분간 더 조리하여 완성합니다.'
           ],
           summary: `집에서도 간편하게 즐기는 ${query}! 신선한 재료만 있다면 전문점 부럽지 않은 맛을 낼 수 있어요.`
         },
-        have: fridgeItems.slice(0, 2).map(i => i.name),
-        missing: ['돼지고기', '대파'] // 예시 부족 재료
+        allIngredients: [`${query}용 메인 재료`, '양파', '마늘', '소금', '후추'],
       };
+
+      const have = foodData.allIngredients.filter(ing => myIngredientNames.some(my => my.includes(ing) || ing.includes(my)));
+      const missing = foodData.allIngredients.filter(ing => !myIngredientNames.some(my => my.includes(ing) || ing.includes(my)));
       
-      setResult(mockResult);
+      setResult({ recipe: foodData.recipe, have, missing });
       setLoading(false);
     }, 1200);
   };
@@ -135,6 +195,20 @@ export default function FoodSearchPage() {
     showToast(`'${ingName}'을(를) 장바구니에 담았습니다!`);
   };
 
+  const handleSaveRecipe = async () => {
+    if (saveState !== 'idle' || !result) return;
+    setSaveState('saving');
+    await new Promise(r => setTimeout(r, 600));
+
+    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+    if (!saved.some(r => r.id === result.recipe.id)) {
+      saved.push(result.recipe);
+      localStorage.setItem('savedRecipes', JSON.stringify(saved));
+      showToast(`'${result.recipe.name}' 레시피를 레시피북에 저장했어요! 📖`);
+    }
+    setSaveState('saved');
+  };
+
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
 
   return (
@@ -146,11 +220,18 @@ export default function FoodSearchPage() {
       </div>
 
       <div className="rrp-body">
-        <div className="rrp-ai-section">
+        <div style={{ 
+          background: 'rgba(0,0,0,0.02)', 
+          border: '1.5px solid rgba(0,0,0,0.08)', 
+          borderRadius: '16px', 
+          padding: '16px 18px', 
+          marginBottom: '20px' 
+        }}>
           <div className="search-row" style={{display:'flex', gap:'10px'}}>
-            <input className="food-inp" style={{flex:1, padding:'12px', borderRadius:'10px', border:'1px solid #ddd'}}
-                   type="text" placeholder="먹고 싶은 메뉴 입력" 
-                   value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
+            <input className="food-inp" 
+                   style={{flex:1, padding:'12px 16px', borderRadius:'12px', border:'1.5px solid rgba(0,0,0,0.12)', outline: 'none'}}
+                   type="text" placeholder="먹고 싶은 메뉴를 입력하세요" 
+                   value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} autoFocus />
             <button className="ai-btn ai-btn-orange" onClick={handleSearch} disabled={loading}>검색</button>
           </div>
         </div>
@@ -160,7 +241,7 @@ export default function FoodSearchPage() {
         {result && (
           <div className="rrp-detail">
             {/* 레시피 헤더 */}
-            <div className="rrp-detail-header">
+            <div className="rrp-detail-header" style={{ marginBottom: '16px' }}>
               <span className="rrp-detail-emoji">{result.recipe.emoji}</span>
               <div>
                 <h2 className="rrp-detail-title">{result.recipe.name}</h2>
@@ -168,10 +249,19 @@ export default function FoodSearchPage() {
               </div>
             </div>
 
-            {/* AI 요약 */}
-            <div className="rrp-ai-result" style={{margin: '15px 0'}}>
-              <p className="rrp-ai-text">✨ {result.recipe.summary}</p>
-            </div>
+            {/* 레시피 저장 버튼 */}
+            <button
+              className={`rrp-save-btn rrp-save-btn--${saveState}`}
+              onClick={handleSaveRecipe}
+              disabled={saveState !== 'idle'}
+              style={{ marginBottom: '20px' }}
+            >
+              <span>
+                {saveState === 'idle'   && '📖 레시피북에 저장하기'}
+                {saveState === 'saving' && '⏳ 저장 중...'}
+                {saveState === 'saved'  && '✅ 저장 완료!'}
+              </span>
+            </button>
 
             {/* 있는 재료 */}
             <div className="rrp-section">

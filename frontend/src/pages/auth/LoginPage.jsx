@@ -49,7 +49,7 @@ const LoginPage = ({ role }) => {
     <div className={`auth-bg ${role === "SHOP" ? "shop-theme" : ""}`}>
       <div className="auth-card anim-pop">
         <div className="auth-logo" onClick={() => navigate("/")}>
-          <span className="auth-logo-text">Pleege</span>
+          <span className="auth-logo-text">Pleegie</span>
         </div>
 
         <div className="auth-header">

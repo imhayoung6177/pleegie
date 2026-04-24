@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 
 const LedgerPage = ({ ledgerItems: propItems = [] }) => {
   const [items, setItems] = useState([
-    { id: 1, name: '시장 장보기', price: 28500, date: '2025-04-20', emoji: '🛒' },
-    { id: 2, name: '계란 한판',   price: 8900,  date: '2025-04-18', emoji: '🥚' },
+    { id: 1, name: '시장 장보기', price: 28500, date: '2025-04-20', },
+    { id: 2, name: '계란 한판',   price: 8900,  date: '2025-04-18', },
     ...(propItems || []),
   ]);
   const [form, setForm] = useState({ name: '', price: '' });
@@ -27,17 +27,16 @@ const LedgerPage = ({ ledgerItems: propItems = [] }) => {
     <div>
       {/* 지출 합계 카드 */}
       <div style={{
-        background: 'linear-gradient(135deg, #2aaa78, #1e7a58)',
+        background: '#FF6B35',
         padding: '24px', borderRadius: '20px', color: 'white',
         textAlign: 'center', marginBottom: '20px',
-        boxShadow: '0 8px 20px rgba(42,170,120,0.2)',
       }}>
         <div style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '6px' }}>
           이번 달 총 지출
         </div>
         <div style={{
           fontSize: '2rem', fontWeight: 800,
-          fontFamily: "'Jua', sans-serif",
+          fontFamily: "var(--font-title)",
         }}>
           {total.toLocaleString()}원
         </div>
@@ -45,26 +44,26 @@ const LedgerPage = ({ ledgerItems: propItems = [] }) => {
 
       {/* 직접 입력 폼 */}
       <div style={{
-        background: 'rgba(42,170,120,0.06)',
+        background: 'rgba(0,0,0,0.03)',
         borderRadius: '16px', padding: '16px',
         marginBottom: '16px',
-        border: '1.5px solid rgba(42,170,120,0.15)',
+        border: '1.5px solid rgba(0,0,0,0.08)',
       }}>
         <div style={{
           fontSize: '0.85rem', fontWeight: 700,
-          color: '#2aaa78', marginBottom: '10px',
+          color: '#FF6B35', marginBottom: '10px',
         }}>
           + 지출 직접 입력
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <input
             type="text" placeholder="항목명"
             value={form.name}
             onChange={e => setForm({ ...form, name: e.target.value })}
             onKeyDown={e => e.key === 'Enter' && handleAdd()}
             style={{
-              flex: 2, padding: '10px 12px', borderRadius: '10px',
-              border: '1.5px solid rgba(42,170,120,0.25)',
+              flex: 2, minWidth: '100px', padding: '10px 12px', borderRadius: '10px',
+              border: '1.5px solid rgba(0,0,0,0.12)',
               fontSize: '0.88rem', outline: 'none',
             }}
           />
@@ -74,8 +73,8 @@ const LedgerPage = ({ ledgerItems: propItems = [] }) => {
             onChange={e => setForm({ ...form, price: e.target.value })}
             onKeyDown={e => e.key === 'Enter' && handleAdd()}
             style={{
-              flex: 1, padding: '10px 12px', borderRadius: '10px',
-              border: '1.5px solid rgba(42,170,120,0.25)',
+              flex: 1, minWidth: '80px', padding: '10px 12px', borderRadius: '10px',
+              border: '1.5px solid rgba(0,0,0,0.12)',
               fontSize: '0.88rem', outline: 'none',
             }}
           />
@@ -83,10 +82,11 @@ const LedgerPage = ({ ledgerItems: propItems = [] }) => {
             onClick={handleAdd}
             style={{
               padding: '10px 16px', borderRadius: '10px',
-              background: '#2aaa78', color: 'white',
+              background: '#FF6B35', color: 'white',
               border: 'none', fontWeight: 700,
               fontSize: '0.88rem', cursor: 'pointer',
               whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             추가
@@ -118,7 +118,7 @@ const LedgerPage = ({ ledgerItems: propItems = [] }) => {
                 {item.date}
               </div>
             </div>
-            <div style={{ fontWeight: 700, color: '#e04040', marginRight: '10px' }}>
+            <div style={{ fontWeight: 800, color: '#FF6B35', marginRight: '10px' }}>
               -{item.price.toLocaleString()}원
             </div>
             <button

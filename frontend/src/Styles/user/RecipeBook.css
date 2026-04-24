@@ -11,15 +11,15 @@
     flex: 1;
     padding: 12px;
     border-radius: 12px;
-    border: 1.5px solid #e0902a;
+    border: 1.5px solid #FF6B35;
     background: white;
-    color: #e0902a;
+    color: #FF6B35;
     font-weight: 600;
     cursor: pointer;
 }
 
 .recipe-tab-btn.active {
-    background: #e0902a;
+    background: #FF6B35;
     color: white;
 }
 
@@ -38,8 +38,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    border: 1.5px solid rgba(224, 144, 42, 0.2);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
 }
 
 .saved-recipe-card .recipe-emoji {

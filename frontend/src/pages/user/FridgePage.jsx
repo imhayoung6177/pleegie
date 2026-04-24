@@ -167,6 +167,12 @@ export default function FridgePage() {
   const handleRemove = (dbId) => setItems(prev => prev.filter(i => i.dbId !== dbId));
   const handleUpdateQty = (dbId, qty, unit, expiryDate) => setItems(prev => prev.map(i => i.dbId === dbId ? { ...i, qty, unit, expiryDate } : i));
 
+  // ✅ 로그아웃 기능
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
   // ✅ 1. 레시피 추천 페이지로 이동
   const handleGoToRecipe = () => {
     localStorage.setItem('fridgeItems', JSON.stringify(items));
@@ -184,20 +190,28 @@ export default function FridgePage() {
 
   return (
     <div className="fridge-page">
-      <h1 className="page-title">pleege</h1>
+      <div className="page-header">
+        <h1 className="page-title">pleegie</h1>
+        <div className="header-actions">
+          <button className="header-user-btn" onClick={() => navigate('/user/mypage')}>
+            <span className="header-user-emoji">👤</span>
+            <span className="header-user-name">{userName}님</span>
+          </button>
+          <button className="header-logout-btn" onClick={handleLogout}>로그아웃</button>
+        </div>
+      </div>
       <div className="fridge-outer">
         <div className="fridge-top-panel">
-          <span className="fridge-brand">나의 냉장고</span>
-          <button className="header-user-btn" onClick={() => navigate('/user/mypage')}>👤 {userName}님</button>
+          <span className="fridge-brand">{userName}님의 냉장고</span>
         </div>
         <div className="fridge-ai-bar">
-          <button className="ai-btn ai-btn-green" onClick={handleGoToRecipe}><strong>내 재료로 레시피 추천</strong></button>
+          <button className="ai-btn ai-btn-orange" onClick={handleGoToRecipe}><strong>내 재료로 레시피 추천</strong></button>
           <button className="ai-btn ai-btn-orange" onClick={handleGoToFoodSearch}><strong>먹고 싶은 음식 찾기</strong></button>
         </div>
         <div className="fridge-divider" />
         <div className="fridge-interior">
           <div className="fridge-ceiling-light" />
-          {items.length === 0 ? <div className="fridge-empty">🧊 비어있어요</div> : shelves.map((shelf, si) => (
+          {items.length === 0 ? <div className="fridge-empty">냉장고가 비어있습니다. 재료를 추가해주세요.</div> : shelves.map((shelf, si) => (
             <div key={si} className="fridge-shelf-section">
               <div className="items-grid">
                 {shelf.map((item, idx) => {
@@ -225,8 +239,8 @@ export default function FridgePage() {
   className="add-btn" 
   onClick={() => navigate('/user/chatbot')} // ✅ alert 대신 navigate로 변경!
 >
-  <span>💬</span>
-  <span className="add-btn-label">AI 챗봇</span>
+            <span></span>
+            <span className="add-btn-label">AI 챗봇</span>
 </button>        </div>
       </div>
       {selectedItem && <QtyModal item={selectedItem} onSave={handleUpdateQty} onClose={() => setSelectedItem(null)} />}
