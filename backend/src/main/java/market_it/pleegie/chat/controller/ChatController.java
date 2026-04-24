@@ -18,7 +18,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<AiRouterResponse>> chat(
+    public ResponseEntity<ApiResponse<Object>> chat(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChatRequest request){
         return ResponseEntity.ok(ApiResponse.ok(chatService.chat(

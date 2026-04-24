@@ -13,7 +13,7 @@ from app.recipe.schema import (
 )
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", google_api_key=settings.gemini_api_key
+    model="gemini-2.0-flash-lite", google_api_key=settings.gemini_api_key
 )
 
 RECOMMEND_TEMPLATE = PromptTemplate(
@@ -142,68 +142,124 @@ def parse_recipes(
     return results
 
 
+# async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse:
+#     # Redis 캐시 확인
+#     cache_key = f"recommend:{':'.join(sorted(request.ingredients))}"
+#     cached = redis_client.get(cache_key)
+#     if cached:
+#         print("캐시 히트!!")
+#         recipes = [RecipeItem(**r) for r in json.loads(cached)]
+#         return RecipeResponse(recipes=recipes)
+
+#     # 공공 API에서 레시피 조회
+#     recipes_data = await fetch_recipes_from_api(" ".join(request.ingredients))
+
+#     recipe_text = "\n".join(
+#         [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
+#     )
+
+#     chain = RECOMMEND_TEMPLATE | llm | StrOutputParser()
+#     result = await chain.ainvoke(
+#         {
+#             "ingredients": ", ".join(request.ingredients),
+#             "expiring_ingredients": (
+#                 ", ".join(request.expiring_ingredients)
+#                 if request.expiring_ingredients
+#                 else "없음"
+#             ),
+#             "recipes": recipe_text,
+#         }
+#     )
+
+#     parsed = parse_recipes(result, request.ingredients, request.expiring_ingredients)
+
+#     # Redis에 캐시 저장(1시간)
+#     redis_client.setex(cache_key, 3600, json.dumps([r.model_dump() for r in parsed]))
+
+#     return RecipeResponse(recipes=parsed)
+
+
 async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse:
-    # Redis 캐시 확인
-    cache_key = f"recommend:{':'.join(sorted(request.ingredients))}"
-    cached = redis_client.get(cache_key)
-    if cached:
-        print("캐시 히트!!")
-        recipes = [RecipeItem(**r) for r in json.loads(cached)]
-        return RecipeResponse(recipes=recipes)
 
-    # 공공 API에서 레시피 조회
-    recipes_data = await fetch_recipes_from_api(" ".join(request.ingredients))
+    # 임시 Mock 데이터 (테스트용)
+    mock_recipes = [
+        RecipeItem(
+            title="당근 달걀볶음",
+            description="냉장고 재료로 만드는 간단한 볶음 요리",
+            ingredients=["당근", "계란", "간장", "참기름"],
+            missing_ingredients=["간장", "참기름"],
+            match_score=0.8,
+            has_expiring=True,
+        ),
+        RecipeItem(
+            title="대파 계란국",
+            description="든든한 한 그릇 요리",
+            ingredients=["대파", "계란", "소금", "물"],
+            missing_ingredients=["소금"],
+            match_score=0.7,
+            has_expiring=False,
+        ),
+        RecipeItem(
+            title="당근 라페",
+            description="프랑스식 당근 샐러드",
+            ingredients=["당근", "레몬즙", "올리브오일"],
+            missing_ingredients=["레몬즙", "올리브오일"],
+            match_score=0.6,
+            has_expiring=True,
+        ),
+    ]
+    return RecipeResponse(recipes=mock_recipes)
 
-    recipe_text = "\n".join(
-        [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
-    )
 
-    chain = RECOMMEND_TEMPLATE | llm | StrOutputParser()
-    result = await chain.ainvoke(
-        {
-            "ingredients": ", ".join(request.ingredients),
-            "expiring_ingredients": (
-                ", ".join(request.expiring_ingredients)
-                if request.expiring_ingredients
-                else "없음"
-            ),
-            "recipes": recipe_text,
-        }
-    )
+# async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
+#     # Redis 캐시 확인
+#     cache_key = f"search:{request.query}"
+#     cached = redis_client.get(cache_key)
 
-    parsed = parse_recipes(result, request.ingredients, request.expiring_ingredients)
+#     if cached:
+#         print("캐시 히트!")
+#         recipes = [RecipeItem(**r) for r in json.loads(cached)]
+#         return RecipeResponse(recipes=recipes)
 
-    # Redis에 캐시 저장(1시간)
-    redis_client.setex(cache_key, 3600, json.dumps([r.model_dump() for r in parsed]))
+#     # 공공 API에서 레시피 조회
+#     recipes_data = await fetch_recipes_from_api(request.query)
 
-    return RecipeResponse(recipes=parsed)
+#     recipe_text = "\n".join(
+#         [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
+#     )
+
+#     chain = SEARCH_TEMPLATE | llm | StrOutputParser()
+#     result = await chain.ainvoke(
+#         {"query": request.query, "ingredients": "없음", "recipes": recipe_text}
+#     )
+
+#     parsed = parse_recipes(result, [], [])
+
+#     # Redis에 캐시 저장(1시간)
+#     redis_client.setex(cache_key, 3600, json.dumps([r.model_dump() for r in parsed]))
+
+#     return RecipeResponse(recipes=parsed)
 
 
 async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
-    # Redis 캐시 확인
-    cache_key = f"search:{request.query}"
-    cached = redis_client.get(cache_key)
 
-    if cached:
-        print("캐시 히트!")
-        recipes = [RecipeItem(**r) for r in json.loads(cached)]
-        return RecipeResponse(recipes=recipes)
-
-    # 공공 API에서 레시피 조회
-    recipes_data = await fetch_recipes_from_api(request.query)
-
-    recipe_text = "\n".join(
-        [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
-    )
-
-    chain = SEARCH_TEMPLATE | llm | StrOutputParser()
-    result = await chain.ainvoke(
-        {"query": request.query, "ingredients": "없음", "recipes": recipe_text}
-    )
-
-    parsed = parse_recipes(result, [], [])
-
-    # Redis에 캐시 저장(1시간)
-    redis_client.setex(cache_key, 3600, json.dumps([r.model_dump() for r in parsed]))
-
-    return RecipeResponse(recipes=parsed)
+    # 임시 Mock 데이터 (테스트용)
+    mock_recipes = [
+        RecipeItem(
+            title=f"{request.query} 기본 레시피",
+            description=f"{request.query} 만드는 방법",
+            ingredients=["재료1", "재료2", "재료3"],
+            missing_ingredients=["재료2", "재료3"],
+            match_score=0.9,
+            has_expiring=False,
+        ),
+        RecipeItem(
+            title=f"{request.query} 응용 레시피",
+            description=f"{request.query} 색다르게 만들기",
+            ingredients=["재료1", "재료4", "재료5"],
+            missing_ingredients=["재료4", "재료5"],
+            match_score=0.7,
+            has_expiring=False,
+        ),
+    ]
+    return RecipeResponse(recipes=mock_recipes)
