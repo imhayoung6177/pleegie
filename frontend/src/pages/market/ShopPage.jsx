@@ -1,92 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Styles/market/ShopPage.css';
-import '../../Styles/user/FridgePage.css'; // 냉장고 UI 적용
+import '../../Styles/user/FridgePage.css';
+
+// ✅ [연동 추가] marketService에서 API 함수 import
+import { getMyMarket, getMarketItems, cancelSale } from '../../services/marketService';
 
 /* ══════════════════════════════════════════════════════════
    상수 & 유틸
 ══════════════════════════════════════════════════════════ */
 
-// 현재 시각 기준으로 할인 상태 계산
-const getSaleStatus = (item, now) => {
-  if (!item.saleStart || !item.saleEnd || (!item.discountRate && !item.salePrice)) return 'none';
-
-  const [startH, startM] = item.saleStart.split(':').map(Number);
-  const [endH,   endM]   = item.saleEnd.split(':').map(Number);
-
-  const start = new Date(now);
-  start.setHours(startH, startM, 0, 0);
-  const end = new Date(now);
-  end.setHours(endH, endM, 0, 0);
-  const soon = new Date(start.getTime() - 60 * 60 * 1000); // 1시간 전
-
-  if (now >= start && now < end) return 'active';   // 할인 중
-  if (now >= soon  && now < start) return 'soon';   // 1시간 전
+// ✅ [수정] 백엔드 saleStatus 값 기준으로 변경
+// 이전: saleStart/saleEnd 시간 문자열로 계산
+// 이후: 백엔드가 이미 계산해서 "NONE" | "UPCOMING" | "ON_SALE" 으로 줌
+const getSaleStatus = (item) => {
+  if (item.saleStatus === 'ON_SALE')  return 'active';
+  if (item.saleStatus === 'UPCOMING') return 'soon';
   return 'none';
 };
 
-// 가격 계산
 const getDisplayPrice = (item, status) => {
-  if (status === 'active') {
-    if (item.salePrice) return item.salePrice;
-    if (item.discountRate) return Math.round(item.price * (1 - item.discountRate / 100));
-  }
-  return item.price;
-};
-
-// 시간 남은 문자열
-const getTimeLeft = (item, now, status) => {
-  if (status === 'none') return null;
-  const [h, m] = (status === 'soon' ? item.saleStart : item.saleEnd).split(':').map(Number);
-  const target = new Date(now);
-  target.setHours(h, m, 0, 0);
-  const diffMs = target - now;
-  if (diffMs <= 0) return null;
-  const mins = Math.floor(diffMs / 60000);
-  const secs = Math.floor((diffMs % 60000) / 1000);
-  if (mins >= 60) return `${Math.floor(mins / 60)}시간 ${mins % 60}분 후`;
-  if (mins > 0) return `${mins}분 ${secs}초 후`;
-  return `${secs}초 후`;
+  if (status === 'active' && item.discountPrice) return item.discountPrice;
+  return item.originalPrice;
 };
 
 /* ══════════════════════════════════════════════════════════
    할인 설정 모달
 ══════════════════════════════════════════════════════════ */
 const DiscountModal = ({ item, onSave, onClose }) => {
-  const [saleStart,    setSaleStart]    = useState(item.saleStart    || '18:00');
-  const [saleEnd,      setSaleEnd]      = useState(item.saleEnd      || '20:00');
-  const [salePrice,    setSalePrice]    = useState(item.salePrice    || (item.discountRate ? Math.round(item.price * (1 - item.discountRate / 100)) : item.price));
+  // ✅ [수정] 날짜+시간 형식으로 변경 (백엔드 LocalDateTime 형식)
+  // 이전: "18:00" 시간만 입력
+  // 이후: "2025-01-01T18:00" datetime-local 형식
+  const today = new Date().toISOString().slice(0, 10);
+  const [startTime, setStartTime] = useState(
+    item.startTime ? item.startTime.slice(0, 16) : `${today}T18:00`
+  );
+  const [endTime, setEndTime] = useState(
+    item.endTime   ? item.endTime.slice(0, 16)   : `${today}T20:00`
+  );
+  const [discountPrice, setDiscountPrice] = useState(
+    item.discountPrice || item.originalPrice || 0
+  );
 
-  const currentDiscountRate = item.price && salePrice ? Math.round((1 - salePrice / item.price) * 100) : 0;
+  const currentRate = item.originalPrice && discountPrice
+    ? Math.round((1 - discountPrice / item.originalPrice) * 100)
+    : 0;
   const PRESETS = [10, 20, 30, 50, 70];
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="discount-modal" onClick={e => e.stopPropagation()}>
-
-        {/* 모달 상단 */}
         <div className="discount-modal-top">
-          <span className="discount-modal-emoji">{item.emoji}</span>
+          <span className="discount-modal-emoji">🏷️</span>
           <span className="discount-modal-name">{item.name} 할인 설정</span>
           <button className="modal-close-btn" onClick={onClose}>✕</button>
         </div>
 
         <div className="discount-form">
-          {/* 할인가 */}
           <div className="discount-field">
             <label className="discount-label">할인가 (원)</label>
             <input
               className="discount-inp"
               type="number"
-              value={salePrice}
-              onChange={e => setSalePrice(Number(e.target.value))}
+              value={discountPrice}
+              onChange={e => setDiscountPrice(Number(e.target.value))}
             />
             <div className="discount-presets">
               {PRESETS.map(p => (
                 <button
                   key={p}
-                  className={`discount-preset-btn ${currentDiscountRate === p ? 'active' : ''}`}
-                  onClick={() => setSalePrice(Math.round(item.price * (1 - p / 100)))}
+                  className={`discount-preset-btn ${currentRate === p ? 'active' : ''}`}
+                  onClick={() => setDiscountPrice(Math.round(item.originalPrice * (1 - p / 100)))}
                 >
                   {p}%
                 </button>
@@ -94,40 +78,50 @@ const DiscountModal = ({ item, onSave, onClose }) => {
             </div>
           </div>
 
-          {/* 할인 시작 시각 */}
+          {/* ✅ [수정] type="time" → type="datetime-local"
+              이전: 시간만 입력 ("18:00")
+              이후: 날짜+시간 입력 → 백엔드 LocalDateTime 형식에 맞춤 */}
           <div className="discount-field">
-            <label className="discount-label">할인 시작 시각</label>
+            <label className="discount-label">할인 시작 일시</label>
             <input
               className="discount-inp"
-              type="time"
-              value={saleStart}
-              onChange={e => setSaleStart(e.target.value)}
+              type="datetime-local"
+              value={startTime}
+              onChange={e => setStartTime(e.target.value)}
             />
           </div>
 
-          {/* 할인 종료 시각 */}
           <div className="discount-field">
-            <label className="discount-label">할인 종료 시각</label>
+            <label className="discount-label">할인 종료 일시</label>
             <input
               className="discount-inp"
-              type="time"
-              value={saleEnd}
-              onChange={e => setSaleEnd(e.target.value)}
+              type="datetime-local"
+              value={endTime}
+              onChange={e => setEndTime(e.target.value)}
             />
           </div>
 
-          {/* 미리보기 */}
           <div className="discount-preview">
             <span className="discount-preview-label">할인 적용 가격</span>
             <div className="discount-preview-price">
-              <span className="original-price">{item.price.toLocaleString()}원</span>
-              <span className="sale-price">{salePrice.toLocaleString()}원</span>
+              <span className="original-price">{item.originalPrice?.toLocaleString()}원</span>
+              <span className="sale-price">{discountPrice.toLocaleString()}원</span>
             </div>
           </div>
 
           <button
             className="modal-submit-btn"
-            onClick={() => { onSave({ saleStart, saleEnd, salePrice, discountRate: currentDiscountRate }); onClose(); }}
+            onClick={() => {
+              onSave({
+                discountPrice,
+                discountRate: currentRate,
+                // ✅ [연동] 백엔드 LocalDateTime 형식으로 변환
+                // "2025-01-01T18:00" → "2025-01-01T18:00:00"
+                startTime: startTime + ':00',
+                endTime:   endTime   + ':00',
+              });
+              onClose();
+            }}
           >
             할인 설정 저장
           </button>
@@ -140,59 +134,37 @@ const DiscountModal = ({ item, onSave, onClose }) => {
 /* ══════════════════════════════════════════════════════════
    상품 카드
 ══════════════════════════════════════════════════════════ */
-const ProductCard = ({ item, now, onEdit, onDelete, onDiscount }) => {
-  const status      = getSaleStatus(item, now);
+const ProductCard = ({ item, now, onDelete, onDiscount }) => {
+  const status       = getSaleStatus(item);
   const displayPrice = getDisplayPrice(item, status);
-  const timeLeft    = getTimeLeft(item, now, status);
 
   return (
     <div className={`product-card ${status === 'soon' ? 'sale-soon' : ''} ${status === 'active' ? 'on-sale' : ''}`}>
-
-      {/* 이미지(이모지) 영역 */}
       <div className="product-emoji-wrap">
-        {item.emoji}
-        {status === 'soon' && (
-          <span className="sale-badge soon-badge">⏰ 임박</span>
-        )}
-        {status === 'active' && (
-          <span className="sale-badge active-badge">🔴 할인 중</span>
-        )}
+        🛒
+        {status === 'soon'   && <span className="sale-badge soon-badge">⏰ 임박</span>}
+        {status === 'active' && <span className="sale-badge active-badge">🔴 할인 중</span>}
       </div>
 
-      {/* 상품명 */}
       <div className="product-name">{item.name}</div>
 
-      {/* 가격 */}
       <div className="product-price-wrap">
         {status === 'active' && (
           <span className="product-original-price">
-            {item.price.toLocaleString()}원/{item.unit}
+            {item.originalPrice?.toLocaleString()}원/{item.unit || '개'}
           </span>
         )}
         <span className={`product-price ${status === 'active' ? 'discounted' : ''}`}>
-          {displayPrice.toLocaleString()}원/{item.unit}
+          {displayPrice?.toLocaleString()}원/{item.unit || '개'}
         </span>
-        {(item.discountRate || item.salePrice) && status !== 'active' && status !== 'none' && (
+        {/* ✅ [연동] 할인 시간 표시 - 백엔드 startTime/endTime 사용 */}
+        {item.startTime && (
           <span style={{ fontSize: '0.72rem', color: '#FF6B35' }}>
-            {item.discountRate || Math.round((1 - item.salePrice / item.price) * 100)}% 할인 예정
+            {item.startTime.slice(11, 16)}~{item.endTime?.slice(11, 16)} 할인
           </span>
         )}
       </div>
 
-      {/* 할인 시간 */}
-      {timeLeft && (
-        <div className={`product-sale-time ${status}`}>
-          {status === 'soon'   && `⏰ ${timeLeft} 할인 시작`}
-          {status === 'active' && `🔴 ${timeLeft} 후 종료`}
-        </div>
-      )}
-      {!timeLeft && item.saleStart && status === 'none' && (
-        <div className="product-sale-time">
-          🕐 {item.saleStart}~{item.saleEnd} 할인
-        </div>
-      )}
-
-      {/* 버튼 */}
       <div className="product-card-btns">
         <button className="product-edit-btn" onClick={() => onDiscount(item)}>
           할인 설정
@@ -210,69 +182,113 @@ const ProductCard = ({ item, now, onEdit, onDelete, onDiscount }) => {
 ══════════════════════════════════════════════════════════ */
 export default function ShopPage() {
   const navigate = useNavigate();
-  const shopName = localStorage.getItem('shopName') || '김씨네 채소가게';
 
-  // 현재 시각 (1초마다 갱신)
+  // ✅ [수정] localStorage → DB API 로 교체
+  // 이전: localStorage.getItem('shopName')
+  // 이후: GET /market/mypage 로 시장 정보 조회
+  const [marketInfo, setMarketInfo] = useState(null);
+  const [products,   setProducts]   = useState([]);
+  const [isLoading,  setIsLoading]  = useState(true);
+  const [error,      setError]      = useState('');
+
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  // 상품 목록 (로컬 스토리지 연동)
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('marketItems');
-    if (saved) return JSON.parse(saved);
-    return [
-      {
-        id: 1, name: '시금치',   emoji: '🥬', price: 3000, unit: '봉', shopName: shopName,
-        saleStart: '18:00', saleEnd: '20:00', discountRate: 50, salePrice: 1500,
-      },
-      {
-        id: 2, name: '대파',     emoji: '🌿', price: 2500, unit: '봉', shopName: shopName,
-        saleStart: '19:00', saleEnd: '21:00', discountRate: 30, salePrice: 1750,
-      },
-      {
-        id: 3, name: '계란',     emoji: '🥚', price: 8000, unit: '판', shopName: shopName,
-        saleStart: '', saleEnd: '', discountRate: 0, salePrice: null,
-      },
-      {
-        id: 4, name: '돼지고기', emoji: '🐷', price: 15000, unit: 'kg', shopName: shopName,
-        saleStart: '17:00', saleEnd: '19:00', discountRate: 20, salePrice: 12000,
-      },
-    ];
-  });
-
-  // 변경 시 로컬 스토리지에 자동 저장 (사용자 화면과 연동)
-  useEffect(() => {
-    localStorage.setItem('marketItems', JSON.stringify(products));
-  }, [products]);
-
-  const [discountTarget, setDiscountTarget] = useState(null); // 할인 설정할 상품
-  const [toast, setToast]         = useState('');
+  const [discountTarget, setDiscountTarget] = useState(null);
+  const [toast, setToast] = useState('');
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 2500);
   };
 
-  // 상품 삭제
-  const handleDelete = (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-    showToast('상품이 삭제됐어요');
+  // ✅ [연동 추가] 페이지 진입 시 시장 정보 + 품목 목록 API 호출
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 1. 내 시장 정보 조회 → GET /market/mypage
+        const market = await getMyMarket();
+        setMarketInfo(market);
+
+        // 2. 품목 목록 조회 → GET /market/items
+        const items = await getMarketItems();
+        setProducts(items || []);
+
+      } catch (err) {
+        // ✅ 토큰 만료 시 로그인 페이지로 이동
+        if (err.message === '로그인이 필요합니다') {
+          navigate('/market/login');
+          return;
+        }
+        setError(err.message || '데이터를 불러오는데 실패했습니다');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [navigate]);
+
+  // ✅ [연동] 품목 삭제 → DELETE /market/items/{itemId}
+  const handleDelete = async (itemId) => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      const { deleteMarketItem } = await import('../../services/marketService');
+      await deleteMarketItem(itemId);
+      // 목록에서 제거
+      setProducts(prev => prev.filter(p => p.id !== itemId));
+      showToast('품목이 삭제됐어요');
+    } catch (err) {
+      showToast(err.message || '삭제에 실패했습니다');
+    }
   };
 
-  // 할인 저장
-  const handleSaveDiscount = ({ saleStart, saleEnd, salePrice, discountRate }) => {
-    setProducts(prev => prev.map(p =>
-      p.id === discountTarget.id ? { ...p, saleStart, saleEnd, salePrice, discountRate } : p
-    ));
-    showToast(`${discountTarget.emoji} ${discountTarget.name} 할인 설정 완료!`);
+  // ✅ [연동] 할인 저장 → POST /market/items/{itemId}/sale
+  const handleSaveDiscount = async ({ discountPrice, discountRate, startTime, endTime }) => {
+    try {
+      const { startSale } = await import('../../services/marketService');
+      const updated = await startSale(discountTarget.id, {
+        discountPrice,
+        discountRate,
+        startTime,
+        endTime,
+      });
+      // 목록 업데이트
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+      showToast(`${discountTarget.name} 할인 설정 완료!`);
+    } catch (err) {
+      showToast(err.message || '할인 설정에 실패했습니다');
+    }
   };
 
-  // 통계
-  const onSaleCount = products.filter(p => getSaleStatus(p, now) === 'active').length;
-  const soonCount   = products.filter(p => getSaleStatus(p, now) === 'soon').length;
+  // ✅ [연동] 할인 취소 → DELETE /market/items/{itemId}/sale
+  const handleCancelSale = async (itemId) => {
+    try {
+      const updated = await cancelSale(itemId);
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+      showToast('할인이 취소되었습니다');
+    } catch (err) {
+      showToast(err.message || '할인 취소에 실패했습니다');
+    }
+  };
+
+  const onSaleCount = products.filter(p => p.saleStatus === 'ON_SALE').length;
+  const soonCount   = products.filter(p => p.saleStatus === 'UPCOMING').length;
+
+  // ✅ [연동] 시장 이름: marketInfo.name (DB) 우선, 없으면 localStorage 폴백
+  const shopName = marketInfo?.name || localStorage.getItem('shopName') || '내 가게';
+
+  if (isLoading) return (
+    <div className="fridge-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <div style={{ textAlign: 'center', color: '#8a7a60' }}>
+        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🏪</div>
+        <div>시장 정보를 불러오는 중...</div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="fridge-page">
@@ -281,11 +297,14 @@ export default function ShopPage() {
         <h1 className="page-title">pleegie</h1>
         <div className="header-actions">
           <button className="header-user-btn" onClick={() => navigate('/market/mypage')}>
-            <span className="header-user-emoji">
-              🏪</span>
+            <span className="header-user-emoji">🏪</span>
+            {/* ✅ [수정] localStorage → marketInfo.name (DB 값) */}
             <span className="header-user-name">{shopName}</span>
           </button>
-          <button className="header-logout-btn" onClick={() => { localStorage.clear(); window.location.href = '/'; }}>
+          <button className="header-logout-btn" onClick={() => {
+            localStorage.clear();
+            window.location.href = '/';
+          }}>
             로그아웃
           </button>
         </div>
@@ -293,50 +312,77 @@ export default function ShopPage() {
 
       <div className="fridge-outer">
         <div className="fridge-top-panel">
-          <span 
-            className="fridge-brand" 
+          {/* ✅ [수정] localStorage → DB에서 받은 시장 이름 표시 */}
+          <span
+            className="fridge-brand"
             onClick={() => navigate('/market/mypage')}
             style={{ cursor: 'pointer' }}
           >
             {shopName}
           </span>
         </div>
-        
+
         <div className="fridge-ai-bar">
           <button className="ai-btn ai-btn-orange" onClick={() => navigate('/market/items')}>
             <strong>재료 등록하기</strong>
           </button>
           <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', color: '#5a4a32', fontWeight: 'bold' }}>
-            <span>할인 임박: <span style={{color: '#FF6B35'}}>{soonCount}</span>건</span>
-            <span>할인 중: <span style={{color: '#E53535'}}>{onSaleCount}</span>건</span>
+            <span>할인 임박: <span style={{ color: '#FF6B35' }}>{soonCount}</span>건</span>
+            <span>할인 중: <span style={{ color: '#E53535' }}>{onSaleCount}</span>건</span>
           </div>
         </div>
-        
+
         <div className="fridge-divider" />
-        
+
         <div className="fridge-interior">
           <div className="fridge-ceiling-light" />
           <div className="product-grid" style={{ padding: '0 16px 20px', position: 'relative', zIndex: 2 }}>
-            {products.length === 0 ? (
+
+            {/* ✅ [수정] 에러 표시 */}
+            {error && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#E53535', padding: '20px' }}>
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* ✅ [수정] 품목 없을 때 "재료 등록하기" 버튼 강조 표시 */}
+            {!error && products.length === 0 ? (
               <div className="fridge-empty" style={{ gridColumn: '1 / -1' }}>
                 <span className="empty-icon">📦</span>
                 <div className="empty-title">등록된 품목이 없어요</div>
-                <div className="empty-sub">재료 등록하기를 눌러 추가해보세요.</div>
+                <div className="empty-sub">아래 버튼을 눌러 첫 품목을 등록해보세요!</div>
+                {/* ✅ [추가] 품목 없을 때 등록 버튼 강조 */}
+                <button
+                  onClick={() => navigate('/market/items')}
+                  style={{
+                    marginTop: '16px',
+                    padding: '12px 28px',
+                    background: '#FF6B35',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  📦 재료 등록하러 가기
+                </button>
               </div>
             ) : (
-              products.map((item) => (
+              products.map(item => (
                 <ProductCard
                   key={item.id}
                   item={item}
                   now={now}
-                  onDiscount={(p) => setDiscountTarget(p)}
+                  onDiscount={p => setDiscountTarget(p)}
                   onDelete={handleDelete}
                 />
               ))
             )}
           </div>
         </div>
-        
+
         <div className="fridge-bottom">
           <span className="item-count">등록된 품목 {products.length}개</span>
         </div>
@@ -351,7 +397,6 @@ export default function ShopPage() {
         />
       )}
 
-      {/* ══ 토스트 ══ */}
       {toast && <div className="shop-toast">{toast}</div>}
     </div>
   );

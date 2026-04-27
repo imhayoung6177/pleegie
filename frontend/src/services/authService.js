@@ -1,64 +1,46 @@
 import axios from "axios";
 
-// ────────────────────────────────────────────────────────
-// 백엔드(Spring Boot) 연동 완료 후 아래 값을 false 로 변경
-// ────────────────────────────────────────────────────────
-const USE_MOCK = true;
+// 1. axios 인스턴스 생성 (설정 공통화)
+const apiClient = axios.create({
+  baseURL: "", // vite-proxy를 사용하므로 비워둡니다.
+  withCredentials: true,
+});
 
-axios.defaults.baseURL = "http://localhost:8080";
-axios.defaults.withCredentials = true;
-
-// ── Mock 유틸 ─────────────────────────────────────────
-const MOCK_KEY = "mock_users";
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-const getMockUsers = () => JSON.parse(localStorage.getItem(MOCK_KEY) || "[]");
-const saveMockUsers = (users) => localStorage.setItem(MOCK_KEY, JSON.stringify(users));
-
-// ── Mock 구현 ─────────────────────────────────────────
-const mockRegister = async ({ userId, password, name, phone, email, address, addressDetail }) => {
-  await delay(600);
-  const users = getMockUsers();
-  if (users.find((u) => u.userId === userId)) {
-    throw new Error("이미 사용 중인 아이디입니다.");
+// 2. 인터셉터: 모든 요청에 토큰 자동 탑승
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    // Bearer 뒤에 한 칸 공백 필수!
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  const newUser = {
-    id: Date.now(),
-    userId,
-    password,
-    name,
-    phone,
-    email,
-    address,
-    addressDetail,
-    role: "USER",
-  };
-  saveMockUsers([...users, newUser]);
-  return { success: true };
+  return config;
+}, (error) => Promise.reject(error));
+
+// 3. 로그인 API (백엔드 UserLoginRequest DTO 이름에 맞춤)
+export const login = async ({ userId, password }) => {
+  const response = await apiClient.post("/user/login", {
+    loginId: userId, // 백엔드가 'loginId'를 받기로 했다면 이렇게 매핑
+    password: password,
+  });
+  
+  // 백엔드 성공 시: { status: 200, data: { accessToken: "...", ... } } 구조라고 가정
+  const result = response.data;
+  if (result.data && result.data.accessToken) {
+    localStorage.setItem('accessToken', result.data.accessToken);
+    localStorage.setItem('userName', result.data.name);
+  }
+  return result.data;
 };
 
-const mockLogin = async ({ userId, password, role }) => {
-  await delay(600);
-  const users = getMockUsers();
-  const user = users.find((u) => u.userId === userId && u.password === password);
-  if (!user) throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
-  return { success: true, userName: user.name, userId: user.id };
-};
-
-// ── 실제 API 구현 (백엔드 연동 시 사용) ───────────────
-const apiLogin = async ({ userId, password, role }) => {
-  const response = await axios.post("/api/auth/login", {
-    name: userId,
-    password,
-    role,
+// 4. 회원가입 API
+export const register = async (userData) => {
+  const response = await apiClient.post("/user/signup", {
+    loginId: userData.userId,
+    password: userData.password,
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    role: "USER" // 기본 권한 설정
   });
   return response.data;
 };
-
-const apiRegister = async (data) => {
-  const response = await axios.post("/api/auth/register", data);
-  return response.data;
-};
-
-// ── 외부에 노출되는 함수 ──────────────────────────────
-export const login = USE_MOCK ? mockLogin : apiLogin;
-export const register = USE_MOCK ? mockRegister : apiRegister;
