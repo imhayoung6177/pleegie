@@ -1,51 +1,140 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const RECIPE_DB = [
-  { id: 1, emoji: '🍳', name: '계란볶음밥', time: '15분', difficulty: '쉬움',
-    ingredients: ['계란 2개', '밥 1공기', '간장 1큰술', '파 약간', '참기름'],
-    steps: ['파를 잘게 썰어 준비합니다.', '달궈진 팬에 기름을 두르고 계란을 스크램블합니다.',
-            '밥을 넣고 강불에서 볶아줍니다.', '간장, 참기름을 넣고 마지막에 파를 올려 완성합니다.'] },
-  { id: 2, emoji: '🥘', name: '된장찌개', time: '20분', difficulty: '쉬움',
-    ingredients: ['된장 2큰술', '두부 1/2모', '애호박 1/4개', '양파 1/4개', '멸치육수 2컵'],
-    steps: ['멸치육수를 냄비에 넣고 끓입니다.', '된장을 풀어 넣습니다.',
-            '두부, 애호박, 양파를 넣고 10분 끓입니다.', '기호에 따라 청양고추를 넣어 완성합니다.'] },
-  { id: 3, emoji: '🍜', name: '소고기무국', time: '30분', difficulty: '보통',
-    ingredients: ['소고기 150g', '무 200g', '간장 2큰술', '마늘 1큰술', '참기름', '물 4컵'],
-    steps: ['소고기를 참기름에 볶아줍니다.', '무를 나박썰기하여 넣고 함께 볶습니다.',
-            '물을 붓고 20분간 끓입니다.', '간장과 소금으로 간을 맞춰 완성합니다.'] },
-  { id: 4, emoji: '🍝', name: '토마토 파스타', time: '25분', difficulty: '보통',
-    ingredients: ['파스타 200g', '토마토 2개', '마늘 3쪽', '올리브오일', '소금', '파르메산치즈'],
-    steps: ['파스타를 소금물에 삶습니다(8~10분).', '팬에 올리브오일을 두르고 마늘을 볶습니다.',
-            '토마토를 넣고 으깨며 소스를 만듭니다.', '삶은 파스타를 넣고 버무려 치즈를 뿌려 완성합니다.'] },
-];
+/**
+ * RecipeBook.jsx
+ *
+ * ✅ [수정] localStorage → API 연동
+ *
+ * 백엔드 엔드포인트:
+ *   GET    /user/recipe-book          → 저장한 레시피 목록 조회
+ *   POST   /user/recipe-book?recipeId → 레시피 저장
+ *   DELETE /user/recipe-book/{id}     → 레시피 삭제
+ *
+ * 백엔드 RecipeBookResponse 구조:
+ *   { id, recipeId, recipeTitle, recipeImageUrl, savedAt }
+ */
 
-const RecipeBook = () => {
-  const [allRecipes, setAllRecipes] = useState(() => {
-    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-    const combined = [...saved, ...RECIPE_DB];
-    return Array.from(new Map(combined.map(item => [item.id, item])).values());
+// ✅ [이전 코드 주석처리] RECIPE_DB 목 데이터 제거
+// → 실제 API 연동 후 불필요
+// const RECIPE_DB = [
+//   { id: 1, emoji: '🍳', name: '계란볶음밥', ... },
+//   ...
+// ];
+
+const RecipeBook = ({ onBack }) => {
+  // ✅ [수정] 초기값 빈 배열 → useEffect에서 API 조회
+  const [allRecipes,   setAllRecipes]   = useState([]);
+  const [searchResult, setSearchResult] = useState([]);
+  const [query,        setQuery]        = useState('');
+  const [selected,     setSelected]     = useState(null);
+  const [isLoading,    setIsLoading]    = useState(true);
+  const [error,        setError]        = useState('');
+
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    'Content-Type': 'application/json',
   });
-  const [searchResult, setSearchResult] = useState(allRecipes);
-  const [query,    setQuery]    = useState('');
-  const [selected, setSelected] = useState(null);
+
+  // ✅ [연동] 저장한 레시피 목록 조회
+  // → GET /user/recipe-book
+  // → RecipeBookResponse: { id, recipeId, recipeTitle, recipeImageUrl, savedAt }
+  useEffect(() => {
+    const fetchSaved = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch('/user/recipe-book', {
+          headers: getAuthHeaders(),
+        });
+        const json = await res.json();
+
+        if (res.ok) {
+          const data = json.data || [];
+          setAllRecipes(data);
+          setSearchResult(data);
+        } else {
+          // ✅ API 실패 시 localStorage 폴백
+          const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+          setAllRecipes(saved);
+          setSearchResult(saved);
+        }
+      } catch {
+        // ✅ 네트워크 오류 시 localStorage 폴백
+        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+        setAllRecipes(saved);
+        setSearchResult(saved);
+        setError('서버 연결에 실패했습니다. 저장된 레시피를 표시합니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSaved();
+  }, []);
 
   const handleSearch = () => {
     const q = query.trim();
-    setSearchResult(q ? allRecipes.filter(r => r.name.includes(q)) : allRecipes);
+    setSearchResult(
+      q
+        ? allRecipes.filter(r =>
+            // ✅ [수정] API 응답은 recipeTitle 필드 사용
+            // localStorage 폴백은 name 필드 사용
+            (r.recipeTitle || r.name || '').includes(q)
+          )
+        : allRecipes
+    );
   };
 
-  const handleRemove = (e, recipe) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 방지
-    if (!window.confirm(`'${recipe.name}' 레시피를 삭제하시겠습니까?`)) return;
+  // ✅ [연동] 레시피 삭제
+  // → DELETE /user/recipe-book/{id}
+  // → id: RecipeBook.id (recipeId가 아님!)
+  const handleRemove = async (e, recipe) => {
+    e.stopPropagation();
+    const name = recipe.recipeTitle || recipe.name || '이 레시피';
+    if (!window.confirm(`'${name}' 레시피를 삭제하시겠습니까?`)) return;
 
-    setAllRecipes(prev => prev.filter(r => r.id !== recipe.id));
-    setSearchResult(prev => prev.filter(r => r.id !== recipe.id));
+    try {
+      const res = await fetch(`/user/recipe-book/${recipe.id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
 
-    const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
-    localStorage.setItem('savedRecipes', JSON.stringify(saved.filter(r => r.id !== recipe.id)));
+      if (res.ok) {
+        setAllRecipes(prev   => prev.filter(r => r.id !== recipe.id));
+        setSearchResult(prev => prev.filter(r => r.id !== recipe.id));
+      } else {
+        // ✅ API 없을 시 localStorage에서만 삭제
+        const saved = JSON.parse(localStorage.getItem('savedRecipes') || '[]');
+        localStorage.setItem(
+          'savedRecipes',
+          JSON.stringify(saved.filter(r => r.id !== recipe.id))
+        );
+        setAllRecipes(prev   => prev.filter(r => r.id !== recipe.id));
+        setSearchResult(prev => prev.filter(r => r.id !== recipe.id));
+      }
+    } catch {
+      // localStorage fallback
+      setAllRecipes(prev   => prev.filter(r => r.id !== recipe.id));
+      setSearchResult(prev => prev.filter(r => r.id !== recipe.id));
+    }
   };
 
-  // 상세 보기
+  // ✅ 레시피 이름 추출 헬퍼
+  // → API 응답(recipeTitle) vs localStorage 폴백(name) 두 경우 처리
+  const getRecipeName  = (r) => r.recipeTitle  || r.name  || '레시피';
+  const getRecipeEmoji = (r) => r.emoji        || '🍽';
+  const getRecipeTime  = (r) => r.time         || '-';
+  const getRecipeDiff  = (r) => r.difficulty   || '-';
+
+  /* ── 로딩 ── */
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px', color: '#8a7a60' }}>
+        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📖</div>
+        <p>레시피북을 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  /* ── 상세 보기 ── */
   if (selected) {
     return (
       <div>
@@ -61,73 +150,99 @@ const RecipeBook = () => {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-          <span style={{ fontSize: '2.5rem' }}>{selected.emoji}</span>
+          <span style={{ fontSize: '2.5rem' }}>{getRecipeEmoji(selected)}</span>
           <div>
-            <div style={{
-              fontFamily: "var(--font-title)",
-              fontSize: '1.3rem', color: '#2a1f0e',
-            }}>
-              {selected.name}
+            <div style={{ fontFamily: 'var(--font-title)', fontSize: '1.3rem', color: '#2a1f0e' }}>
+              {getRecipeName(selected)}
             </div>
             <div style={{ fontSize: '0.82rem', color: '#8a7a60' }}>
-              ⏱ {selected.time} · 난이도: {selected.difficulty}
+              ⏱ {getRecipeTime(selected)} · 난이도: {getRecipeDiff(selected)}
             </div>
+            {/* ✅ [연동] 저장 시각 표시 */}
+            {selected.savedAt && (
+              <div style={{ fontSize: '0.75rem', color: '#aaa', marginTop: '2px' }}>
+                저장일: {new Date(selected.savedAt).toLocaleDateString('ko-KR')}
+              </div>
+            )}
           </div>
         </div>
 
-        <div style={{ marginBottom: '18px' }}>
-          <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
-            🥬 필요 재료
+        {selected.ingredients?.length > 0 && (
+          <div style={{ marginBottom: '18px' }}>
+            <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
+              🥬 필요 재료
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {selected.ingredients.map(ing => (
+                <span
+                  key={ing}
+                  style={{
+                    background: 'rgba(0,0,0,0.05)',
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    borderRadius: '999px', padding: '4px 12px',
+                    fontSize: '0.82rem', color: '#5a4a32',
+                  }}
+                >
+                  {ing}
+                </span>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {selected.ingredients.map(ing => (
-              <span key={ing} style={{
-                background: 'rgba(0,0,0,0.05)',
-                border: '1px solid rgba(0,0,0,0.1)',
-                borderRadius: '999px', padding: '4px 12px',
-                fontSize: '0.82rem', color: '#5a4a32',
-              }}>
-                {ing}
-              </span>
+        )}
+
+        {selected.steps?.length > 0 && (
+          <div>
+            <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
+              📋 조리 순서
+            </div>
+            {selected.steps.map((step, i) => (
+              <div
+                key={i}
+                style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '10px' }}
+              >
+                <div style={{
+                  width: '24px', height: '24px', borderRadius: '50%',
+                  background: '#FF6B35', color: 'white', fontWeight: 700,
+                  fontSize: '0.8rem', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', flexShrink: 0,
+                }}>
+                  {i + 1}
+                </div>
+                <span style={{ fontSize: '0.88rem', color: '#444', lineHeight: 1.6 }}>{step}</span>
+              </div>
             ))}
           </div>
-        </div>
+        )}
 
-        <div>
-          <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
-            📋 조리 순서
+        {/* ✅ [연동] API 응답에 상세 정보가 없을 때 안내 */}
+        {!selected.ingredients && !selected.steps && (
+          <div style={{ color: '#8a7a60', fontSize: '0.88rem', textAlign: 'center', padding: '20px' }}>
+            상세 정보는 레시피 검색에서 확인하세요
           </div>
-          {selected.steps.map((step, i) => (
-            <div key={i} style={{
-              display: 'flex', gap: '12px',
-              alignItems: 'flex-start', marginBottom: '10px',
-            }}>
-              <div style={{
-                width: '24px', height: '24px', borderRadius: '50%',
-                background: '#FF6B35', color: 'white', fontWeight: 700,
-                fontSize: '0.8rem', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', flexShrink: 0,
-              }}>
-                {i + 1}
-              </div>
-              <span style={{ fontSize: '0.88rem', color: '#444', lineHeight: 1.6 }}>
-                {step}
-              </span>
-            </div>
-          ))}
-        </div>
+        )}
       </div>
     );
   }
 
-  // 목록
+  /* ── 목록 ── */
   return (
     <div>
+      {/* 에러 메시지 */}
+      {error && (
+        <div style={{
+          background: '#fff8ee', border: '1px solid #FF6B35',
+          borderRadius: '10px', padding: '10px 14px',
+          fontSize: '0.82rem', color: '#FF6B35', marginBottom: '16px',
+        }}>
+          ⚠️ {error}
+        </div>
+      )}
+
       {/* 검색창 */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
         <input
           type="text"
-          placeholder="레시피 이름으로 검색 (예: 된장찌개)"
+          placeholder="레시피 이름으로 검색"
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -152,48 +267,53 @@ const RecipeBook = () => {
       {/* 레시피 목록 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {searchResult.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#aaa', padding: '24px 0' }}>
-            검색 결과가 없어요 😅
-          </p>
-        ) : searchResult.map(r => (
-          <div
-            key={r.id}
-            onClick={() => setSelected(r)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '14px',
-              padding: '14px 16px',
-              background: 'rgba(0,0,0,0.02)',
-              border: '1.5px solid rgba(0,0,0,0.08)',
-              borderRadius: '16px', cursor: 'pointer',
-            }}
-          >
-            <span style={{ fontSize: '1.8rem' }}>{r.emoji}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '0.95rem' }}>
-                {r.name}
-              </div>
-              <div style={{ fontSize: '0.78rem', color: '#8a7a60', marginTop: '2px' }}>
-                ⏱ {r.time} &nbsp;·&nbsp; 난이도: {r.difficulty}
-              </div>
-            </div>
-            <button
-              onClick={(e) => handleRemove(e, r)}
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#8a7a60' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📖</div>
+            <p>저장된 레시피가 없어요</p>
+            <p style={{ fontSize: '0.82rem' }}>레시피 추천에서 마음에 드는 레시피를 저장해보세요!</p>
+          </div>
+        ) : (
+          searchResult.map(r => (
+            <div
+              key={r.id}
+              onClick={() => setSelected(r)}
               style={{
-                background: '#FF6B35',
-                border: 'none',
-                color: 'white',
-                padding: '6px 14px',
-                borderRadius: '8px',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '14px',
+                padding: '14px 16px',
+                background: 'rgba(0,0,0,0.02)',
+                border: '1.5px solid rgba(0,0,0,0.08)',
+                borderRadius: '16px', cursor: 'pointer',
               }}
             >
-              삭제
-            </button>
-            <span style={{ color: '#FF6B35', fontSize: '1.2rem', marginLeft: '4px' }}>›</span>
-          </div>
-        ))}
+              <span style={{ fontSize: '1.8rem' }}>{getRecipeEmoji(r)}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '0.95rem' }}>
+                  {getRecipeName(r)}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#8a7a60', marginTop: '2px' }}>
+                  ⏱ {getRecipeTime(r)} · 난이도: {getRecipeDiff(r)}
+                </div>
+                {/* ✅ [연동] 저장 시각 */}
+                {r.savedAt && (
+                  <div style={{ fontSize: '0.72rem', color: '#aaa', marginTop: '2px' }}>
+                    저장: {new Date(r.savedAt).toLocaleDateString('ko-KR')}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={e => handleRemove(e, r)}
+                style={{
+                  background: '#FF6B35', border: 'none', color: 'white',
+                  padding: '6px 14px', borderRadius: '8px',
+                  fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                삭제
+              </button>
+              <span style={{ color: '#FF6B35', fontSize: '1.2rem', marginLeft: '4px' }}>›</span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

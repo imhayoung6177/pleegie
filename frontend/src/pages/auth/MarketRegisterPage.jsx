@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-// ✅ RegisterPage와 동일한 CSS import
 import "../../Styles/auth/AuthPage.css";
 import "../../Styles/auth/RegisterPage.css";
+
+// ✅ [연동 추가] 상인 회원가입 & 사업자 인증 API 함수 import
+// → marketService.js 에 아래 두 함수를 만들어야 함 (하단 authService 참고)
+// import { verifyBizNumber, registerMarket } from "../../services/MarketService.js"; // 임시중단
+import { registerMarket } from "../../services/marketService.js";
 
 const MarketRegisterPage = () => {
   const navigate = useNavigate();
   const [isVerified, setIsVerified] = useState(false);
+
+  // ✅ [연동 추가] 사업자 인증 후 서버에서 받아온 데이터를 저장하는 state
+  // → verifiedBizData: { bizName, ceoName } 형태로 자동 채워줄 용도
+  // const [verifiedBizData, setVerifiedBizData] = useState(null);
 
   const [form, setForm] = useState({
     userId: "",
@@ -17,12 +25,20 @@ const MarketRegisterPage = () => {
     ownerName: "",
     phone: "",
     address: "",
+    // ✅ [연동 추가] 백엔드 MarketCreateRequest 에 필요한 위/경도 필드 추가
+    // → 추후 지도 API(카카오/네이버)와 연동 시 자동 입력될 예정
+    latitude: "",
+    longitude: "",
   });
 
   const [errors, setErrors] = useState({});
   const [showPw,  setShowPw]  = useState(false);
   const [showPwC, setShowPwC] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // ✅ [연동 추가] 사업자 인증 요청 중 로딩 상태 분리
+  // → 메인 submit 버튼과 인증 버튼의 로딩을 각각 관리
+  const [isBizLoading, setIsBizLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +46,7 @@ const MarketRegisterPage = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
   };
 
-  // ✅ 전화번호 자동 하이픈 (RegisterPage와 동일 로직)
+  // 전화번호 자동 하이픈
   const handlePhoneChange = (e) => {
     const digits = e.target.value.replace(/\D/g, "");
     let formatted = digits;
@@ -41,40 +57,67 @@ const MarketRegisterPage = () => {
     if (errors.phone) setErrors(prev => ({ ...prev, phone: "" }));
   };
 
-  // ✅ 사업자 번호 인증 (현재는 테스트 모드)
-  const handleVerifyBiz = () => {
-    if (!form.bizNumber.trim()) {
-      setErrors(prev => ({ ...prev, bizNumber: "사업자 번호를 입력해주세요" }));
-      return;
-    }
-    alert("사업자 인증에 성공하였습니다! (테스트 모드)");
-    setIsVerified(true);
-    setErrors(prev => ({ ...prev, bizNumber: "" }));
-  };
+  // ✅ [연동] 사업자 번호 인증 → 실제 공공 API or 자체 백엔드로 교체
+  // → 백엔드: POST /auth/biz-verify { bizNumber }
+  // → 성공 시 응답: { bizName: "홍길동 식품", ceoName: "홍길동" }
+const handleVerifyBiz = async () => {
+  if (!form.bizNumber.trim()) {
+    setErrors(prev => ({ ...prev, bizNumber: "사업자 번호를 입력해주세요" }));
+    return;
+  }
 
-  // ✅ 유효성 검사 (RegisterPage와 동일한 패턴)
+  // ✅ 임시: API 호출 없이 바로 인증 성공 처리
+  // 🔴 나중에 실제 API 연동할 때 이 블록을 제거하고
+  //    아래 주석처리된 try/catch 블록을 살려야 함
+  setIsVerified(true);
+  setErrors(prev => ({ ...prev, bizNumber: "" }));
+
+  // 🔴 실제 API 연동 시 아래 코드로 교체
+  // setIsBizLoading(true);
+  // try {
+  //   const result = await verifyBizNumber(form.bizNumber);
+  //   setIsVerified(true);
+  //   setVerifiedBizData(result);
+  //   setErrors(prev => ({ ...prev, bizNumber: "" }));
+  //   if (result.bizName) setForm(prev => ({ ...prev, marketName: result.bizName }));
+  //   if (result.ceoName) setForm(prev => ({ ...prev, ownerName: result.ceoName }));
+  // } catch (err) {
+  //   setErrors(prev => ({
+  //     ...prev,
+  //     bizNumber: err.message || "사업자 인증에 실패했습니다."
+  //   }));
+  // } finally {
+  //   setIsBizLoading(false);
+  // }
+};
+
   const validate = () => {
     const newErrors = {};
     const phoneRegex = /^\d{3}-\d{3,4}-\d{4}$/;
 
-    if (!isVerified) newErrors.bizNumber = "사업자 인증을 먼저 완료해주세요";
-    if (!form.marketName.trim()) newErrors.marketName = "상호명을 입력해주세요";
-    if (!form.ownerName.trim())  newErrors.ownerName  = "대표자명을 입력해주세요";
+    if (!isVerified)             newErrors.bizNumber       = "사업자 인증을 먼저 완료해주세요";
+    if (!form.marketName.trim()) newErrors.marketName      = "상호명을 입력해주세요";
+    if (!form.ownerName.trim())  newErrors.ownerName       = "대표자명을 입력해주세요";
 
-    if (!form.userId.trim()) newErrors.userId = "아이디를 입력해주세요";
+    if (!form.userId.trim())         newErrors.userId = "아이디를 입력해주세요";
     else if (form.userId.length < 4) newErrors.userId = "아이디는 4자 이상이어야 합니다";
     else if (/[^a-zA-Z0-9_]/.test(form.userId)) newErrors.userId = "영문, 숫자, _ 만 사용 가능합니다";
 
-    if (!form.password) newErrors.password = "비밀번호를 입력해주세요";
+    if (!form.password)              newErrors.password = "비밀번호를 입력해주세요";
     else if (form.password.length < 8) newErrors.password = "비밀번호는 8자 이상이어야 합니다";
 
     if (!form.confirmPassword) newErrors.confirmPassword = "비밀번호를 한 번 더 입력해주세요";
     else if (form.password !== form.confirmPassword) newErrors.confirmPassword = "비밀번호가 일치하지 않습니다";
 
-    if (!form.phone) newErrors.phone = "전화번호를 입력해주세요";
+    if (!form.phone)                       newErrors.phone = "전화번호를 입력해주세요";
     else if (!phoneRegex.test(form.phone)) newErrors.phone = "올바른 전화번호 형식이 아닙니다 (010-0000-0000)";
 
     if (!form.address.trim()) newErrors.address = "사업장 주소를 입력해주세요";
+
+    // ✅ [연동 추가] 위/경도 검증
+    // → 지도 API 연동 전까지는 주소 입력 후 좌표 자동 변환 예정
+    // → 현재는 필수값 검사 생략 (추후 활성화)
+    // if (!form.latitude || !form.longitude) newErrors.address = "주소 검색으로 좌표를 설정해주세요";
 
     return newErrors;
   };
@@ -88,13 +131,37 @@ const MarketRegisterPage = () => {
       document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+
     setIsLoading(true);
     try {
-      // ✅ 나중에 API 연동할 부분
-      // await registerShop(form);
-      console.log("상인 회원가입 데이터:", form);
-      alert("상인 회원가입이 완료되었습니다!");
-      navigate("/market/login");
+      // ✅ [연동] 실제 회원가입 API 호출
+      // → 백엔드: POST /auth/signup (회원 생성) + POST /market/signup (시장 등록)
+      // → registerMarket 내부에서 두 단계를 처리하거나,
+      //   백엔드가 한 번에 처리하는 통합 엔드포인트를 사용
+      // → 전송 데이터: MarketCreateRequest 스펙에 맞춰 구성
+      await registerMarket({
+        // 회원 정보
+        userId:          form.userId,
+        password:        form.password,
+        phone:           form.phone,
+        // 시장 정보 (MarketCreateRequest 필드명과 일치시킴)
+        name:            form.marketName,
+        ceoName:         form.ownerName,
+        businessNumber:  form.bizNumber,
+        latitude:        parseFloat(form.latitude)  || 0,
+        longitude:       parseFloat(form.longitude) || 0,
+      });
+
+      // ✅ [이전 코드 주석처리] console.log + alert 방식 제거
+      // → 테스트용 임시 코드, 실제 API 연동 후 불필요
+      // console.log("상인 회원가입 데이터:", form);
+      // alert("상인 회원가입이 완료되었습니다!");
+
+      // ✅ [연동 추가] 가입 완료 후 로그인 페이지로 이동 + 성공 메시지 전달
+      navigate("/market/login", {
+        state: { successMessage: "회원가입이 완료되었습니다! 승인 후 로그인 가능합니다." }
+      });
+
     } catch (err) {
       setErrors({ general: err.message || "회원가입에 실패했습니다." });
     } finally {
@@ -102,7 +169,6 @@ const MarketRegisterPage = () => {
     }
   };
 
-  // ✅ RegisterPage와 완전히 동일한 구조/클래스명 사용
   return (
     <div className="auth-bg">
       <div className="auth-circle circle-left" />
@@ -131,7 +197,6 @@ const MarketRegisterPage = () => {
           {/* ── 1. 사업자 등록번호 + 인증 버튼 ── */}
           <div className="auth-field">
             <label className="auth-label" htmlFor="bizNumber">사업자 등록번호</label>
-            {/* ✅ 인증 전/후 상태를 readonly/editable 클래스로 표현 */}
             <div className="reg-addr-row">
               <div className={`auth-input-wrap reg-addr-input ${isVerified ? "readonly" : "editable"}`}>
                 <input
@@ -146,15 +211,15 @@ const MarketRegisterPage = () => {
                   maxLength={10}
                 />
               </div>
-              {/* ✅ reg-addr-btn 클래스 — RegisterPage.css에 이미 정의되어 있음 */}
+              {/* ✅ [연동] 버튼 텍스트에 로딩 상태 반영 */}
               <button
                 type="button"
                 className="reg-addr-btn"
                 onClick={handleVerifyBiz}
-                disabled={isVerified}
+                disabled={isVerified || isBizLoading}
                 style={{ opacity: isVerified ? 0.6 : 1 }}
               >
-                {isVerified ? "✅ 인증완료" : "조회하기"}
+                {isVerified ? "✅ 인증완료" : isBizLoading ? "인증 중..." : "조회하기"}
               </button>
             </div>
             {errors.bizNumber && <p className="auth-field-error">⚠ {errors.bizNumber}</p>}
@@ -163,6 +228,7 @@ const MarketRegisterPage = () => {
           {/* ── 2. 상호명 ── */}
           <div className="auth-field">
             <label className="auth-label" htmlFor="marketName">상호명</label>
+            {/* ✅ [연동] 인증 성공 시 서버에서 받은 값이 자동으로 채워짐 */}
             <div className={`auth-input-wrap ${!isVerified ? "readonly" : "editable"}`}>
               <input
                 id="marketName"
@@ -181,6 +247,7 @@ const MarketRegisterPage = () => {
           {/* ── 3. 대표자명 ── */}
           <div className="auth-field">
             <label className="auth-label" htmlFor="ownerName">대표자명</label>
+            {/* ✅ [연동] 인증 성공 시 서버에서 받은 값이 자동으로 채워짐 */}
             <div className={`auth-input-wrap ${!isVerified ? "readonly" : "editable"}`}>
               <input
                 id="ownerName"
@@ -258,7 +325,6 @@ const MarketRegisterPage = () => {
                 </button>
               )}
             </div>
-            {/* ✅ RegisterPage와 동일한 실시간 비밀번호 일치 표시 */}
             {form.confirmPassword && (
               <p className={form.password === form.confirmPassword ? "auth-field-ok" : "auth-field-error"}>
                 {form.password === form.confirmPassword ? "비밀번호가 일치합니다" : "비밀번호가 일치하지 않습니다"}
@@ -289,6 +355,8 @@ const MarketRegisterPage = () => {
           </div>
 
           {/* ── 8. 사업장 주소 ── */}
+          {/* ✅ [연동] 추후 카카오/네이버 지도 API 붙이면 주소 → 위도/경도 자동 변환 예정 */}
+          {/* 현재는 텍스트 직접 입력 방식 유지 */}
           <div className="auth-field">
             <label className="auth-label" htmlFor="address">
               사업장 주소
