@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 "/user/signup",
                                 "/market/login",
                                 "/market/signup",
-                                "/admin/login"
+                                "/admin/login",
+                                "/item-master/**" // 로그인 없이 조회 가능
                         ).permitAll()
 
                         // OAuth2 콜백 허용

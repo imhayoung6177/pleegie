@@ -51,14 +51,14 @@ const apiRequest = async (method, url, body = null) => {
 ══════════════════════════════════════════════════════════ */
 export const registerMarket = async (payload) => {
   // 1단계: 유저 계정 생성
-  const signupRes = await fetch(`${BASE_URL}/auth/signup`, {
+  const signupRes = await fetch(`${BASE_URL}/user/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      userId:   payload.userId,
+      loginId:   payload.userId,
       password: payload.password,
       phone:    payload.phone,
-      role:     'SHOP',
+      role:     'MARKET',
     }),
   });
 
