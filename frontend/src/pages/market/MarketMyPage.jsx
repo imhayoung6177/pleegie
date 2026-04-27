@@ -1,35 +1,36 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../../Styles/market/MarketMyPage.css';
 import ShopProfileEdit from './ShopProfileEdit';
 
+// ✅ [연동 추가] qrcode.react 라이브러리 import
+// → npm install qrcode.react 설치 후 사용 가능
+import { QRCodeCanvas } from 'qrcode.react';
+
+// ✅ [연동 추가] marketService API 함수 import
+import {
+  getMyMarket,
+  getMarketItems,
+  cancelSale,
+  reissueQrCode,
+} from '../../services/marketService';
+
 /* ══════════════════════════════════════════════════════════
    상수 & 유틸
 ══════════════════════════════════════════════════════════ */
-const UNIT_OPTIONS = ['원/kg','원/g', '원/개', '원/봉', '원/팩', '원/L' ,'원/ml' ];
-
 const MENU = [
-  { id: 'shopprofile', emoji: '✏️', label: '상인정보 수정', desc: '상호명·연락처·주소·비밀번호 변경' },
-  { id: 'qr',          emoji: '📱', label: 'QR 코드',      desc: '내 가게 QR코드 확인하기' },
+  { id: 'shopprofile', emoji: '✏️', label: '상인정보 수정',  desc: '상호명·연락처·주소·비밀번호 변경' },
+  { id: 'qr',          emoji: '📱', label: 'QR 코드',        desc: '내 가게 QR코드 확인하기' },
   { id: 'items_page',  emoji: '📦', label: '품목 등록/조회', desc: '새 품목 등록 및 등록된 품목 관리' },
-  { id: 'discount',    emoji: '🏷️', label: '할인 관리',     desc: '할인 등록 및 취소' },
-  // { id: 'report',      emoji: '🚨', label: '신고하기',      desc: '부정거래·불량 상품 신고' },
+  { id: 'discount',    emoji: '🏷️', label: '할인 관리',      desc: '할인 등록 및 취소' },
 ];
 
-// const REPORT_CATEGORIES = [
-//   '부정거래 의심', '불량 상품 판매', '허위 할인 표시',
-//   '원산지 허위 표시', '기타 위법 행위',
-// ];
-
-const getSaleStatus = (item, now) => {
-  if (!item.saleStart || !item.saleEnd || (!item.discountRate && !item.salePrice)) return 'none';
-  const [sh, sm] = item.saleStart.split(':').map(Number);
-  const [eh, em] = item.saleEnd.split(':').map(Number);
-  const start = new Date(now); start.setHours(sh, sm, 0, 0);
-  const end   = new Date(now); end.setHours(eh, em, 0, 0);
-  const soon  = new Date(start.getTime() - 60 * 60 * 1000);
-  if (now >= start && now < end) return 'active';
-  if (now >= soon  && now < start) return 'soon';
+// ✅ [수정] 백엔드 saleStatus 기준으로 변경
+// 이전: saleStart/saleEnd 시간 문자열로 직접 계산
+// 이후: 백엔드 SaleScheduler가 계산한 saleStatus 사용
+const getSaleStatus = (item) => {
+  if (item.saleStatus === 'ON_SALE')  return 'active';
+  if (item.saleStatus === 'UPCOMING') return 'soon';
   return 'none';
 };
 
@@ -45,9 +46,7 @@ const PageCard = ({ emoji, title, onBack, children }) => (
           {emoji} {title}
         </h2>
       </div>
-      <div style={{ width: '100%' }}>
-        {children}
-      </div>
+      <div style={{ width: '100%' }}>{children}</div>
       <div style={{ marginTop: 'auto', flexShrink: 0 }}>
         <div className="mmp-back-divider"><span>다른 메뉴로 이동할까요?</span></div>
         <button className="mmp-back-link-btn" onClick={onBack}>
@@ -60,83 +59,103 @@ const PageCard = ({ emoji, title, onBack, children }) => (
 
 /* ══════════════════════════════════════════════════════════
    QR 코드 섹션
+   ✅ [전면 수정] 가짜 Canvas QR → 실제 QRCodeCanvas 사용
 ══════════════════════════════════════════════════════════ */
-const QRSection = ({ shopName }) => {
-  const canvasRef = useRef(null);
-  const shopUrl   = `pleegie.market/${encodeURIComponent(shopName)}`;
+const QRSection = ({ marketInfo, onReissue }) => {
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx  = canvas.getContext('2d');
-    const S    = 200;
-    const C    = 10;
-    const CELLS = S / C;
+  const [isReissuing, setIsReissuing] = useState(false);
 
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, S, S);
-    ctx.fillStyle = '#2a1f0e';
+  // ✅ QR에 담을 URL
+  // → 고객이 스캔하면 해당 시장 페이지로 이동
+  // → qrToken 기반 URL 사용 (보안상 안전)
+  const qrValue = `http://localhost:5173/market/scan/${marketInfo?.id}`;
 
-    const seed = shopName.split('').reduce((a, c) => ((a * 31) + c.charCodeAt(0)) | 0, 0);
-    const isDark = (r, c) => (Math.abs(seed ^ (r * 0xdeadbeef) ^ (c * 0xcafebabe)) % 2) === 0;
 
-    // 파인더 패턴 (QR 코드 모서리 마커)
-    const drawFinder = (row, col) => {
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 7; j++) {
-          const border = i === 0 || i === 6 || j === 0 || j === 6;
-          const inner  = i >= 2 && i <= 4 && j >= 2 && j <= 4;
-          if (border || inner) ctx.fillRect((col + j) * C, (row + i) * C, C, C);
-        }
-      }
-    };
-    drawFinder(0, 0);
-    drawFinder(0, CELLS - 7);
-    drawFinder(CELLS - 7, 0);
-
-    // 데이터 영역
-    for (let i = 0; i < CELLS; i++) {
-      for (let j = 0; j < CELLS; j++) {
-        const inTopLeft     = i < 8 && j < 8;
-        const inTopRight    = i < 8 && j >= CELLS - 8;
-        const inBottomLeft  = i >= CELLS - 8 && j < 8;
-        if (inTopLeft || inTopRight || inBottomLeft) continue;
-        if (isDark(i, j)) ctx.fillRect(j * C, i * C, C, C);
-      }
-    }
-  }, [shopName]);
-
+  // ✅ QR 이미지 저장
   const handleSave = () => {
-    const canvas = canvasRef.current;
+    // id="qr-canvas" 안의 canvas 엘리먼트를 찾아서 PNG로 다운로드
+    const canvas = document.querySelector('#qr-canvas canvas');
     if (!canvas) return;
     const link = document.createElement('a');
-    link.download = `${shopName}_QR.png`;
-    link.href = canvas.toDataURL();
+    link.download = `${marketInfo?.name || '가게'}_QR.png`;
+    link.href = canvas.toDataURL('image/png');
     link.click();
   };
+
+  // ✅ [연동] QR 재발급 → PUT /market/qr
+  const handleReissue = async () => {
+    if (!window.confirm('QR 코드를 재발급하면 기존 QR은 사용할 수 없어요. 진행할까요?')) return;
+    setIsReissuing(true);
+    try {
+      await reissueQrCode();
+      alert('QR 코드가 재발급되었습니다!');
+      // 부모에게 갱신 요청
+      onReissue && onReissue();
+    } catch (err) {
+      alert(err.message || 'QR 재발급에 실패했습니다');
+    } finally {
+      setIsReissuing(false);
+    }
+  };
+
+  // ✅ 시장이 미승인 상태일 때 안내
+  if (marketInfo?.status === 'PENDING') {
+    return (
+      <div className="mmp-empty">
+        <span>⏳</span>
+        <p>관리자 승인 후<br />QR 코드를 사용할 수 있어요</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mmp-qr-wrap">
       <p className="mmp-qr-desc">
         고객이 이 QR코드를 스캔하면<br />내 가게 정보를 바로 확인할 수 있어요
       </p>
-      <div className="mmp-qr-box">
-        <canvas ref={canvasRef} width={200} height={200} className="mmp-qr-canvas" />
+
+      {/* ✅ [수정] 가짜 Canvas → 실제 QRCodeCanvas */}
+      <div className="mmp-qr-box" id="qr-canvas">
+        <QRCodeCanvas
+          value={qrValue}
+          size={200}
+          bgColor="#ffffff"
+          fgColor="#2a1f0e"
+          level="M"   // 오류 복원 수준 (L/M/Q/H)
+        />
       </div>
-      <div className="mmp-qr-shop">{shopName}</div>
-      <div className="mmp-qr-url">{shopUrl}</div>
-      <button className="mmp-primary-btn" onClick={handleSave}>
-        📥 QR 코드 저장
-      </button>
+
+      {/* ✅ [수정] DB에서 받은 시장 이름 표시 */}
+      <div className="mmp-qr-shop">{marketInfo?.name}</div>
+      <div className="mmp-qr-url" style={{ fontSize: '0.72rem', color: '#8a7a60', wordBreak: 'break-all', textAlign: 'center', marginTop: '4px' }}>
+        {qrValue}
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', marginTop: '16px', width: '100%' }}>
+        {/* QR 저장 버튼 */}
+        <button className="mmp-primary-btn" style={{ flex: 2 }} onClick={handleSave}>
+          📥 QR 코드 저장
+        </button>
+        {/* ✅ [연동 추가] QR 재발급 버튼 */}
+        <button
+          className="mmp-primary-btn"
+          style={{ flex: 1, background: '#8a7a60', fontSize: '0.85rem' }}
+          onClick={handleReissue}
+          disabled={isReissuing}
+        >
+          {isReissuing ? '재발급 중...' : '🔄 재발급'}
+        </button>
+      </div>
     </div>
   );
 };
 
 /* ══════════════════════════════════════════════════════════
-   할인 관리 섹션 (할인 등록·취소)
+   할인 관리 섹션
 ══════════════════════════════════════════════════════════ */
-const DiscountSection = ({ products, now, onCancel }) => {
+const DiscountSection = ({ products, onCancel, onRefresh }) => {
   const navigate = useNavigate();
+  const [cancelling, setCancelling] = useState(null);
 
   if (products.length === 0) {
     return (
@@ -147,105 +166,67 @@ const DiscountSection = ({ products, now, onCancel }) => {
     );
   }
 
+  // ✅ [연동] 할인 취소 → DELETE /market/items/{itemId}/sale
+  const handleCancel = async (itemId) => {
+    if (!window.confirm('할인을 취소하시겠습니까?')) return;
+    setCancelling(itemId);
+    try {
+      await cancelSale(itemId);
+      onRefresh && onRefresh(); // 목록 갱신
+    } catch (err) {
+      alert(err.message || '할인 취소에 실패했습니다');
+    } finally {
+      setCancelling(null);
+    }
+  };
+
   return (
-    <>
-      <div className="mmp-product-list">
-        {products.map(item => {
-          const status     = getSaleStatus(item, now);
-          const hasDiscount = item.discountRate > 0 || item.salePrice;
-          return (
-            <div key={item.id} className="mmp-product-row">
-              <div className="mmp-product-row-info">
-                <span className="mmp-product-row-name">{item.name}</span>
-                <span className="mmp-product-row-price">
-                  {item.price.toLocaleString()}원/{item.unit}
+    <div className="mmp-product-list">
+      {products.map(item => {
+        const status     = getSaleStatus(item);
+        const hasDiscount = item.saleStatus !== 'NONE' && item.discountPrice;
+
+        return (
+          <div key={item.id} className="mmp-product-row">
+            <div className="mmp-product-row-info">
+              <span className="mmp-product-row-name">{item.name}</span>
+              <span className="mmp-product-row-price">
+                {item.originalPrice?.toLocaleString()}원
+              </span>
+              {/* ✅ [수정] 백엔드 startTime/endTime 으로 시간 표시 */}
+              {hasDiscount && item.startTime && (
+                <span style={{ fontSize: '0.76rem', color: '#FF6B35' }}>
+                  {item.startTime.slice(11, 16)}~{item.endTime?.slice(11, 16)}
+                  · {item.discountRate}% 할인
                 </span>
-                {hasDiscount && (
-                  <span style={{ fontSize: '0.76rem', color: '#FF6B35' }}>
-                    {item.saleStart}~{item.saleEnd} · {item.discountRate}% 할인
-                  </span>
-                )}
-                {status === 'active' && <span className="mmp-badge-active">🔴 할인 중</span>}
-                {status === 'soon'   && <span className="mmp-badge-soon">⏰ 할인 임박</span>}
-              </div>
-              <div className="mmp-product-row-btns">
-                <button className="mmp-edit-btn" onClick={() => navigate(`/market/items/${item.id}/sale`)}>
-                  {hasDiscount ? '수정' : '등록'}
-                </button>
-                {hasDiscount && (
-                  <button className="mmp-delete-btn" onClick={() => onCancel(item.id)}>
-                    취소
-                  </button>
-                )}
-              </div>
+              )}
+              {status === 'active' && <span className="mmp-badge-active">🔴 할인 중</span>}
+              {status === 'soon'   && <span className="mmp-badge-soon">⏰ 할인 임박</span>}
             </div>
-          );
-        })}
-      </div>
-    </>
+            <div className="mmp-product-row-btns">
+              {/* ✅ [수정] navigate로 할인 설정 페이지 이동 */}
+              <button
+                className="mmp-edit-btn"
+                onClick={() => navigate(`/market/items/${item.id}/sale`)}
+              >
+                {hasDiscount ? '수정' : '등록'}
+              </button>
+              {hasDiscount && (
+                <button
+                  className="mmp-delete-btn"
+                  onClick={() => handleCancel(item.id)}
+                  disabled={cancelling === item.id}
+                >
+                  {cancelling === item.id ? '취소 중...' : '취소'}
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 };
-
-/* ══════════════════════════════════════════════════════════
-   신고하기 섹션
-══════════════════════════════════════════════════════════ */
-// const ReportSection = ({ shopName }) => {
-//   const [category,  setCategory]  = useState('');
-//   const [detail,    setDetail]    = useState('');
-//   const [submitted, setSubmitted] = useState(false);
-
-//   const handleSubmit = () => {
-//     if (!category || !detail.trim()) return;
-//     setSubmitted(true);
-//   };
-
-//   if (submitted) {
-//     return (
-//       <div className="mmp-report-done">
-//         <div style={{ fontSize: '3rem' }}>✅</div>
-//         <div className="mmp-report-done-title">신고가 접수됐어요</div>
-//         <div className="mmp-report-done-desc">
-//           검토 후 적절한 조치를 취하겠습니다.<br />소중한 신고 감사합니다.
-//         </div>
-//         <button className="mmp-primary-btn" style={{ marginTop: 8 }}
-//           onClick={() => { setSubmitted(false); setCategory(''); setDetail(''); }}>
-//           다시 신고하기
-//         </button>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-//       <div className="mmp-report-info">
-//         <span>🏪</span>
-//         <span>신고 대상: <strong>{shopName}</strong></span>
-//       </div>
-//       <div className="mmp-form-field">
-//         <label className="mmp-form-label">신고 유형</label>
-//         <select className="mmp-inp" value={category}
-//           onChange={e => setCategory(e.target.value)}>
-//           <option value="">신고 유형을 선택하세요</option>
-//           {REPORT_CATEGORIES.map(c => (
-//             <option key={c} value={c}>{c}</option>
-//           ))}
-//         </select>
-//       </div>
-//       <div className="mmp-form-field">
-//         <label className="mmp-form-label">상세 내용</label>
-//         <textarea className="mmp-textarea" rows={4}
-//           placeholder="구체적인 내용을 입력해주세요..."
-//           value={detail}
-//           onChange={e => setDetail(e.target.value)} />
-//       </div>
-//       <button className="mmp-danger-btn"
-//         disabled={!category || !detail.trim()}
-//         onClick={handleSubmit}>
-//         🚨 신고 접수하기
-//       </button>
-//     </div>
-//   );
-// };
 
 /* ══════════════════════════════════════════════════════════
    메인 MarketMyPage
@@ -255,24 +236,12 @@ export default function MarketMyPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'main';
 
-  const [shopInfo, setShopInfo] = useState(() => ({
-    shopId:    localStorage.getItem('shopId')    || 'market_user',
-    bizNumber: localStorage.getItem('bizNumber') || '1234567890',
-    shopName:  localStorage.getItem('shopName')  || '김씨네 채소가게',
-    ownerName: localStorage.getItem('ownerName') || '',
-    phone:     localStorage.getItem('shopPhone') || '',
-    address:   localStorage.getItem('shopAddress') || '',
-  }));
-
-  const shopName = shopInfo.shopName;
-
-  const handleSaveProfile = (updated) => {
-    setShopInfo(prev => ({ ...prev, ...updated }));
-    localStorage.setItem('shopName',    updated.shopName);
-    localStorage.setItem('ownerName',   updated.ownerName);
-    localStorage.setItem('shopPhone',   updated.phone);
-    localStorage.setItem('shopAddress', updated.address);
-  };
+  // ✅ [수정] localStorage → DB API 로 교체
+  // 이전: localStorage에서 shopName, shopId 등 읽어옴
+  // 이후: GET /market/mypage 로 DB에서 시장 정보 조회
+  const [shopInfo,  setShopInfo]  = useState(null);
+  const [products,  setProducts]  = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -280,27 +249,71 @@ export default function MarketMyPage() {
     return () => clearInterval(t);
   }, []);
 
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('marketItems');
-    return saved ? JSON.parse(saved) : [];
-  });
-  useEffect(() => {
-    localStorage.setItem('marketItems', JSON.stringify(products));
-  }, [products]);
-
   const [logoutOpen, setLogoutOpen] = useState(false);
 
-  const onSaleCount = products.filter(p => getSaleStatus(p, now) === 'active').length;
-  const soonCount   = products.filter(p => getSaleStatus(p, now) === 'soon').length;
+  // ✅ [연동] 시장 정보 + 품목 목록 조회
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [market, itemList] = await Promise.all([
+        getMyMarket(),    // GET /market/mypage
+        getMarketItems(), // GET /market/items
+      ]);
+      setShopInfo(market);
+      setProducts(itemList || []);
+
+      // ✅ localStorage에도 백업 (다른 페이지에서 참조할 수 있으므로)
+      if (market?.name) localStorage.setItem('shopName', market.name);
+
+    } catch (err) {
+      if (err.message === '로그인이 필요합니다') {
+        navigate('/market/login');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [navigate]);
+
+  const handleSaveProfile = (updated) => {
+    setShopInfo(prev => ({ ...prev, ...updated }));
+  };
 
   const setActiveTab = (tab) => setSearchParams(tab === 'main' ? {} : { tab });
   const goBack       = () => setActiveTab('main');
 
-  /* ── 서브 탭 라우팅 ─────────────────────────────────── */
+  // ✅ [수정] 백엔드 saleStatus 기준 통계
+  const onSaleCount = products.filter(p => p.saleStatus === 'ON_SALE').length;
+  const soonCount   = products.filter(p => p.saleStatus === 'UPCOMING').length;
+
+  // ✅ DB 에서 받은 이름 우선, 없으면 localStorage 폴백
+  const shopName = shopInfo?.name || localStorage.getItem('shopName') || '내 가게';
+
+  /* ── 로딩 화면 ── */
+  if (isLoading) return (
+    <div className="mmp-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', color: '#8a7a60' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🏪</div>
+        <div>정보를 불러오는 중...</div>
+      </div>
+    </div>
+  );
+
+  /* ── 서브 탭 라우팅 ── */
   if (activeTab === 'shopprofile') {
     return (
       <ShopProfileEdit
-        shopInfo={shopInfo}
+        shopInfo={{
+          // ✅ [수정] DB에서 받은 값으로 폼 초기화
+          shopId:    shopInfo?.id,
+          bizNumber: shopInfo?.businessNumber,
+          shopName:  shopInfo?.name,
+          ownerName: shopInfo?.ceoName,
+          phone:     shopInfo?.phone,
+        }}
         onBack={goBack}
         onSave={handleSaveProfile}
       />
@@ -310,7 +323,11 @@ export default function MarketMyPage() {
   if (activeTab === 'qr') {
     return (
       <PageCard emoji="📱" title="QR 코드" onBack={goBack}>
-        <QRSection shopName={shopName} />
+        {/* ✅ [수정] shopName → shopInfo 전체 전달 + 재발급 콜백 */}
+        <QRSection
+          marketInfo={shopInfo}
+          onReissue={fetchData}  // 재발급 후 데이터 새로고침
+        />
       </PageCard>
     );
   }
@@ -318,36 +335,22 @@ export default function MarketMyPage() {
   if (activeTab === 'discount') {
     return (
       <PageCard emoji="🏷️" title="할인 관리" onBack={goBack}>
+        {/* ✅ [수정] localStorage 기반 → DB 기반 products 전달 */}
         <DiscountSection
           products={products}
-          now={now}
-          onCancel={(id) =>
-            setProducts(prev => prev.map(p =>
-              p.id === id
-                ? { ...p, saleStart: '', saleEnd: '', salePrice: null, discountRate: 0 }
-                : p
-            ))
-          }
+          onRefresh={fetchData}  // 할인 취소 후 목록 새로고침
         />
       </PageCard>
     );
   }
 
-  // if (activeTab === 'report') {
-  //   return (
-  //     <PageCard emoji="🚨" title="신고하기" onBack={goBack}>
-  //       <ReportSection shopName={shopName} />
-  //     </PageCard>
-  //   );
-  // }
-
-  /* ── 메인 화면 ──────────────────────────────────────── */
+  /* ── 메인 화면 ── */
   return (
     <div className="mmp-page">
 
       {/* 헤더 */}
       <div className="mmp-header">
-        <button className="mmp-back-btn" onClick={() => navigate("/market/main")}>
+        <button className="mmp-back-btn" onClick={() => navigate('/market/main')}>
           ← 돌아가기
         </button>
         <span className="mmp-header-title">마이페이지</span>
@@ -356,17 +359,25 @@ export default function MarketMyPage() {
 
       {/* 프로필 카드 */}
       <div className="mmp-profile-card">
-        <div className="mmp-avatar">
-          🏪
-          </div>
+        <div className="mmp-avatar">🏪</div>
         <div className="mmp-profile-info">
+          {/* ✅ [수정] DB에서 받은 시장 이름 표시 */}
           <div className="mmp-shop-name">{shopName}</div>
+
+          {/* ✅ [연동 추가] 승인 상태 표시 */}
           <div className="mmp-role-row">
-            <div className="mmp-role-badge">소상공인</div>
+            <div className="mmp-role-badge">
+              {shopInfo?.status === 'APPROVED'  && '✅ 승인완료'}
+              {shopInfo?.status === 'PENDING'   && '⏳ 승인대기'}
+              {shopInfo?.status === 'SUSPENDED' && '🚫 이용정지'}
+              {!shopInfo?.status && '소상공인'}
+            </div>
             <button className="mmp-logout-btn" onClick={() => setLogoutOpen(true)}>
               로그아웃
             </button>
           </div>
+
+          {/* ✅ [수정] products.length → DB에서 받은 품목 수 */}
           <div className="mmp-stats-row">
             <div className="mmp-stat-item">
               <span className="mmp-stat-num">{products.length}</span>
@@ -408,7 +419,7 @@ export default function MarketMyPage() {
         ))}
       </div>
 
-      {/* 로그아웃 확인 모달 */}
+      {/* 로그아웃 모달 */}
       {logoutOpen && (
         <div className="mmp-modal-overlay" onClick={() => setLogoutOpen(false)}>
           <div className="mmp-modal" onClick={e => e.stopPropagation()}>
@@ -422,7 +433,11 @@ export default function MarketMyPage() {
                 취소
               </button>
               <button className="mmp-modal-confirm"
-                onClick={() => { localStorage.clear(); navigate('/'); }}>
+                onClick={() => {
+                  localStorage.clear();
+                  navigate('/');
+                }}
+              >
                 로그아웃
               </button>
             </div>

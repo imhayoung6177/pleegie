@@ -1,56 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../Styles/auth/AuthPage.css';
 import '../../Styles/auth/RegisterPage.css';
-import '../../Styles/user/MyPage.css'; // 새로 추가한 CSS 적용
+import '../../Styles/user/MyPage.css';
 
-const ProfileEdit = ({ userInfo, onBack }) => {
+const ProfileEdit = ({ onBack }) => {
   const [form, setForm] = useState({
-    userId:   userInfo?.userId   || 'leejongbin',
-    name:     userInfo?.name     || '이종빈',
+    loginId: '', 
+    name: '',
     password: '',
-    phone:    userInfo?.phone    || '010-1234-5678',
-    email:    userInfo?.email    || 'leejb@example.com',
-    address:  userInfo?.address  || '서울시 구로구 디지털로 300',
+    phone: '',
+    email: '',
+    address: '',
   });
+
+  const [loading, setLoading] = useState(true);
   const [showPw, setShowPw] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const getAuthHeaders = () => ({
+    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    'Content-Type': 'application/json',
+  });
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        // ✅ [수정] 백엔드 컨트롤러의 @GetMapping("/user/mypage")와 일치시킴
+        // 앞에 /api 가 붙는지 안붙는지는 백엔드 설정 파일(yml)을 봐야하지만, 
+        // 컨트롤러 상에 적힌 그대로 "/user/mypage"를 먼저 시도합니다.
+        const response = await fetch('/user/mypage', { headers: getAuthHeaders() });
+        const result = await response.json();
+        
+        if (response.ok) {
+          const user = result.data;
+          setForm({
+            loginId: user.loginId || '',
+            name: user.name || '',
+            password: '',
+            phone: user.phone || '',
+            email: user.email || '',
+            address: user.address || '',
+          });
+        }
+      } catch (err) {
+        console.error("사용자 정보 로드 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    // ✅ 나중에 API 연동: await updateProfile(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      // ✅ [수정] 백엔드 컨트롤러의 @PutMapping("/user/mypage")와 일치시킴
+      const response = await fetch('/user/mypage', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(form)
+      });
+
+      if (response.ok) {
+        setSaved(true);
+        localStorage.setItem('userName', form.name);
+        setTimeout(() => { setSaved(false); onBack(); }, 1500);
+      } else {
+        alert("수정에 실패했습니다. 백엔드 규격을 확인해주세요.");
+      }
+    } catch (err) {
+      console.error("수정 API 호출 에러:", err);
+    }
   };
+
+  if (loading) return <div className="mypage-subpage" style={{color: 'white', textAlign: 'center', padding: '50px'}}>사용자 정보를 불러오는 중...</div>;
 
   return (
     <div className="mypage-subpage">
       <div className="mypage-white-box">
-        {/* 로고 */}
-        <div style={{
-          textAlign: 'center',
-          fontFamily: 'var(--font-title)',
-          fontSize: '1.8rem',
-          color: '#FF6B35',
-          fontWeight: 700,
-          marginBottom: '8px',
-        }}>
+        <div style={{ textAlign: 'center', fontFamily: 'var(--font-title)', fontSize: '1.8rem', color: '#FF6B35', fontWeight: 700, marginBottom: '8px' }}>
           pleegie
         </div>
 
-        {/* 타이틀 */}
         <div style={{ textAlign: 'center', marginBottom: '28px', flexShrink: 0 }}>
-          <h2 style={{
-            fontFamily: 'var(--font-title)',
-            fontSize: '1.5rem',
-            color: '#2a1f0e',
-            margin: '0 0 6px',
-            fontWeight: 700,
-          }}>
+          <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '1.5rem', color: '#2a1f0e', margin: '0 0 6px', fontWeight: 700 }}>
             회원정보 수정
           </h2>
           <p style={{ fontSize: '0.88rem', color: '#8a7a60', margin: 0 }}>
@@ -60,79 +98,50 @@ const ProfileEdit = ({ userInfo, onBack }) => {
 
         <div style={{ width: '100%' }}>
           <form onSubmit={handleSave}>
-
-            {/* 아이디 (읽기 전용) */}
             <div className="auth-field">
               <label className="auth-label">아이디 (변경 불가)</label>
               <div className="auth-input-wrap readonly">
-                <input type="text" className="auth-input" value={form.userId} readOnly />
+                <input type="text" className="auth-input" value={form.loginId} readOnly />
               </div>
             </div>
 
-            {/* 이름 */}
             <div className="auth-field">
               <label className="auth-label">이름</label>
               <div className="auth-input-wrap editable">
-                <input
-                  type="text" name="name" className="auth-input"
-                  placeholder="실명을 입력하세요"
-                  value={form.name} onChange={handleChange} maxLength={10}
-                />
+                <input type="text" name="name" className="auth-input" value={form.name} onChange={handleChange} maxLength={10} />
               </div>
             </div>
 
-            {/* 새 비밀번호 */}
             <div className="auth-field">
               <label className="auth-label">새 비밀번호 (변경 시만 입력)</label>
               <div className="auth-input-wrap editable">
-                <input
-                  type={showPw ? 'text' : 'password'} name="password" className="auth-input"
-                  placeholder="새 비밀번호 (8자 이상)"
-                  value={form.password} onChange={handleChange}
-                />
-                <button type="button" className="auth-pw-toggle"
-                  onClick={() => setShowPw(p => !p)}>
+                <input type={showPw ? 'text' : 'password'} name="password" placeholder="새 비밀번호 (8자 이상)" className="auth-input" value={form.password} onChange={handleChange} />
+                <button type="button" className="auth-pw-toggle" onClick={() => setShowPw(p => !p)}>
                   {showPw ? '숨기기' : '보이기'}
                 </button>
               </div>
             </div>
 
-            {/* 전화번호 */}
             <div className="auth-field">
               <label className="auth-label">전화번호</label>
               <div className="auth-input-wrap editable">
-                <input
-                  type="text" name="phone" className="auth-input"
-                  placeholder="010-0000-0000"
-                  value={form.phone} onChange={handleChange} maxLength={13}
-                />
+                <input type="text" name="phone" className="auth-input" value={form.phone} onChange={handleChange} maxLength={13} />
               </div>
             </div>
 
-            {/* 이메일 */}
             <div className="auth-field">
               <label className="auth-label">이메일</label>
               <div className="auth-input-wrap editable">
-                <input
-                  type="email" name="email" className="auth-input"
-                  placeholder="example@email.com"
-                  value={form.email} onChange={handleChange}
-                />
+                <input type="email" name="email" className="auth-input" value={form.email} onChange={handleChange} />
               </div>
             </div>
 
-            {/* 집 주소 */}
             <div className="auth-field">
               <label className="auth-label">
-                집 주소
-                <span className="reg-addr-badge">가까운 시장 추천에 사용됩니다</span>
+                집 주소 <span className="reg-addr-badge">가까운 시장 추천에 사용됩니다</span>
               </label>
               <div className="auth-input-wrap editable">
-                <input
-                  type="text" name="address" className="auth-input"
-                  placeholder="예) 서울시 강남구 테헤란로 123"
-                  value={form.address} onChange={handleChange}
-                />
+                <input type="text" name="address" className="auth-input" value={form.address} onChange={handleChange} />
               </div>
             </div>
 
