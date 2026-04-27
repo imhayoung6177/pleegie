@@ -1,6 +1,7 @@
 package market_it.pleegie.common.client;
 
 import market_it.pleegie.chat.dto.AiRouterResponse;
+import market_it.pleegie.chat.dto.ChatbotResponse;
 import market_it.pleegie.recipe.dto.RecipeRecommendResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,13 +30,13 @@ public class AiClient {
     }
 
     //챗봇 응답
-    public AiRouterResponse chat(String message, String sessionId){
+    public ChatbotResponse chat(String message, String sessionId){
         String url = aiServerUrl +"/chatbot";
         Map<String,String> body = Map.of(
                 "message",message,
                 "session_id",sessionId
         );
-        return restTemplate.postForObject(url,body,AiRouterResponse.class);
+        return restTemplate.postForObject(url,body, ChatbotResponse.class);
     }
 
     //냉장고 재료 기반 레시피 추천
@@ -45,14 +46,14 @@ public class AiClient {
                 "ingredients",ingredients
                 ,"expiring_ingredients",expiringIngredients
         );
-        return restTemplate.postForObject(url,body, RecipeRecommendResponse.class);
+        return restTemplate.postForObject(url,body, RecipeRecommendResponse .class);
     }
 
     //레시피 검색
-    public RecipeRecommendResponse searchRecipe(String query){
+    public RecipeRecommendResponse  searchRecipe(String query){
         String url = aiServerUrl + "/recipe/search";
         Map<String,String> body = Map.of("query",query);
-        return restTemplate.postForObject(url,body, RecipeRecommendResponse.class);
+        return restTemplate.postForObject(url,body, RecipeRecommendResponse .class);
     }
 
     public AiRouterResponse marketGuide(String message) {

@@ -6,7 +6,6 @@ import market_it.pleegie.chat.dto.ChatRequest;
 import market_it.pleegie.common.client.AiClient;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
-import market_it.pleegie.fridge.entity.FridgeItem;
 import market_it.pleegie.fridge.repository.FridgeItemRepository;
 import market_it.pleegie.fridge.repository.FridgeRepository;
 import market_it.pleegie.recipe.dto.RecipeRecommendResponse;

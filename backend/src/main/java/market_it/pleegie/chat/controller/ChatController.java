@@ -1,7 +1,6 @@
 package market_it.pleegie.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import market_it.pleegie.chat.dto.AiRouterResponse;
 import market_it.pleegie.chat.dto.ChatRequest;
 import market_it.pleegie.chat.service.ChatService;
 import market_it.pleegie.common.response.ApiResponse;
