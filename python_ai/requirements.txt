@@ -3,8 +3,9 @@ uvicorn[standard]
 pydantic-settings
 google-genai
 langchain
+langchain-groq
+groq
 langchain-core
-langchain-google-genai
 python-dotenv
 httpx #Spring 내부 호출 시 사용
 redis

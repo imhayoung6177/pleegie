@@ -1,8 +1,8 @@
-from google import genai
+from groq import Groq
 from app.core.config import settings
 from app.ai.schema import AiRequest, AiResponse
 
-client = genai.Client(api_key=settings.gemini_api_key)
+client = Groq(api_key=settings.groq_api_key)
 
 INTENT_PROMPT = """
 너는 사용자의 메시지를 분석해서 의도를 파악하는 AI야.
@@ -21,8 +21,11 @@ INTENT_PROMPT = """
 
 async def detect_intent(request: AiRequest) -> AiResponse:
     prompt = INTENT_PROMPT.format(message=request.message)
-    response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
-    intent = response.text.strip()
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}]
+    )
+
+    intent = response.choices[0].message.content.strip()
 
     if intent not in ["RECIPE_RECOMMEND", "RECIPE_SEARCH", "MARKET_GUIDE", "CHATBOT"]:
         intent = "CHATBOT"

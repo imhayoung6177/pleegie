@@ -1,5 +1,5 @@
 import json
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from app.core.config import settings
@@ -12,9 +12,7 @@ from app.ingredients.schema import (
     IngredientInfo,
 )
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
-)
+llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=settings.groq_api_key)
 
 EXTRACT_TEMPLATE = PromptTemplate(
     input_variables=["message"],
@@ -56,44 +54,36 @@ INFO_TEMPLATE = PromptTemplate(
     template="""
 너는 식재료 전문가야. 아래 재료들의 카테고리와 일반적인 냉장 보관 유통기한(일 단위)을 알려줘.
 
-카테고리 종류 : 채소, 과일, 육류, 해산물, 유제품, 단백질, 곡물, 양념, 기타
+카테고리는 반드시 아래 기준으로만 분류해줘.
+- 채소 : 당근, 양파, 대파, 마늘, 시금치, 배추 등 채소류
+- 과일 : 사과, 바나나, 딸기 등 과일류
+- 육류 : 소고기, 돼지고기, 닭고기 등 육류
+- 해산물 : 생선, 새우, 오징어, 조개 등 해산물류
+- 유제품 : 우유, 치즈, 버터, 요거트 등 유제품
+- 단백질 : 계란, 두부, 콩, 어묵 등 단백질 식품 (유제품 제외)
+- 곡물 : 쌀, 밀가루, 빵, 면류 등 곡물류
+- 양념 : 간장, 된장, 고추장, 소금, 설탕 등 양념류
+- 기타 : 위 카테고리에 해당하지 않는 식재료
 
-반드시 JSON 배열 형식으로만 반환해. 다른말은 하지마. 마크다운 코드블록도 쓰지 마.
+반드시 JSON 배열 형식으로만 반환해. 다른 말은 하지 마. 마크다운 코드블록도 쓰지 마.
 
-예시 입력 : ["당근", "대파"]
-예시 출력: [{{"name":"당근","category": "채소", "defaultExp": 7}},{{"name": "대파", "category": "채소", "defaultExp": 7}}]
+예시 입력: ["계란", "우유", "당근"]
+예시 출력: [{{"name":"계란","category":"단백질","defaultExp":21}},{{"name":"우유","category":"유제품","defaultExp":7}},{{"name":"당근","category":"채소","defaultExp":14}}]
 
 입력: {ingredients}
 """,
 )
 
 
-# async def get_ingredient_info(request: IngredientInfoRequest) -> IngredientInfoResponse:
-#     chain = INFO_TEMPLATE | llm | StrOutputParser()
-#     result = await chain.ainvoke({"ingredients": request.ingredients})
-
-#     try:
-#         raw = result.strip()
-#         parsed = json.loads(raw)
-#         ingredients = [IngredientInfo(**item) for item in parsed]
-#     except Exception:
-#         ingredients = []
-
-#     return IngredientInfoResponse(ingredients=ingredients)
-
-
 async def get_ingredient_info(request: IngredientInfoRequest) -> IngredientInfoResponse:
     chain = INFO_TEMPLATE | llm | StrOutputParser()
     result = await chain.ainvoke({"ingredients": request.ingredients})
-
-    print("LLM 응답:", result)  # 로그 추가
 
     try:
         raw = result.strip()
         parsed = json.loads(raw)
         ingredients = [IngredientInfo(**item) for item in parsed]
-    except Exception as e:
-        print("파싱 에러:", e)  # 로그 추가
+    except Exception:
         ingredients = []
 
     return IngredientInfoResponse(ingredients=ingredients)

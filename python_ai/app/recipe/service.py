@@ -1,6 +1,6 @@
 import json
 import httpx
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from app.core.config import settings
@@ -12,9 +12,7 @@ from app.recipe.schema import (
     RecipeItem,
 )
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
-)
+llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=settings.groq_api_key)
 
 RECOMMEND_TEMPLATE = PromptTemplate(
     input_variables=["ingredients", "expiring_ingredients", "recipes"],
@@ -24,9 +22,14 @@ RECOMMEND_TEMPLATE = PromptTemplate(
 냉장고 재료: {ingredients}
 유통기한 임박 재료: {expiring_ingredients}
 
-아래 레시피 목록 중 냉장고 재료로 만들 수 있는 레시피를 추천해줘.
+아래 레시피 목록 중 냉장고 재료로 만들 수 있는 레시피를 3~5개 추천해줘.
 유통기한 임박 재료가 포함된 레시피를 우선적으로 추천해줘.
-각 레시피마다 냉장고에 없는 재료도 알려줘.
+
+규칙:
+1. 재료명은 반드시 아래 레시피 목록에 있는 그대로만 써줘. 절대 임의로 바꾸거나 오타를 수정하지 마.
+2. 부족한재료는 냉장고에 없는 재료만 써줘. 냉장고에 있는 재료는 절대 부족한재료에 포함하지 마.
+3. 같은 제목의 레시피는 중복으로 추천하지 마. 각 레시피는 한 번만 추천해줘.
+4. 다른 말은 하지 말고 아래 형식으로만 답변해.
 
 레시피 목록:
 {recipes}
@@ -48,8 +51,13 @@ SEARCH_TEMPLATE = PromptTemplate(
 먹고싶은 음식: {query}
 사용자 냉장고 재료: {ingredients}
 
-아래 레시피 목록 중 관련된 레시피를 추천해줘.
-각 레시피마다 냉장고에 없는 재료도 알려줘.
+아래 레시피 목록 중 관련된 레시피를 3~5개 추천해줘.
+
+규칙:
+1. 재료명은 반드시 아래 레시피 목록에 있는 그대로만 써줘. 절대 임의로 바꾸거나 오타를 수정하지 마.
+2. 부족한재료는 냉장고에 없는 재료만 써줘. 냉장고에 있는 재료는 절대 부족한재료에 포함하지 마.
+3. 같은 제목의 레시피는 중복으로 추천하지 마. 각 레시피는 한 번만 추천해줘.
+4. 다른 말은 하지 말고 아래 형식으로만 답변해.
 
 레시피 목록:
 {recipes}
@@ -94,16 +102,17 @@ def calculate_match_score(
 
 
 def has_expiring_ingredient(
-    recipe_ingredients: list[str], expiring_ingredients: list[str]
+    recipe_ingredients_text: str, expiring_ingredients: list[str]
 ) -> bool:
     """레시피에 유통기한 임박 재료가 포함되어 있는지 확인"""
-    return any(ei in " ".join(recipe_ingredients) for ei in expiring_ingredients)
+    return any(ei in recipe_ingredients_text for ei in expiring_ingredients)
 
 
 def parse_recipes(
     text: str, fridge_ingredients: list[str], expiring_ingredients: list[str]
 ) -> list[RecipeItem]:
     results = []
+    seen_titles = set()  # 중복 제목 체크용
     blocks = text.strip().split("---")
 
     for block in blocks:
@@ -117,6 +126,13 @@ def parse_recipes(
             if ":" in line
         }
 
+        title = lines.get("제목", "")
+
+        # 중복 제목이면 건너뛰기
+        if title in seen_titles:
+            continue
+        seen_titles.add(title)
+
         recipe_ingredients = [i.strip() for i in lines.get("재료", "").split(",")]
         missing_ingredients = [
             i.strip() for i in lines.get("부족한재료", "").split(",")
@@ -128,7 +144,7 @@ def parse_recipes(
 
         results.append(
             RecipeItem(
-                title=lines.get("제목", ""),
+                title=title,
                 description=lines.get("설명", ""),
                 ingredients=recipe_ingredients,
                 missing_ingredients=missing_ingredients,
@@ -153,9 +169,10 @@ async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse
 
     # 공공 API에서 레시피 조회
     recipes_data = await fetch_recipes_from_api(" ".join(request.ingredients))
+    top_recipes = recipes_data[:3]
 
     recipe_text = "\n".join(
-        [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
+        [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
     )
 
     chain = RECOMMEND_TEMPLATE | llm | StrOutputParser()
@@ -191,9 +208,10 @@ async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
 
     # 공공 API에서 레시피 조회
     recipes_data = await fetch_recipes_from_api(request.query)
+    top_recipes = recipes_data[:3]
 
     recipe_text = "\n".join(
-        [f"- {r['title']}: {r['ingredients']}" for r in recipes_data]
+        [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
     )
 
     chain = SEARCH_TEMPLATE | llm | StrOutputParser()

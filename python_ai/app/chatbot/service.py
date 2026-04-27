@@ -1,5 +1,5 @@
 import json
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
@@ -7,9 +7,7 @@ from app.core.config import settings
 from app.core.redis_client import redis_client
 from app.chatbot.schema import ChatbotRequest, ChatbotResponse
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
-)
+llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=settings.groq_api_key)
 
 SYSTEM_PROMPT = """
 너는 Pleegie 서비스의 친절한 챗봇 어시스턴트야.
