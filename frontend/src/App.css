@@ -8,7 +8,7 @@
 
 body {
   font-family: 'Jua', sans-serif;
-  background-color: #f5ede0; /* 모든 페이지 배경색 통일 */
+  background-color: transparent;
 }
 
 /* 모든 페이지에서 쓰일 공통 버튼 스타일이 있다면 여기! */

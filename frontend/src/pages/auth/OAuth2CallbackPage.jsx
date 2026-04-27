@@ -20,32 +20,37 @@ export default function OAuth2CallbackPage() {
   const [status, setStatus] = useState('loading'); // loading / error
   const [errMsg, setErrMsg] = useState('');
 
-  useEffect(() => {
-    // ✅ URL 쿼리 파라미터에서 token, role 추출
-    // 예: /oauth2/callback?token=eyJhbG...&role=USER
+useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token  = params.get('token');
-    const role   = params.get('role');
+    const token = params.get('token');
+    const role = params.get('role');
+
+    // 디버깅용: 콘솔에 찍어서 데이터가 들어왔는지 꼭 확인하세요!
+    console.log("전달받은 토큰:", token);
+    console.log("전달받은 역할:", role);
 
     if (!token) {
-      setErrMsg('소셜 로그인에 실패했습니다. 토큰이 없습니다.');
+      setErrMsg('소셜 로그인 정보를 가져올 수 없습니다.');
       setStatus('error');
       return;
     }
 
-    // ✅ localStorage에 토큰 저장
-    localStorage.setItem('accessToken', token);
-    localStorage.setItem('userRole',    role || 'USER');
+    try {
+      // 데이터 저장
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('userRole', role || 'USER');
 
-    // ✅ role에 따라 페이지 이동
-    if (role === 'MARKET') {
-      navigate('/market/main');
-    } else if (role === 'ADMIN') {
-      navigate('/admin/main');
-    } else {
-      navigate('/user/fridge');
+      // 저장 확인 후 이동
+      if (role && (role.includes('MARKET') || role.includes('SHOP'))) {
+  navigate('/market/main');
+} else {
+  navigate('/user/fridge');
+}
+    } catch (error) {
+      console.error("저장 중 오류 발생:", error);
+      setErrMsg("데이터 저장 중 문제가 발생했습니다.");
+      setStatus('error');
     }
-
   }, [navigate]);
 
   // ── 로딩 화면 ──
@@ -86,7 +91,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #fff8ee 0%, #ffe8d0 100%)',
+    background: 'transparent',
   },
   card: {
     background: '#fff',

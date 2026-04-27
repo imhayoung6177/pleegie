@@ -10,7 +10,7 @@
   --font-title: 'Jua', sans-serif;
 
   /* 배경·크림 계열 */
-  --bg-wall:    #f5ede0;
+  --bg-wall:    transparent;
   --cream:      #fffbf2;
   --cream-dark: #f0e8d8;
   --orange:     #e8732a;

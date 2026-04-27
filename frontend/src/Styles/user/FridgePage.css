@@ -1,44 +1,22 @@
-/* ══════════════════════════════════════════════════════════
-   FridgePage.css
-══════════════════════════════════════════════════════════ */
-
 :root {
-  --base-color:    #1B2A3B;
-  --base-border:   rgba(255,255,255,0.08);
-  --accent-green:  #FF6B35; /* 모든 포인트를 주황색으로 통일 */
   --accent-orange: #FF6B35;
-  --font-title:    'Jua', sans-serif;
-  --font-body:     'Jua', sans-serif;
-  --ease-bounce:   cubic-bezier(0.34,1.56,0.64,1);
+  --font-title: 'Jua', sans-serif;
+  --font-body: 'Jua', sans-serif;
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 
 /* ══ 1. 페이지 레이아웃 ══════════════════════════════════ */
 .fridge-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding-bottom: 88px;
   overflow: hidden;
   font-family: var(--font-body);
-  background-color: #f5ede0;
+  /* 페이지 배경은 아주 연한 베이지색으로 유지하여 흰색 냉장고가 돋보이게 합니다 */
+  background-color: #fffef2; 
 }
 
-/* 주방 바닥 */
-.fridge-page::after {
-  content: '';
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 88px;
-  background:
-    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
-    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
-  border-top: 3px solid #b89060;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* ══ 2. 페이지 헤더 (타이틀 & 우측 메뉴) ═════════════════ */
+/* ══ 2. 페이지 헤더 ═════════════════════════════════════ */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -50,205 +28,122 @@
 .page-title {
   font-family: var(--font-title);
   font-size: 1.8rem;
-  color: #FF6B35;
-  letter-spacing: 1px;
+  color: var(--accent-orange);
   margin: 0;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
 }
 
-/* 냉장고 닫힘 상태 (안의 내용물 숨김) */
-.fridge-door-closed {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f5ede0; 
-  z-index: 50; 
-  border: 2px solid #e5d9cc;
-  border-radius: 10px;
+.header-user-name {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: #5a4a32;
 }
 
-/* ══ 3. 냉장고 외관 ═════════════════════════════════════ */
+.header-logout-btn {
+  padding: 8px 18px;
+  background: var(--accent-orange);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-title);
+  cursor: pointer;
+}
+
+/* ══ 3. 냉장고 외관 (노란색 -> 흰색 수정 및 문 제거) ════ */
 .fridge-outer {
-flex: 1;
-  min-height: 0;
-  width: calc(100% - 32px); /* 좌우 여백 확보 */
+  flex: 1;
+  width: calc(100% - 40px);
+  max-width: 1000px;
+  margin: 0 auto 20px auto;
   position: relative;
-  max-width: 1100px; /* 메인 페이지 냉장고와 가로 폭 완벽히 동일하게 맞춤 */
-  margin: 0 auto 20px auto; /* 중앙 정렬 및 하단 여백 */
-  z-index: 1;
-  background: #f5ede0; 
-  border: 3px solid #e5d9cc; /* 둥근 냉장고 외곽선 전체 적용 */
-  border-radius: 20px; /* 박스 안으로 모두 들어가게 함 */
-  /* box-shadow: 0 8px 24px rgba(0,0,0,0.06); */
-  overflow: hidden;
+  
+  /* ★ 노란색 제거, 흰색 배경 적용 ★ */
+  background-color: #ffffff; 
+  
+  /* 테두리 색상도 조금 더 연하게 수정 */
+  border: 4px solid #e2e8f0; 
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  padding-bottom: 0;
+  overflow: hidden;
 }
 
-/* ══ 4. 상단 브랜드 패널 ════════════════════════════════ */
+/* ★ 상단 패널 배경색 흰색으로 변경 ★ */
 .fridge-top-panel {
-  position: relative;
-  background: #D0E8F8; /* 그라데이션 제거 후 메인 페이지와 동일한 단색 적용 */
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* 타이틀 가운데 정렬 */
-  border-bottom: 1.5px solid rgba(0,0,0,0.08);
-  flex-shrink: 0;
+  background-color: #ffffff;
+  padding: 15px;
+  text-align: center;
+  border-bottom: 2px solid #edf2f7;
 }
 
 .fridge-brand {
   font-family: var(--font-title);
-  font-size: 1.2rem;
-  color: #5a4a32;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  font-size: 1.3rem;
+  color: #4a5568; /* 글자색 조정 */
+  letter-spacing: 1px;
 }
 
-.fridge-led { display: none; }
-
-.header-user-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 16px;
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 999px;
-  cursor: pointer; transition: background 0.15s;
-}
-.header-user-btn:hover { background: rgba(0,0,0,0.1); }
-.header-user-emoji { font-size: 1.3rem; }
-.header-user-name {
-  font-family: var(--font-title); font-size: 1.1rem;
-  color: #5a4a32; white-space: nowrap;
-}
-
-.header-logout-btn {
-  padding: 8px 16px;
-  background: var(--accent-orange);
-  color: white; border: none; border-radius: 999px;
-  font-family: var(--font-title); font-size: 1.05rem;
-  cursor: pointer; transition: transform 0.15s;
-}
-.header-logout-btn:hover { transform: translateY(-1px); }
-
-/* ══ 5. AI 버튼 바 ══════════════════════════════════════ */
+/* ★ AI 버튼 바 배경색 흰색으로 변경 ★ */
 .fridge-ai-bar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: #D0E8F8;
-  border-bottom: 1.5px solid rgba(0,0,0,0.08);
-  padding: 8px 16px;
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 15px;
+  background-color: #ffffff;
+  padding: 10px;
+  border-bottom: 2px solid #edf2f7;
 }
 
 .ai-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 9px 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: var(--font-title);
-  font-size: 1.05rem;
-  font-weight: 700;
-  transition: opacity 0.15s, transform 0.15s var(--ease-bounce);
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-.ai-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
-.ai-btn:active { transform: translateY(0); }
-
-.ai-btn-green {
-  background: var(--accent-green);
-  color: #fff;
-}
-.ai-btn-orange {
+  padding: 10px 20px;
   background: var(--accent-orange);
-  color: #fff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-title);
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.ai-btn-icon { display: none; }
-.ai-btn-sub  { display: none; }
+.ai-btn:hover { transform: translateY(-2px); }
 
-.ai-btn-text {
-  display: flex; flex-direction: column; line-height: 1;
-}
-.ai-btn-text strong { font-size: 1.05rem; font-weight: 700; }
-.ai-btn-text--right { text-align: right; }
-
-/* ══ 6. 냉장고 문 구분선 ════════════════════════════════ */
+/* 중앙 구분선 색상 연하게 */
 .fridge-divider {
-  height: 5px;
-  background: rgba(0,0,0,0.25);
-  border-top: 1px solid rgba(255,255,255,0.05);
-  position: relative;
-  flex-shrink: 0;
-}
-.fridge-divider::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%,-50%);
-  width: 56px; height: 7px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 999px;
+  height: 6px;
+  background-color: #edf2f7;
 }
 
-/* ══ 7. 냉장고 내부 ═════════════════════════════════════ */
+/* ══ 4. 냉장고 내부 (흰색 유지) ═════════════════════════ */
 .fridge-interior {
-  background: #ffffff;; /* 메인페이지와 동일하게 안쪽을 어둡게 */
   flex: 1;
-  min-height: 0;
-  padding: 0 16px 24px;
-  position: relative;
-  overflow-y: auto;  /* ✅ 이 영역만 스크롤 */
-}
-.fridge-interior::-webkit-scrollbar { width: 4px; }
-.fridge-interior::-webkit-scrollbar-thumb {
-  background: #D0E8F8;; border-radius: 2px;
+  padding: 30px 20px;
+  overflow-y: auto;
+  background: #ffffff; 
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.02);
 }
 
-.fridge-ceiling-light {
-  width: calc(100% + 32px);
-  margin-left: -16px;
-  height: 18px;
-  background: #ffffff; /* 그라데이션 제거 */
-  margin-bottom: 16px;
-  flex-shrink: 0;
-  position: relative;
-}
-.fridge-ceiling-light::after {
-  display: none; /* 그라데이션 제거 */
-}
+.fridge-interior::-webkit-scrollbar { width: 5px; }
+.fridge-interior::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
 
-.fridge-shelf-section { display: flex; flex-direction: column; margin-bottom: 4px; }
+.fridge-shelf-section { margin-bottom: 5px; }
 
 .shelf-glass {
-  width: 100%; height: 8px;
-  background: #f2ede3; /* 하늘색 유리 느낌 */
-  border-top: 1.5px solid rgba(245, 247, 248, 0.6);
-  border-radius: 2px;
+  height: 12px;
   margin-top: 10px;
+  background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 4px;
+  border-bottom: 2px solid #90caf9;
 }
 
-/* ══ 8. 재료 그리드 & 카드 ══════════════════════════════ */
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 한 줄에 6개 배치 */
-  gap: 10px;
-  position: relative;
-  z-index: 2;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
 }
 
 .fridge-item {
@@ -256,498 +151,98 @@ flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 6px 14px; /* 6개에 맞춰 패딩 소폭 축소 */
-  background: linear-gradient(145deg, #F0F9FF, #E1F5FE); /* 하늘색 아이콘 카드 */
-  border: 1.5px solid #B3E5FC;
-  border-radius: 18px;
+  padding: 15px 5px;
+  background: #fcfdfe;
+  border: 1px solid #e1e8ed;
+  border-radius: 15px;
   cursor: pointer;
-  animation: popIn 0.3s var(--ease-bounce) both;
+  transition: all 0.2s;
 }
-@keyframes popIn { from{transform:scale(0.5);opacity:0;} to{transform:scale(1);opacity:1;} }
 
-.fridge-item:hover {
-  transform: translateY(-6px) scale(1.06);
-  box-shadow: 0 10px 20px rgba(60,100,160,0.18), inset 0 1px 0 rgba(255,255,255,0.8);
-}
-.fridge-item:hover .remove-btn { opacity: 1; transform: scale(1); }
+.fridge-item:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
-.item-emoji {
-  font-size: 2rem; line-height: 1;
-}
-.item-name {
-  font-family: var(--font-title);
-  font-size: 0.9rem;
-  color: #2a3f55;
-  text-align: center;
-  word-break: keep-all;
-  line-height: 1.2;
-}
+.item-emoji { font-size: 2.2rem; }
+.item-name { font-family: var(--font-title); font-size: 0.9rem; margin-top: 5px; color: #2d3748; }
 
 .qty-badge {
-  font-size: 0.9rem; font-weight: 700;
-  color: white;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  padding: 3px 10px;
   background: var(--accent-orange);
-  border-radius: 999px;
-  padding: 4px 10px;
-  white-space: nowrap;
-}
-.qty-badge--empty {
-  background: rgba(100,140,180,0.2);
-  color: #7aaac8;
+  color: white;
+  border-radius: 20px;
 }
 
 .remove-btn {
-  position: absolute; top: -9px; right: -9px;
-  width: 24px; height: 24px;
-  background: #e04040; border: none; border-radius: 50%;
-  color: white; font-size: 0.8rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transform: scale(0.6);
-  transition: opacity 0.15s, transform 0.15s var(--ease-bounce);
-  z-index: 10;
-}
-
-/* + 추가 카드 */
-.fridge-add-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 20px 8px 16px;
-  background: rgba(225, 245, 254, 0.4);
-  border: 2px dashed #81D4FA; /* 하늘색 점선 */
-  border-radius: 18px;
-  cursor: pointer;
-  transition: all 0.2s var(--ease-bounce);
-  min-height: 130px;
-}
-.fridge-add-card:hover {
-  background: rgba(225, 245, 254, 0.8);
-  border-color: var(--accent-green);
-  transform: translateY(-3px) scale(1.03);
-}
-.add-card-plus {
-  font-size: 1.95rem; color: #81D4FA;
-  font-weight: 300; line-height: 1; transition: color 0.2s;
-}
-.fridge-add-card:hover .add-card-plus { color: var(--accent-green); }
-.add-card-text {
-  font-family: var(--font-title); font-size: 0.9rem;
-  color: #4FC3F7; text-align: center; transition: color 0.2s;
-}
-.fridge-add-card:hover .add-card-text { color: var(--accent-green); }
-
-/* 빈 냉장고 */
-.fridge-empty {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  min-height: 200px; gap: 12px; color: #8ab0d0;
-}
-.empty-icon  { font-size: 4.15rem; opacity: 0.4; }
-.empty-title { font-family: var(--font-title); font-size: 1.2rem; }
-
-/* ══ 9. 하단 액션 바 ════════════════════════════════════ */
-.fridge-bottom {
-  background: #D0E8F8; /* 그라데이션 제거 후 상단과 통일 */
-  border-top: 1.5px solid rgba(0,0,0,0.08);
-  padding: 8px 16px 8px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-shrink: 0;
-  position: relative;
-  /* ✅ 챗봇 버튼이 온전히 보이도록 높이 확보 */
-  min-height: 120px;
-}
-
-.item-count {
-  font-family: var(--font-title);
-  font-size: 1.2rem;
-  color: #5a4a32;
-}
-
-/* ✅ AI 챗봇 버튼 */
-.add-btn {
   position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: auto;
-  padding: 0 24px;
-  height: 56px;
-  border-radius: 999px;
-  background: var(--accent-orange); /* 주황색 테마 적용 */
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s var(--ease-bounce);
-  z-index: 10;
-}
-.add-btn:hover  { transform: translateY(-50%) scale(1.04); }
-.add-btn:active { transform: translateY(-50%) scale(0.96); }
-.add-btn-label {
-  font-family: var(--font-title);
-  font-size: 1rem;
+  top: 5px; right: 5px;
+  background: #ff5252;
   color: white;
-  line-height: 1;
-}
-
-/* ══════════════════════════════════════════════════════════
-   10. 바텀시트 패널 (재료 추가) — 가독성 개선
-══════════════════════════════════════════════════════════ */
-
-/* 오버레이: 갈색 반투명 */
-.panel-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(160, 130, 90, 0.45);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  z-index: 200;
-  display: flex;
-  align-items: flex-end;
-}
-
-/* 패널 본체 */
-.add-panel {
-  background: #ffffff;
-  border-radius: 28px 28px 0 0;
-  padding: 0 20px 40px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-top: 4px solid var(--accent-orange);
-}
-
-/* 드래그 핸들 */
-.panel-handle {
-  width: 40px; height: 4px;
-  background: #ddd4c8;
-  border-radius: 999px;
-  margin: 14px auto 16px;
-  flex-shrink: 0;
-}
-
-/* 패널 헤더 */
-.panel-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px; flex-shrink: 0;
-}
-.panel-title {
-  font-family: var(--font-title);
-  font-size: 1.2rem; color: #2a1f0e; font-weight: 700;
-}
-.panel-close-btn {
-  background: #f0e8de;
-  border: 1.5px solid rgba(90,74,50,0.15);
-  border-radius: 50%; color: #5a4a32;
-  width: 34px; height: 34px; font-size: 0.95rem;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
-.panel-close-btn:hover { background: #e5d9cc; }
-
-/* 검색창 */
-.search-wrap {
-  display: flex; align-items: center; gap: 8px;
-  background: #fdf6ee;
-  border: 2px solid rgba(255, 107, 53, 0.3);
-  border-radius: 14px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  transition: border-color 0.2s, background 0.2s;
-  flex-shrink: 0;
-}
-.search-wrap:focus-within {
-  border-color: var(--accent-orange);
-  background: #ffffff;
-}
-.search-icon { font-size: 1rem; flex-shrink: 0; }
-.search-inp {
-  flex: 1; border: none; background: transparent; outline: none;
-  color: #2a1f0e; font-family: var(--font-body); font-size: 0.95rem;
-}
-.search-inp::placeholder { color: #b8a898; }
-.search-clear {
-  background: #e8ddd0; border: none; color: #5a4a32;
-  border-radius: 50%; width: 22px; height: 22px;
-  font-size: 0.7rem; cursor: pointer;
+  border: none;
+  border-radius: 50%;
+  width: 20px; height: 20px;
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: background 0.15s;
-}
-.search-clear:hover { background: #d5c8b8; }
-
-/* 카테고리 탭 */
-.cat-tabs {
-  display: flex; gap: 8px; overflow-x: auto;
-  padding-bottom: 10px; margin-bottom: 14px;
-  scrollbar-width: none; flex-shrink: 0;
-}
-.cat-tabs::-webkit-scrollbar { display: none; }
-
-.cat-tab-btn {
-  flex-shrink: 0;
-  display: flex; align-items: center; gap: 5px;
-  padding: 7px 14px; border-radius: 999px;
-  border: 1.5px solid rgba(90, 74, 50, 0.2);
-  background: #f5ede0; color: #5a4a32;
-  font-family: var(--font-body); font-size: 0.88rem;
-  cursor: pointer; transition: all 0.15s; white-space: nowrap;
-}
-.cat-tab-btn:hover { background: #ede2d4; border-color: rgba(90, 74, 50, 0.35); }
-.cat-tab-btn.active {
-  background: var(--accent-orange); color: white;
-  border-color: var(--accent-orange);
 }
 
-.tab-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 18px; height: 18px; padding: 0 5px;
-  background: rgba(255, 107, 53, 0.85); color: white;
-  border-radius: 999px; font-size: 0.72rem; font-weight: 700;
+.fridge-add-card {
+  border: 2px dashed #cbd5e0;
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 120px; cursor: pointer; color: #a0aec0; font-family: var(--font-title);
 }
-.cat-tab-btn.active .tab-badge { background: rgba(255,255,255,0.3); }
 
-/* 재료 칩 그리드 */
+.fridge-add-card:hover { border-color: var(--accent-orange); color: var(--accent-orange); }
+
+/* ══ 5. 하단 액션 바 (배경색 흰색으로 변경) ══════════════ */
+.fridge-bottom {
+  background-color: #ffffff;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px solid #edf2f7;
+}
+
+.item-count { font-family: var(--font-title); font-size: 1.1rem; color: #4a5568; }
+
+.chatbot-btn {
+  padding: 10px 25px;
+  background: var(--accent-orange);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-family: var(--font-title);
+  cursor: pointer;
+}
+
+/* ══ 6. 모달/패널 공통 ══════════════════════════════════ */
+.modal-overlay, .panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); 
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+
+.qty-modal {
+  background: white; padding: 25px; border-radius: 20px; width: 300px;
+}
+
+.panel-overlay { align-items: flex-end; }
+.add-panel {
+  background: white; width: 100%; border-radius: 25px 25px 0 0; padding: 20px; max-height: 70vh;
+}
+
 .ing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px; margin-bottom: 16px;
-  max-height: 260px; overflow-y: auto; padding-right: 3px;
-}
-.ing-grid::-webkit-scrollbar { width: 3px; }
-.ing-grid::-webkit-scrollbar-thumb {
-  background: rgba(180, 160, 130, 0.3); border-radius: 2px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 20px;
 }
 
 .ing-chip {
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  padding: 12px 6px 10px; border-radius: 16px;
-  border: 2px solid #e4d8c8; background: #faf5ee;
-  cursor: pointer; transition: all 0.15s var(--ease-bounce); position: relative;
-}
-.ing-chip:hover {
-  border-color: rgba(255, 107, 53, 0.45); background: #fff8f2;
-  transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-.ing-chip.selected {
-  border-color: var(--accent-orange);
-  background: rgba(255, 107, 53, 0.08);
+  padding: 10px; border: 1px solid #eee; border-radius: 12px; text-align: center; cursor: pointer;
 }
 
-.chip-emoji { font-size: 1.65rem; line-height: 1; }
-.chip-name {
-  font-size: 0.78rem; color: #2a1f0e;
-  font-family: var(--font-body); text-align: center;
-  line-height: 1.2; word-break: keep-all;
-}
-.chip-check {
-  position: absolute; top: 5px; right: 6px;
-  font-size: 0.65rem; color: var(--accent-orange); font-weight: 900;
-}
-.grid-empty {
-  grid-column: 1 / -1; text-align: center;
-  color: #8a7a60; font-size: 0.9rem; padding: 20px 0; line-height: 1.8;
-}
+.ing-chip.selected { border-color: var(--accent-orange); background: #fff5f2; }
 
-/* 직접 입력 */
-.direct-wrap {
-  display: flex; gap: 8px; flex-shrink: 0;
-  padding: 14px; background: #edf7f4;
-  border-radius: 16px; border: 1.5px solid rgba(46, 196, 182, 0.25);
-}
-.direct-inp {
-  flex: 1; border: none; background: transparent; outline: none;
-  color: #2a1f0e; font-family: var(--font-body); font-size: 0.95rem;
-}
-.direct-inp::placeholder { color: #82b8ae; }
-.direct-btn {
-  padding: 10px 18px; background: var(--accent-green);
-  border: none; border-radius: 10px; color: white;
-  font-family: var(--font-title); font-size: 0.95rem; font-weight: 700;
-  white-space: nowrap;
-}
-.direct-btn:hover  { transform: translateY(-1px); }
-.direct-btn:active { transform: translateY(1px); }
-
-/* ══ 11. AI 모달 (먹고 싶은 음식) ══════════════════════ */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
-  z-index: 300;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  animation: fadeBg 0.2s ease;
-}
-@keyframes fadeBg { from{opacity:0;} to{opacity:1;} }
-
-.ai-modal {
-  width: 100%; max-width: 500px; max-height: 88vh;
-  background: #f5ede0; border-radius: 22px;
-  border: 1px solid rgba(0,0,0,0.08);
-  display: flex; flex-direction: column; overflow: hidden;
-  animation: modalPop 0.28s cubic-bezier(0.34,1.2,0.64,1);
-}
-@keyframes modalPop {
-  from{transform:scale(0.9) translateY(16px);opacity:0;}
-  to  {transform:scale(1)   translateY(0);   opacity:1;}
-}
-
-.modal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 17px 20px;
-  font-family: var(--font-title); font-size: 1.2rem; color: #2a1f0e;
-  flex-shrink: 0;
-  background: rgba(255,255,255,0.4);
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-}
-.green-modal  .modal-header { border-left: 4px solid var(--accent-green); }
-.orange-modal .modal-header { border-left: 4px solid var(--accent-orange); }
-
-.modal-close {
-  background: rgba(0,0,0,0.05); border: none; border-radius: 7px;
-  color: #5a4a32; padding: 4px 10px; cursor: pointer; font-size: 1rem;
-  transition: background 0.15s;
-}
-.modal-close:hover { background: rgba(0,0,0,0.1); }
-
-.modal-body {
-  flex: 1; overflow-y: auto; padding: 18px 20px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-.modal-body::-webkit-scrollbar { width: 3px; }
-.modal-body::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12); border-radius: 2px;
-}
-
-/* 레시피 AI 요약 숨김 처리 */
-.recipe-ai-summary,
-.ai-summary {
-  display: none !important;
-}
-
-/* 로딩 */
-.loading-wrap {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 32px;
-  color: #5a4a32; font-family: var(--font-body);
-  font-size: 1.1rem; text-align: center; line-height: 1.8;
-}
-.loading-ring {
-  width: 42px; height: 42px;
-  border: 3px solid rgba(0,0,0,0.1); border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to{transform:rotate(360deg);} }
-.green-ring  { border-top-color: var(--accent-green); }
-.orange-ring { border-top-color: var(--accent-orange); }
-
-/* ══ 12. 수량 편집 모달 ═════════════════════════════════ */
-.qty-modal {
-  background: #f5ede0; border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 22px; padding: 26px 24px 22px;
-  width: 310px; max-width: 90vw;
-  display: flex; flex-direction: column; gap: 16px;
-  animation: popIn 0.25s var(--ease-bounce) both;
-}
-.qty-modal-top { display: flex; align-items: center; gap: 12px; }
-.qty-modal-emoji {
-  font-size: 2.55rem;
-}
-.qty-modal-name {
-  flex: 1; font-family: var(--font-title); font-size: 1.3rem; color: #2a1f0e;
-}
-.qty-modal-label { font-size: 0.95rem; color: #8a7a60; margin-bottom: -4px; }
-
-.qty-input-row { display: flex; gap: 8px; align-items: stretch; }
-.qty-number-inp {
-  flex: 1; padding: 11px 8px;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(0,0,0,0.15); border-radius: 11px;
-  color: #2a1f0e; font-family: var(--font-body); font-size: 1.1rem; outline: none;
-  min-width: 0;
-  transition: border-color 0.15s;
-}
-.qty-number-inp:focus { border-color: var(--accent-green); }
-.qty-number-inp::placeholder { color: rgba(0,0,0,0.3); }
-
-.unit-select {
-  padding: 11px 4px;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(0,0,0,0.15); border-radius: 11px;
-  color: #2a1f0e; font-family: var(--font-body); font-size: 1.05rem;
-  outline: none; cursor: pointer; width: 60px;
-}
-
-.qty-btn-row { display: flex; gap: 10px; }
-.qty-cancel-btn {
-  flex: 1; padding: 11px;
-  background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);
-  border-radius: 11px; color: #5a4a32;
-  font-family: var(--font-body); font-size: 1rem; cursor: pointer;
-  transition: background 0.15s;
-}
-.qty-cancel-btn:hover { background: rgba(0,0,0,0.1); }
-.qty-save-btn {
-  flex: 2; padding: 11px;
-  background: var(--accent-green); border: none; border-radius: 11px;
-  color: white; font-family: var(--font-title); font-size: 1.05rem;
-  cursor: pointer; transition: transform 0.15s;
-}
-.qty-save-btn:hover { transform: translateY(-2px); }
-
-/* ══ 13. 유통기한 배지 ══════════════════════════════════ */
-.fridge-item.urgent {
-  border: 2px solid #FF6B35;
-  animation: pulse-border 1.5s infinite;
-}
-.fridge-item.expired {
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px solid #E53535;
-  opacity: 0.8;
-}
-.urgent-tag, .expired-tag {
-  position: absolute; top: 5px; left: 5px;
-  font-size: 10px; padding: 2px 6px; border-radius: 4px;
-  color: white; font-weight: bold; z-index: 10;
-}
-.urgent-tag  { background: #FF6B35; }
-.expired-tag { background: #E53535; }
-
-@keyframes pulse-border {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.6; }
-  100% { opacity: 1; }
-}
-
-/* 유통기한 date input */
-.date-input {
-  width: 100%; padding: 10px;
-  border: 1.5px solid rgba(0,0,0,0.1); border-radius: 8px;
-  font-family: var(--font-title); font-size: 1rem;
-  margin-bottom: 15px; outline: none; background-color: #fff;
-}
-.date-input:focus { border-color: #FF6B35; }
-
-/* ══ 14. 반응형 ════════════════════════════════════════ */
+/* ══ 7. 반응형 ════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .page-header { padding: 12px 16px 8px; }
-  .page-title  { font-size: 1.5rem; }
-  .header-user-btn { padding: 6px 12px; }
-  .header-user-emoji { font-size: 1.1rem; }
-  .header-user-name { font-size: 0.95rem; }
-  .header-logout-btn { padding: 6px 12px; font-size: 0.95rem; }
-  .ai-btn      { padding: 7px 12px; font-size: 0.95rem; }
-  .items-grid  { grid-template-columns: repeat(4, 1fr); gap: 8px; } /* 모바일에서는 4개로 조정 */
-  .fridge-item { padding: 12px 4px 10px; }
-  .item-emoji  { font-size: 1.8rem; }
-  .item-name   { font-size: 0.85rem; }
-  .remove-btn  { opacity: 1; transform: scale(1); }
-  .add-btn     { height: 46px; padding: 0 16px; right: 14px; }
-  .add-btn-label { font-size: 0.95rem; }
+  .items-grid { grid-template-columns: repeat(3, 1fr); }
+  .fridge-outer { width: calc(100% - 20px); border-radius: 15px; }
 }
