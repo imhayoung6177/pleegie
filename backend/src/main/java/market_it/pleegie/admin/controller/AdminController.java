@@ -20,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api") // [준호 추가] 클래스 상단에 이 한 줄을 추가하면 모든 메서드 주소 앞에 /api가 붙습니다!
 public class AdminController {
 
     private final AdminService adminService;
@@ -31,6 +32,13 @@ public class AdminController {
     login(@Valid @RequestBody AdminLoginRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.login(request)));
+    }
+
+    @GetMapping("/admin/dashboard") // [준호 추가]
+    public ResponseEntity<ApiResponse<Map<String, String>>> getDashboardInfo() {
+        Map<String, String> data = Map.of("name", "관리자");
+
+        return ResponseEntity.ok(ApiResponse.ok("대시보드 정보 조회 성공", data));
     }
 
     // ── 회원 관리 ─────────────────────────────

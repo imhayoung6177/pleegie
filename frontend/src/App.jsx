@@ -26,8 +26,7 @@ import ShopPage from "./pages/market/ShopPage";
 import MarketMyPage from "./pages/market/MarketMyPage";
 import ShopItemAddPage from "./pages/market/ShopItemAddPage";
 import ShopItemSalePage from "./pages/market/ShopItemSalePage";
-import QrScanPage from './pages/user/QrScanPage';
-
+import QrScanPage from "./pages/user/QrScanPage";
 
 // 관리자 관련
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
@@ -37,14 +36,15 @@ import AdminMarketManagePage from "./pages/admin/AdminMarketManagePage";
 import AdminReportManagePage from "./pages/admin/AdminReportManagePage";
 import AdminNoticeManagePage from "./pages/admin/AdminNoticeManagePage";
 import AdminStatisticsPage from "./pages/admin/AdminStatisticsPage";
+import ProtectedRoute from "./pages/admin/ProtectedRoute";
 
 const App = () => {
   return (
     <>
       {/* ✅ 전역 배경 이미지 설정 */}
-      <img 
-        src={bgImg} 
-        alt="background" 
+      <img
+        src={bgImg}
+        alt="background"
         style={{
           position: "fixed",
           top: 0,
@@ -54,7 +54,7 @@ const App = () => {
           objectFit: "fill",
           zIndex: -9999,
           pointerEvents: "none"
-        }} 
+        }}
       />
       {/* ✅ 모든 페이지의 기존 배경색을 투명하게 만들어 전역 배경이 보이도록 덮어쓰기 */}
       <style>
@@ -85,7 +85,7 @@ const App = () => {
           }
         `}
       </style>
-      
+
       <Routes>
         {/* 메인 홈 */}
         <Route path="/" element={<Homepage />} />
@@ -97,7 +97,7 @@ const App = () => {
         <Route path="/user/register" element={<RegisterPage role="USER" />} />
         <Route path="/user/fridge" element={<FridgePage />} />
         <Route path="/user/mypage" element={<MyPage />} />
-        
+
         {/* ✅ 마이페이지 확장 메뉴 라우트 */}
         <Route path="/user/stamp" element={<StampPage />} />
         <Route path="/user/report" element={<ReportPage />} />
@@ -116,14 +116,56 @@ const App = () => {
         <Route path="/market/items/:id/sale" element={<ShopItemSalePage role="SHOP" />} />
         <Route path="/market/scan/:marketId" element={<QrScanPage />} />
 
-        {/* 관리자 관련(황준호) */}
-        <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<AdminUserManagePage />} />
-        <Route path="/admin/markets" element={<AdminMarketManagePage />} />
-        <Route path="/admin/reports" element={<AdminReportManagePage />} />
-        <Route path="/admin/notices" element={<AdminNoticeManagePage />} />
-        <Route path="/admin/statistics" element={<AdminStatisticsPage />} />
+      {/* 🔐 관리자 관련 (보안 강화 버전) - 황준호 */}
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedRoute>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <AdminUserManagePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/markets"
+        element={
+          <ProtectedRoute>
+            <AdminMarketManagePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/reports"
+        element={
+          <ProtectedRoute>
+            <AdminReportManagePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/notices"
+        element={
+          <ProtectedRoute>
+            <AdminNoticeManagePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/statistics"
+        element={
+          <ProtectedRoute>
+            <AdminStatisticsPage />
+          </ProtectedRoute>
+        }
+      />
 
         {/* 잘못된 주소로 들어오면 홈으로 */}
         <Route path="/*" element={<Homepage />} />

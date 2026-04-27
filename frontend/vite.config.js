@@ -12,52 +12,66 @@ export default defineConfig({
       // /user, /market, /chatbot 등 스프링으로 보내야 하는 경로들
       '/user': {
         target: 'http://localhost:8080',
+      // ✅ Spring Boot (포트 8080)
+      "/user": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null), // 준호 추가
+      },
+      "/market": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null), // 준호 추가
+      },
+      "/auth": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/market': {
-        target: 'http://localhost:8080',
+      "/stamp": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/auth': {
-        target: 'http://localhost:8080',
+      "/admin": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null),
+      },
+      "/chatbot": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/stamp': {
-        target: 'http://localhost:8080',
+      "/api": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/admin': {
-        target: 'http://localhost:8080',
+      "/login": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/chatbot': {  // ✅ 챗봇 요청은 스프링부트(8080)가 먼저 받아서 처리함
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/login': {
-        target: 'http://localhost:8080',
+      "/oauth2": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
 
-      // 2️⃣ Python AI 서버 (포트 8000) 직접 연동 필요 시
-      // 만약 레시피 추천 등을 파이썬에서 직접 가져온다면 사용
-      '/recipe': {
-        target: 'http://localhost:8000',
+      // ✅ Python AI 서버 (포트 8000)
+      "/recipe": {
+        target: "http://localhost:8000",
         changeOrigin: true,
         secure: false,
       },
+    },
+  },
+});
+
 
       '/item-master': {
       target: 'http://localhost:8080',
