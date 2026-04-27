@@ -8,7 +8,7 @@
 ══════════════════════════════════════════════════════════ */
 
 :root {
-  --bg-page:    #f5ede0;
+  --bg-page:    #fde87a;
   --base-color: #1B2A3B;
   --c-primary:  #FF6B35;
   --c-green:    #FF6B35; /* 모든 아이콘 색상을 주황색으로 통일 */
@@ -27,26 +27,13 @@
 
 /* ══ 1. 페이지 래퍼 ═════════════════════════════════════ */
 .mypage {
-  height: calc(100vh - 88px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
   font-family: var(--font-body);
   background-color: var(--bg-page);
-}
-
-.mypage::after {
-  content: '';
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 88px;
-  background:
-    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
-    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
-  border-top: 3px solid #b89060;
-  z-index: 0;
-  pointer-events: none;
 }
 
 /* ══ 2. 헤더 ════════════════════════════════════════════ */
@@ -735,7 +722,7 @@
 
 /* ══ 13. 서브페이지 공통 레이아웃 (정보수정, 가계부, 레시피북, 장바구니, 스탬프) ══ */
 .mypage-subpage {
-  height: calc(100vh - 88px);
+  height: 100vh;
   background-color: var(--bg-page);
   display: flex;
   flex-direction: column;
@@ -743,19 +730,6 @@
   padding: 32px 16px 20px;
   font-family: var(--font-body);
   position: relative;
-}
-
-.mypage-subpage::after {
-  content: '';
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 88px;
-  background:
-    repeating-linear-gradient(90deg,#d4b896 0px,#d4b896 79px,#c8a882 80px,#c8a882 81px),
-    linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
-  border-top: 3px solid #b89060;
-  z-index: 0;
-  pointer-events: none;
 }
 
 .mypage-white-box {

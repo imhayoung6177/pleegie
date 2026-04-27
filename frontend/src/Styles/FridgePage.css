@@ -79,6 +79,7 @@
   background: var(--base-color);
   border-top: 2px solid var(--base-border);
   overflow: hidden;
+  isolation: isolate; /* 자식 요소의 흰 배경이 둥근 모서리를 뚫고 나오는 현상 방지 */
   display: flex;
   flex-direction: column;
 }
@@ -192,19 +193,20 @@
   background: linear-gradient(180deg,#e8f4ff 0%,#d8ecff 35%,#cce4ff 70%,#c0d8f8 100%);
   flex: 1;
   min-height: 0;
-  padding: 0 16px 160px;   /* ✅ 기존 100px → 160px으로 늘려서 챗봇 버튼에 안 가리게 */
+  padding: 34px 16px 160px;   /* ✅ 조명 공간 확보 및 하단 챗봇 여백 */
   position: relative;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .fridge-ceiling-light {
-  width: calc(100% + 32px);
-  margin-left: -16px;
+  position: absolute;
+  top: 0; left: 0; right: 0;
   height: 18px;
   background: linear-gradient(180deg,rgba(220,240,255,0.9) 0%,transparent 100%);
-  margin-bottom: 16px;
   flex-shrink: 0;
-  position: relative;
+  margin: 0;
+  z-index: 10;
 }
 .fridge-ceiling-light::after {
   content: '';

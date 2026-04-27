@@ -32,7 +32,7 @@ public class OAuth2SuccessHandler
                 userDetails.getUser().getRole());
 
         // 프론트로 리다이렉트 (토큰을 쿼리 파라미터로 전달)
-        String redirectUrl = "http://localhost:3000/oauth2/callback"
+        String redirectUrl = "http://localhost:5173/oauth2/callback"
                 + "?token=" + accessToken
                 + "&role=" + userDetails.getUser().getRole();
 

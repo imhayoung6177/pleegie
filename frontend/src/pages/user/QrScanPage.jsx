@@ -234,7 +234,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'linear-gradient(135deg, #fff8ee 0%, #ffe8d0 100%)',
+    background: 'transparent',
     padding: '20px',
   },
   card: {

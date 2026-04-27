@@ -68,7 +68,7 @@ const QRSection = ({ marketInfo, onReissue }) => {
   // ✅ QR에 담을 URL
   // → 고객이 스캔하면 해당 시장 페이지로 이동
   // → qrToken 기반 URL 사용 (보안상 안전)
-  const qrValue = `http://localhost:5173/market/scan/${marketInfo?.id}`;
+  const qrValue = `http://192.168.0.16:5173/market/scan/${marketInfo?.id}`;;
 
 
   // ✅ QR 이미지 저장
