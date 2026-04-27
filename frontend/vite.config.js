@@ -70,14 +70,5 @@ export default defineConfig({
       },
     },
   },
+},
 });
-
-
-      '/item-master': {
-      target: 'http://localhost:8080',
-      changeOrigin: true,
-      secure: false,
-      },
-    }
-  }
-})
