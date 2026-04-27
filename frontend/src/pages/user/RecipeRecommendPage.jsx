@@ -81,16 +81,21 @@ export default function RecipeRecommendPage() {
       // POST /recipe/recommend (Vite proxy → Python :8000)
       // RecipeRecommendRequest: { ingredients, expiring_ingredients }
       const recipeRes = await fetch('/recipe/recommend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // Spring Boot API로 변경
+        method: 'GET',
+        headers: getAuthHeaders(),
         // ✅ Python 서버는 JWT 토큰 불필요 (인증 없음)
-        body: JSON.stringify({
-          ingredients,
-          expiring_ingredients: expiringIngredients,
-        }),
+        // body: JSON.stringify({
+        //   ingredients,
+        //   expiring_ingredients: expiringIngredients,
+        // }),
       });
 
       if (!recipeRes.ok) {
+        if (recipeRes.status === 401) {
+                navigate('/user/login');
+                return;
+            }
         throw new Error('레시피 추천 서버 오류. Python 서버가 실행 중인지 확인해주세요.');
       }
 
@@ -98,7 +103,7 @@ export default function RecipeRecommendPage() {
       // RecipeItem: { title, description, ingredients[], missing_ingredients[],
       //               match_score(0~1), has_expiring(bool) }
       const recipeJson = await recipeRes.json();
-      const recipeList = recipeJson.recipes || [];
+      const recipeList = recipeJson.data?.recipes || [];
 
       if (recipeList.length === 0) {
         setErrorMsg('냉장고 재료로 만들 수 있는 레시피를 찾지 못했어요. 재료를 더 추가해보세요!');
@@ -114,10 +119,39 @@ export default function RecipeRecommendPage() {
     }
   };
 
+        // 레시피북에 레시피 저장
+      const saveRecipe = async (recipe) => {
+    try {
+        const res = await fetch('/user/recipebook', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                title: recipe.title,
+                description: recipe.description,
+                ingredients: recipe.ingredients
+            })
+        });
+
+        if (res.ok) {
+            alert('레시피북에 저장되었습니다! 📖');
+        } else {
+            const json = await res.json();
+            alert(json.message || '저장 실패');
+        }
+    } catch (err) {
+        alert('저장 중 오류가 발생했어요.');
+    }
+};
+
+// useEffect안에서 setState를 동기적으로 호출하면 안되는 React19의 엄격한 규칙때문에 수정
   useEffect(() => {
-    fetchRecommend();
+    const init = async () => {
+      await fetchRecommend();
+    };
+    init();
   }, []);
 
+  
   // ── 렌더링 ────────────────────────────────────────────────────
 
   return (
@@ -210,6 +244,7 @@ export default function RecipeRecommendPage() {
                       ⚠️ 부족: {r.missing_ingredients.join(', ')}
                     </p>
                   )}
+                 
                 </div>
                 <span className="rrp-card-arrow">〉</span>
               </div>
@@ -279,7 +314,9 @@ export default function RecipeRecommendPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {selectedRecipe.ingredients?.map((ing, i) => {
                   // ✅ 부족한 재료는 빨간색, 보유 재료는 초록색
-                  const isMissing = selectedRecipe.missing_ingredients?.includes(ing);
+                  const isMissing = selectedRecipe.missing_ingredients?.some(
+                    missing => missing === ing || missing.includes(ing) || ing.includes(missing)
+                  );
                   return (
                     <span
                       key={i}
@@ -299,17 +336,53 @@ export default function RecipeRecommendPage() {
             </div>
 
             {/* ✅ 부족한 재료 강조 */}
-            {selectedRecipe.missing_ingredients?.length > 0 && (
-              <div className="detail-section">
-                <h3>🛒 부족한 재료</h3>
-                <p className="missing-alert">
-                  ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
-                </p>
-                <p style={{ fontSize: '0.82rem', color: '#8a7a60', marginTop: '4px' }}>
-                  근처 시장에서 구매할 수 있어요!
-                </p>
-              </div>
-            )}
+             {selectedRecipe.missing_ingredients?.length > 0 && (
+                    <div className="detail-section">
+                        <h3>🛒 부족한 재료</h3>
+                        <p className="missing-alert">
+                            ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
+                        </p>
+                        <button
+                            onClick={() => navigate('/user/food-search', {
+                                state: {
+                                    missingIngredients:
+                                        selectedRecipe.missing_ingredients
+                                }
+                            })}
+                            style={{
+                                padding: '10px 20px',
+                                background: '#FF6B35',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                marginTop: '8px'
+                            }}
+                        >
+                            🏪 근처 시장에서 구매하기
+                        </button>
+                    </div>
+                )}
+            {/* 레시피북 저장 버튼 */}
+            <div className="detail-section">
+              <button
+                      onClick={() => saveRecipe(selectedRecipe)}
+                      style={{
+                          width: '100%',
+                          padding: '14px',
+                          background: '#4CAF50',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '12px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          marginTop: '16px'
+                      }}
+                  >
+                      📖 레시피북에 저장
+                  </button>
+            </div>
           </div>
         )}
 

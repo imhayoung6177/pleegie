@@ -1,5 +1,5 @@
 import json
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from app.core.config import settings
@@ -12,9 +12,7 @@ from app.ingredients.schema import (
     IngredientInfo,
 )
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash", google_api_key=settings.gemini_api_key
-)
+llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key)
 
 EXTRACT_TEMPLATE = PromptTemplate(
     input_variables=["message"],

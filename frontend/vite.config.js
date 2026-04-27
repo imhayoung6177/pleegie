@@ -78,10 +78,15 @@ export default defineConfig({
       },
 
       // ✅ Python AI 서버 (포트 8000)
-      '/recipe': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
+      '/recipe/recommend': {
+      target: 'http://localhost:8080',  // ← Spring Boot
+      changeOrigin: true,
+      secure: false,
+      },
+      '/recipe/search': {
+          target: 'http://localhost:8080',  // ← Spring Boot
+          changeOrigin: true,
+          secure: false,
       },
 
       '/item-master': {

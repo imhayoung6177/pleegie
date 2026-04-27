@@ -57,7 +57,32 @@ public class RecipeService {
                 .collect(Collectors.toList());
 
         // Python AI 서버에 추천 요청
-        return aiClient.recommendByFridge(ingredients, expiringIngredients);
+        RecipeRecommendResponse response =
+                aiClient.recommendByFridge(
+                        ingredients, expiringIngredients);
+
+        // missing_ingredients에서 냉장고 재료 제거
+        if (response != null && response.getRecipes() != null) {
+            response.getRecipes().forEach(recipe -> {
+                if (recipe.getMissingIngredients() != null) {
+
+                    List<String> filtered =
+                            recipe.getMissingIngredients()
+                                    .stream()
+                                    .filter(missing ->
+                                            // 포함 관계로 비교
+                                            ingredients.stream().noneMatch(
+                                                    fridge ->
+                                                            fridge.contains(missing) || missing.contains(fridge)
+                                            )
+                                    )
+                                    .collect(Collectors.toList());
+
+                    recipe.setMissingIngredients(filtered);
+                }
+            });
+        }
+        return response;
     }
 
     // ── 냉장고 기반 레시피 추천 ───────────────
