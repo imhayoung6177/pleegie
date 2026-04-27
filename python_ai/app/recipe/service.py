@@ -73,22 +73,42 @@ SEARCH_TEMPLATE = PromptTemplate(
 
 
 async def fetch_recipes_from_api(query: str) -> list[dict]:
-    """공공 API에서 레시피 검색"""
-    url = f"http://openapi.foodsafetykorea.go.kr/api/{settings.recipe_api_key}/COOKRCP01/json/1/100"
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-        data = response.json()
+    all_recipes = []
 
-    recipes = data.get("COOKRCP01", {}).get("row", [])
-    return [
-        {
-            "title": r.get("RCP_NM"),
-            "ingredients": r.get("RCP_PARTS_DTLS"),
-            "image_url": r.get("ATT_FILE_NO_MAIN"),
-            "category": r.get("RCP_PAT2"),
-        }
-        for r in recipes
+    for start in range(1, 601, 100):
+        end = start + 99
+        url = f"http://openapi.foodsafetykorea.go.kr/api/{settings.recipe_api_key}/COOKRCP01/json/{start}/{end}"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+            data = response.json()
+
+        recipes = data.get("COOKRCP01", {}).get("row", [])
+        all_recipes.extend(
+            [
+                {
+                    "title": r.get("RCP_NM"),
+                    "ingredients": r.get("RCP_PARTS_DTLS"),
+                    "image_url": r.get("ATT_FILE_NO_MAIN"),
+                    "category": r.get("RCP_PAT2"),
+                }
+                for r in recipes
+            ]
+        )
+
+    # 재료 키워드로 필터링
+    keywords = query.split()
+    filtered = [
+        r
+        for r in all_recipes
+        if r["ingredients"] and any(k in r["ingredients"] for k in keywords)
     ]
+
+    # 필터링 결과가 너무 적으면 전체에서 50개만
+    if len(filtered) < 10:
+        filtered = all_recipes[:50]
+
+    print(f"필터링된 레시피: {len(filtered)}개")
+    return filtered
 
 
 def calculate_match_score(
