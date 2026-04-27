@@ -21,8 +21,8 @@
 //   }
 // })
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
@@ -31,58 +31,61 @@ export default defineConfig({
     port: 5173,
     proxy: {
       // ✅ Spring Boot (포트 8080)
-      '/user': {
-        target: 'http://localhost:8080',
+      "/user": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null), // 준호 추가
+      },
+      "/market": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null), // 준호 추가
+      },
+      "/auth": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/market': {
-        target: 'http://localhost:8080',
+      "/stamp": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/auth': {
-        target: 'http://localhost:8080',
+      "/admin": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => (req.headers.accept.indexOf("text/html") !== -1 ? "/index.html" : null),
+      },
+      "/chatbot": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/stamp': {
-        target: 'http://localhost:8080',
+      "/api": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/admin': {
-        target: 'http://localhost:8080',
+      "/login": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
-      '/chatbot': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/login': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/oauth2': {
-        target: 'http://localhost:8080',
+      "/oauth2": {
+        target: "http://localhost:8080",
         changeOrigin: true,
         secure: false,
       },
 
       // ✅ Python AI 서버 (포트 8000)
-      '/recipe': {
-        target: 'http://localhost:8000',
+      "/recipe": {
+        target: "http://localhost:8000",
         changeOrigin: true,
         secure: false,
       },
-    }
-  }
-})
+    },
+  },
+});

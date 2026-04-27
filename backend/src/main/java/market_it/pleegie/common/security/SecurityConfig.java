@@ -1,5 +1,6 @@
 package market_it.pleegie.common.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.common.security.oauth.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
@@ -9,12 +10,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -24,6 +27,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
@@ -57,7 +61,8 @@ public class SecurityConfig {
                                 "/user/signup",
                                 "/market/login",
                                 "/market/signup",
-                                "/admin/login"
+                                "/admin/**",// [준호 추가] /admin으로 시작하는 모든 '화면' 주소를 허용!
+                                "/api/admin/login" // [준호 추가] 벡엔드 데이터 주소
                         ).permitAll()
 
                         // OAuth2 콜백 허용
@@ -66,8 +71,8 @@ public class SecurityConfig {
                                 "/oauth2/**"
                         ).permitAll()
 
-                        // 관리자만 접근 가능
-                        .requestMatchers("/admin/**")
+                        // 관리자만 접근 가능[준호 추가]
+                        .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
 
                         // 사업자만 접근 가능
@@ -92,12 +97,30 @@ public class SecurityConfig {
                         .successHandler(oAuth2SuccessHandler())
                 )
 
+                // [준호 추가] 인증 실패 시 안내데스크 설정 (Exception Handling)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // 핵심: 주소를 강제로 옮기지(Redirect) 않습니다!
+                            // 대신 리액트에게 "너 지금 인증 안 됐어(401)"라고 신호만 보냅니다.
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"success\":false, \"message\":\"인증이 필요합니다.\"}");
+                        })
+                )
+
                 // JWT 필터 추가
                 .addFilterBefore(
                         new JwtFilter(jwtProvider, customUserDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // [준호 추가] 정적 리소스(리액트 화면)는 시큐리티 검사 자체를 생략하게 합니다.
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/index.html", "/static/**", "/assets/**", "/favicon.ico", "/admin/**", "/user/**", "/market/**");
     }
 
     // OAuth2 로그인 성공 시 JWT 발급
