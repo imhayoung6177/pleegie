@@ -24,12 +24,16 @@ export const login = async ({ userId, password }) => {
   });
   
   // 백엔드 성공 시: { status: 200, data: { accessToken: "...", ... } } 구조라고 가정
-  const result = response.data;
-  if (result.data && result.data.accessToken) {
-    localStorage.setItem('accessToken', result.data.accessToken);
-    localStorage.setItem('userName', result.data.name);
-  }
-  return result.data;
+  // const result = response.data;
+  // if (result.data && result.data.accessToken) {
+  //   localStorage.setItem('accessToken', result.data.accessToken);
+  //   localStorage.setItem('userName', result.data.name);
+  // }
+
+  // ↑ 현재 중복저장 문제 해결. result.data.name은 없고 data.user.name은 있음
+  // if문에서 한번 저장한걸 LoginPage.jsx에서 또 저장하고 있었음.
+  // 여기서는 저장하지 않고 반환만, LoginPage에서 저장하도록 위임
+  return response.data.data;
 };
 
 // 4. 회원가입 API

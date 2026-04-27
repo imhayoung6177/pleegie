@@ -168,7 +168,19 @@ export default function FridgePage() {
         // ✅ 1. 냉장고 재료 조회 → GET /user/fridge/items (Spring)
         const fridgeRes  = await fetch('/user/fridge/items', { headers: getAuthHeaders() });
         const fridgeJson = await fridgeRes.json();
-        if (fridgeRes.ok) setItems(fridgeJson.data || fridgeJson);
+        if (fridgeRes.ok) setItems(fridgeJson.data ||[]);
+        
+        // ItemMaster 목록조회 (새로 만든 API)
+        const masterRes = await fetch('/item-master', { headers: getAuthHeaders() });
+        const masterJson = await masterRes.json();
+        if (masterRes.ok) setMasterList(masterJson.data || []);
+
+        } catch (err) {
+        console.error('데이터 로드 실패:', err);
+      }
+    };
+    fetchData();
+  }, []);
 
         // ✅ 2. [수정] ItemMaster 목록 조회
         // → 이전: /api/items/master (없는 경로! 500 에러)
@@ -187,35 +199,30 @@ export default function FridgePage() {
         // if (masterRes.ok) setMasterList(masterJson.data || masterJson);
 
         // ✅ [임시] 자주 쓰는 재료 기본 목록 (백엔드 API 생기면 제거)
-        setMasterList([
-          { id: 1,  name: '계란',   category: '단백질', unit: '개' },
-          { id: 2,  name: '두부',   category: '단백질', unit: '모' },
-          { id: 3,  name: '당근',   category: '채소',   unit: '개' },
-          { id: 4,  name: '양파',   category: '채소',   unit: '개' },
-          { id: 5,  name: '대파',   category: '채소',   unit: '봉지' },
-          { id: 6,  name: '감자',   category: '채소',   unit: '개' },
-          { id: 7,  name: '시금치', category: '채소',   unit: '봉지' },
-          { id: 8,  name: '돼지고기', category: '육류', unit: 'g' },
-          { id: 9,  name: '소고기', category: '육류',   unit: 'g' },
-          { id: 10, name: '닭고기', category: '육류',   unit: 'g' },
-          { id: 11, name: '우유',   category: '유제품', unit: 'ml' },
-          { id: 12, name: '된장',   category: '양념',   unit: 'g' },
-          { id: 13, name: '간장',   category: '양념',   unit: 'ml' },
-          { id: 14, name: '고추장', category: '양념',   unit: 'g' },
-          { id: 15, name: '마늘',   category: '채소',   unit: '개' },
-          { id: 16, name: '애호박', category: '채소',   unit: '개' },
-          { id: 17, name: '김치',   category: '기타',   unit: 'g' },
-          { id: 18, name: '두유',   category: '유제품', unit: 'ml' },
-          { id: 19, name: '쌀',     category: '곡물',   unit: 'g' },
-          { id: 20, name: '파스타', category: '곡물',   unit: 'g' },
-        ]);
+        // setMasterList([
+        //   { id: 1,  name: '계란',   category: '단백질', unit: '개' },
+        //   { id: 2,  name: '두부',   category: '단백질', unit: '모' },
+        //   { id: 3,  name: '당근',   category: '채소',   unit: '개' },
+        //   { id: 4,  name: '양파',   category: '채소',   unit: '개' },
+        //   { id: 5,  name: '대파',   category: '채소',   unit: '봉지' },
+        //   { id: 6,  name: '감자',   category: '채소',   unit: '개' },
+        //   { id: 7,  name: '시금치', category: '채소',   unit: '봉지' },
+        //   { id: 8,  name: '돼지고기', category: '육류', unit: 'g' },
+        //   { id: 9,  name: '소고기', category: '육류',   unit: 'g' },
+        //   { id: 10, name: '닭고기', category: '육류',   unit: 'g' },
+        //   { id: 11, name: '우유',   category: '유제품', unit: 'ml' },
+        //   { id: 12, name: '된장',   category: '양념',   unit: 'g' },
+        //   { id: 13, name: '간장',   category: '양념',   unit: 'ml' },
+        //   { id: 14, name: '고추장', category: '양념',   unit: 'g' },
+        //   { id: 15, name: '마늘',   category: '채소',   unit: '개' },
+        //   { id: 16, name: '애호박', category: '채소',   unit: '개' },
+        //   { id: 17, name: '김치',   category: '기타',   unit: 'g' },
+        //   { id: 18, name: '두유',   category: '유제품', unit: 'ml' },
+        //   { id: 19, name: '쌀',     category: '곡물',   unit: 'g' },
+        //   { id: 20, name: '파스타', category: '곡물',   unit: 'g' },
+        // ]);
 
-      } catch (err) {
-        console.error('데이터 로드 실패:', err);
-      }
-    };
-    fetchData();
-  }, []);
+      
 
   // ✅ ItemMaster 기반 재료 추가
   // → FridgeItemCreateRequest: { itemMasterId, category, quantity, unit, exp }
@@ -306,6 +313,14 @@ export default function FridgePage() {
       console.error('수량 수정 실패:', err);
     }
   };
+  // 유통기한에 따라 상태 변화
+  const getStatusClass = (status) => {
+    switch(status) {
+        case 'NEAR_EXPIRY': return 'urgent';     
+        case 'EXPIRED':     return 'expired';
+        default:            return 'fresh';
+    }
+};
 
   // 선반 단위로 나누기
   const shelves = [];
@@ -373,7 +388,7 @@ export default function FridgePage() {
                   {shelf.map(item => (
                     <div
                       key={item.id}
-                      className={`fridge-item ${item.status?.toLowerCase()}`}
+                      className={`fridge-item ${getStatusClass(item.status)}`}
                       onClick={() => setSelectedItem(item)}
                     >
                       <button

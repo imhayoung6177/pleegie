@@ -81,28 +81,40 @@ const mockAddByInput = async (userInput) => {
 };
 
 // ── Real API ──────────────────────────────────────────
+const getTodayStr = (daysToAdd = 0) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysToAdd);
+    return date.toISOString().split('T')[0];
+};
+
 const apiLoad = async () => {
-  const res = await axios.get('/api/fridge');
+  const res = await axios.get('/user/fridge/items');
+  const items = res.data.data || []; // <- ApiResponse 구조
   const seen = new Set();
-  return res.data
+  return items
     .filter(item => { if (!item.name || seen.has(item.name)) return false; seen.add(item.name); return true; })
     .map(item => ({ dbId: item.id, name: item.name, emoji: findEmoji(item.name) }));
 };
 
-const apiAdd = async ({ name, itemMasterId }) => {
+const apiAdd = async ({ name, itemMasterId, category, unit }) => {
   const catId = Object.keys(INGREDIENTS_BY_CAT).find(k => INGREDIENTS_BY_CAT[k].some(i => i.name === name));
   const CAT_MAP = { veggie:'VEGGIE', meat:'MEAT', dairy:'DAIRY', grain:'GRAIN', etc:'ETC' };
-  const res = await axios.post('/api/fridge', {
+  const res = await axios.post('/user/fridge/items', {
     itemMasterId,
-    category: catId ? CAT_MAP[catId] : 'ETC',
-    exp: '2026-12-31',
-    price: 0,
+    category: category || (catId ? CAT_MAP[catId] : 'ETC'),
+    quantity: 1.0,
+    unit: unit || '개',
+    exp: getTodayStr(7),
   });
-  return { dbId: res.data.id, name: res.data.name, emoji: findEmoji(res.data.name) };
+  return { 
+    dbId: res.data.data.id, 
+    name: res.data.data.name, 
+    emoji: findEmoji(res.data.data.name) 
+  };
 };
 
 const apiRemove = async (dbId) => {
-  await axios.delete(`/api/fridge/${dbId}`);
+  await axios.delete(`/user/fridge/items/${dbId}`);
 };
 
 const apiAddByInput = async (userInput) => {
