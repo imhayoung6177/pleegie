@@ -30,3 +30,7 @@ uploadPath: c:/upload/
 
 ai:
   python-server-url: http://localhost:8000/
+
+logging:
+  level:
+    market_it.pleegie: DEBUG

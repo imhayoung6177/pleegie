@@ -8,8 +8,7 @@ export default defineConfig({
     host: true,
     port: 5173,
     proxy: {
-      // 1️⃣ Spring Boot 서버 (포트 8080) 연동
-      // /user, /market, /chatbot 등 스프링으로 보내야 하는 경로들
+      // ✅ Spring Boot (포트 8080)
       "/user": {
         target: "http://localhost:8080",
         // ✅ Spring Boot (포트 8080)
@@ -67,6 +66,22 @@ export default defineConfig({
           target: "http://localhost:8000",
           changeOrigin: true,
           secure: false,
+          "/recipe/recommend": {
+            target: "http://localhost:8080", // ← Spring Boot
+            changeOrigin: true,
+            secure: false,
+          },
+          "/recipe/search": {
+            target: "http://localhost:8080", // ← Spring Boot
+            changeOrigin: true,
+            secure: false,
+          },
+
+          "/item-master": {
+            target: "http://localhost:8080",
+            changeOrigin: true,
+            secure: false,
+          },
         },
       },
     },
