@@ -18,7 +18,8 @@ const HomePage = () => {
   // [추가] 로그인 상태 체크: 관리자라면 메인 페이지 접근 금지!
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
+    const role = localStorage.getItem("userRole"); // 준호 추가
+    if (token && role === "ROLE_ADMIN") {
       // 관리자 토큰이 있다면, 메인 페이지를 보여주지 않고 즉시 대시보드로 보냅니다.
       // replace: true를 써서 브라우저 기록에 메인 페이지가 남지 않게 합니다.
       navigate("/admin/dashboard", { replace: true });
@@ -50,21 +51,19 @@ const HomePage = () => {
 
       {/* 냉장고 전체 컨테이너 */}
       <div className="fridge-root">
-
         {/* ★★★ 냉장고 본체 내부 배경
             - fridge-root 기준 absolute
             - z-index:0 → 문(2) 뒤에 완전히 숨어있음
             - 문이 열리면 이 배경이 보임 */}
         <div className="fridge-bg-interior">
           {/* 유리 선반 3개 */}
-          <div className="int-glass-shelf" style={{ top: '28%' }} />
-          <div className="int-glass-shelf" style={{ top: '54%' }} />
-          <div className="int-glass-shelf" style={{ top: '78%' }} />
+          <div className="int-glass-shelf" style={{ top: "28%" }} />
+          <div className="int-glass-shelf" style={{ top: "54%" }} />
+          <div className="int-glass-shelf" style={{ top: "78%" }} />
         </div>
 
         {/* 상단 문 섹션 */}
         <div className="top-section">
-
           {/* 왼쪽 문 - 일반회원 */}
           <motion.div
             className="door"
@@ -110,12 +109,11 @@ const HomePage = () => {
             </div>
             <div className="door-rear" />
           </motion.div>
-
         </div>
 
         {/* 하단 고정 문 - 절대 변경 금지 */}
         <div className="bot-section">
-          <img src={botLeftImg}  alt="하단 왼쪽"  className="piece" style={{ width: "50%" }} />
+          <img src={botLeftImg} alt="하단 왼쪽" className="piece" style={{ width: "50%" }} />
           <img src={botRightImg} alt="하단 오른쪽" className="piece" style={{ width: "50%" }} />
         </div>
 
@@ -123,7 +121,6 @@ const HomePage = () => {
         <div className="base-section">
           <img src={baseImg} alt="받침대" className="piece" />
         </div>
-
       </div>
     </div>
   );
