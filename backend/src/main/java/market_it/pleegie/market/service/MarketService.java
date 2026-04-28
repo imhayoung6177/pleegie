@@ -59,7 +59,7 @@ public class MarketService {
         String qrToken = UUID.randomUUID().toString();
 
         //QR 코드 이미지 생성
-        String qrCodeUrl = qrCodeUtil.generateQrCodeBase64(qrToken);
+        String qrCodeUrl = qrCodeUtil.generateQrCodeUrl(qrToken);
 
         Market market = Market.builder()
                 .user(user)
@@ -126,7 +126,7 @@ public class MarketService {
 
         // 새 QR 토큰 생성
         String newQrToken = UUID.randomUUID().toString();
-        String newQrCodeUrl = qrCodeUtil.generateQrCodeBase64(newQrToken);
+        String newQrCodeUrl = qrCodeUtil.generateQrCodeUrl(newQrToken);
 
         market.updateQr(newQrToken, newQrCodeUrl);
 
