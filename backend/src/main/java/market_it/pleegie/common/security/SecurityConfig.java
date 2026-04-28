@@ -120,7 +120,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/index.html", "/static/**", "/assets/**", "/favicon.ico", "/admin/**", "/user/**", "/market/**");
+                .requestMatchers("/index.html", "/static/**", "/assets/**", "/favicon.ico", "/manifest.json");
     }
 
     // OAuth2 로그인 성공 시 JWT 발급
