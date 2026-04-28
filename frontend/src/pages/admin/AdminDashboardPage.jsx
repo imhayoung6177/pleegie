@@ -1,127 +1,101 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ navigate를 쓰기 위해 추가
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./AdminCommon.css";
 
 const AdminDashboardPage = () => {
-  const navigate = useNavigate(); // ✅ navigate 함수 정의
-  const [adminName, setAdminName] = useState(""); // ✅ 화면에서 쓸 이름을 위해 setAdminName으로 수정
+  const navigate = useNavigate();
+  const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      // 1. 금고(localStorage)에서 아까 저장한 열쇠를 꺼냅니다.
       const token = localStorage.getItem("accessToken");
-
-      if (!token) {
-            navigate("/admin/login", { replace: true });
-            return;
-        }
-
       try {
-        // 2. 서버에 요청할 때 'Authorization' 주머니에 열쇠를 넣어서 보냅니다.
-        // 📡 백엔드 AdminController에 /api/admin/dashboard-info 같은 엔드포인트가 있다고 가정합니다.
-
-        await axios.get("/admin/users", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+        // 서버 연결 확인 (실제 엔드포인트에 맞춰 조절)
+        await axios.get("http://localhost:8080/api/admin/users", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        // 성공 시 받아온 데이터 중 이름을 상태에 저장 (구조는 백엔드 응답에 맞춰 조절)
-        // 만약 단순 유저 목록이라면 "관리자"라고 기본값을 넣어줄 수도 있습니다.
         setAdminName("관리자");
       } catch (error) {
         console.error("인증 실패:", error);
-        // 토큰이 없거나 만료된 경우, 알림 없이 조용히 로그인 페이지로 보냅니다.
         localStorage.clear();
         navigate("/admin/login", { replace: true });
       }
     };
-
     fetchData();
 
-    // --- 뒤로 가기 방지 로직 ---
-    // 현재 위치를 역사(History)에 고정시킵니다.
     window.history.pushState(null, null, window.location.href);
-
     const handlePreventBack = () => {
-      // 사용자가 뒤로 가기를 누르면 다시 현재 위치로 밀어넣어 제자리에 둡니다.
-      window.history.pushState(null, null, window.location.href);
-      alert("로그인 상태에서는 메인으로 돌아갈 수 없습니다. 로그아웃을 이용해주세요!");
+      window.location.href = "/";
     };
-
-    // 브라우저의 '뒤로 가기' 감지 장치를 켭니다.
     window.addEventListener("popstate", handlePreventBack);
-
-    // [가장 중요] 리액트의 '청소(Cleanup)' 기능!
-    // 로그아웃을 하거나 페이지를 떠날 때(Unmount), 위에서 켰던 감지 장치를 확실히 끕니다.
-    return () => {
-      window.removeEventListener("popstate", handlePreventBack);
-    };
+    return () => window.removeEventListener("popstate", handlePreventBack);
   }, [navigate]);
 
-  // 🚀 로그아웃 함수 정의
   const handleLogout = () => {
     localStorage.clear();
     alert("안전하게 로그아웃 되었습니다.");
-    window.location.replace("/admin/login");
+    navigate("/admin/login", { replace: true });
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* 상단 헤더 영역 */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        {/* ✅ adminName이 비어있으면 "관리자"라고 표시 */}
-        <h1 style={{ margin: 0 }}>📊 {adminName || "관리자"}님, 환영합니다!</h1>
-        <button onClick={handleLogout} style={logoutBtnStyle}>
-          🚪 로그아웃 (Logout)
-        </button>
-      </div>
+    <div className="admin-login-container dashboard-mode">
+      {/* 🚀 상단 네비게이션 바 */}
+      <nav className="admin-topnav">
+        <div className="admin-topnav-left">
+          {/* 크기가 조절된 로고 */}
+          <h1 className="admin-logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+            pleegie
+          </h1>
+        </div>
+        <div className="admin-topnav-right">
+          <span className="admin-user-info">👤 {adminName || "관리자"}님</span>
+          {/* 일반 페이지와 똑같아진 로그아웃 버튼 */}
+          <button onClick={handleLogout} className="admin-btn-logout">
+            로그아웃
+          </button>
+        </div>
+      </nav>
 
-      <div style={gridContainerStyle}>
-        <div style={btnStyle} onClick={() => navigate("/admin/users")}>
-          👥 회원 관리
-        </div>
-        <div style={btnStyle} onClick={() => navigate("/admin/markets")}>
-          🏪 사업자 관리
-        </div>
-        <div style={btnStyle} onClick={() => navigate("/admin/reports")}>
-          🚩 신고 관리
-        </div>
-        <div style={btnStyle} onClick={() => navigate("/admin/notices")}>
-          📢 공지 관리
-        </div>
-        <div
-          style={{ ...btnStyle, gridColumn: "span 2", backgroundColor: "#f0f7ff" }}
-          onClick={() => navigate("/admin/statistics")}
-        >
-          📈 통계 조회 (Statistics)
+      {/* 📋 테두리가 추가된 메인 보드 */}
+      <div className="admin-board">
+        <h2 className="admin-title" style={{ marginBottom: "40px" }}>
+          📊 관리 시스템 메뉴
+        </h2>
+
+        <div className="admin-menu-grid">
+          <div className="admin-menu-card" onClick={() => navigate("/admin/users")}>
+            <span style={{ fontSize: "45px" }}>👥</span>
+            <span className="admin-menu-text">회원 관리</span>
+          </div>
+
+          <div className="admin-menu-card" onClick={() => navigate("/admin/markets")}>
+            <span style={{ fontSize: "45px" }}>🏪</span>
+            <span className="admin-menu-text">사업자 관리</span>
+          </div>
+
+          <div className="admin-menu-card" onClick={() => navigate("/admin/reports")}>
+            <span style={{ fontSize: "45px" }}>🚩</span>
+            <span className="admin-menu-text">신고 관리</span>
+          </div>
+
+          <div className="admin-menu-card" onClick={() => navigate("/admin/notices")}>
+            <span style={{ fontSize: "45px" }}>📢</span>
+            <span className="admin-menu-text">공지 관리</span>
+          </div>
+
+          <div
+            className="admin-menu-card"
+            style={{ gridColumn: "span 2", flexDirection: "row", gap: "20px" }}
+            onClick={() => navigate("/admin/statistics")}
+          >
+            <span style={{ fontSize: "35px" }}>📈</span>
+            <span className="admin-menu-text">통계 조회 (Statistics)</span>
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-// --- 스타일 정의 부분 ---
-const gridContainerStyle = { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" };
-const btnStyle = {
-  border: "1px solid #ddd",
-  padding: "20px",
-  borderRadius: "8px",
-  cursor: "pointer",
-  textAlign: "center",
-  fontSize: "18px",
-  fontWeight: "bold",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-};
-const logoutBtnStyle = {
-  padding: "10px 15px",
-  backgroundColor: "#ff4d4f",
-  color: "white",
-  border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: "14px",
 };
 
 export default AdminDashboardPage;

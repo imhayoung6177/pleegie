@@ -53,6 +53,11 @@ public class SecurityConfig {
                 // URL별 접근 권한
                 .authorizeHttpRequests(auth -> auth
 
+                        // 관리자만 접근 가능[준호 추가]
+                        .requestMatchers("/api/admin/login").permitAll()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
                         // 누구나 접근 가능
                         .requestMatchers(
                                 "/",
@@ -70,10 +75,6 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/oauth2/**"
                         ).permitAll()
-
-                        // 관리자만 접근 가능[준호 추가]
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
 
                         // 사업자만 접근 가능
                         .requestMatchers(

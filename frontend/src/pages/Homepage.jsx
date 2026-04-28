@@ -57,21 +57,19 @@ const HomePage = () => {
 
       {/* 냉장고 전체 컨테이너 */}
       <div className="fridge-root">
-
         {/* ★★★ 냉장고 본체 내부 배경
             - fridge-root 기준 absolute
             - z-index:0 → 문(2) 뒤에 완전히 숨어있음
             - 문이 열리면 이 배경이 보임 */}
         <div className="fridge-bg-interior">
           {/* 유리 선반 3개 */}
-          <div className="int-glass-shelf" style={{ top: '28%' }} />
-          <div className="int-glass-shelf" style={{ top: '54%' }} />
-          <div className="int-glass-shelf" style={{ top: '78%' }} />
+          <div className="int-glass-shelf" style={{ top: "28%" }} />
+          <div className="int-glass-shelf" style={{ top: "54%" }} />
+          <div className="int-glass-shelf" style={{ top: "78%" }} />
         </div>
 
         {/* 상단 문 섹션 */}
         <div className="top-section">
-
           {/* 왼쪽 문 - 일반회원 */}
           <motion.div
             className="door"
@@ -117,12 +115,11 @@ const HomePage = () => {
             </div>
             <div className="door-rear" />
           </motion.div>
-
         </div>
 
         {/* 하단 고정 문 - 절대 변경 금지 */}
         <div className="bot-section">
-          <img src={botLeftImg}  alt="하단 왼쪽"  className="piece" style={{ width: "50%" }} />
+          <img src={botLeftImg} alt="하단 왼쪽" className="piece" style={{ width: "50%" }} />
           <img src={botRightImg} alt="하단 오른쪽" className="piece" style={{ width: "50%" }} />
         </div>
 
@@ -130,7 +127,6 @@ const HomePage = () => {
         <div className="base-section">
           <img src={baseImg} alt="받침대" className="piece" />
         </div>
-
       </div>
     </div>
   );
