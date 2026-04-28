@@ -1,7 +1,6 @@
 /**
  * marketService.js
  */
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 /* ══════════════════════════════════════════════════════════
@@ -50,6 +49,7 @@ const apiRequest = async (method, url, body = null) => {
    상인 회원가입 (2단계)
 ══════════════════════════════════════════════════════════ */
 export const registerMarket = async (payload) => {
+
   // 1단계: 유저 계정 생성
   const signupRes = await fetch(`${BASE_URL}/user/signup`, {
     method: 'POST',
@@ -57,19 +57,23 @@ export const registerMarket = async (payload) => {
     body: JSON.stringify({
       loginId:   payload.userId,
       password: payload.password,
+      name:     payload.ceoName,
       phone:    payload.phone,
       role:     'MARKET',
     }),
   });
 
-  const signupIsJson = signupRes.headers.get('content-type')?.includes('application/json');
-  if (!signupRes.ok) {
-    const err = signupIsJson ? await signupRes.json().catch(() => ({})) : {};
-    throw new Error(err.message || `회원가입 실패 (${signupRes.status})`);
+  let signupJson;
+  try {
+      signupJson = await signupRes.json();
+      console.log("signupJson:", signupJson);
+  } catch (e) {
+      console.log("json 파싱 오류:", e);
   }
-  const signupJson = await signupRes.json();
   const accessToken = signupJson.data?.accessToken ?? signupJson.accessToken;
+
   if (accessToken) localStorage.setItem('accessToken', accessToken);
+
 
   // 2단계: 시장 등록
   const marketRes = await fetch(`${BASE_URL}/market/signup`, {
@@ -87,7 +91,6 @@ export const registerMarket = async (payload) => {
       longitude:      payload.longitude,
     }),
   });
-
   const marketIsJson = marketRes.headers.get('content-type')?.includes('application/json');
   if (!marketRes.ok) {
     const err = marketIsJson ? await marketRes.json().catch(() => ({})) : {};

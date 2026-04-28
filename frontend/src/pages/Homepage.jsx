@@ -18,10 +18,17 @@ const HomePage = () => {
   // [추가] 로그인 상태 체크: 관리자라면 메인 페이지 접근 금지!
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("userRole");
     if (token) {
       // 관리자 토큰이 있다면, 메인 페이지를 보여주지 않고 즉시 대시보드로 보냅니다.
       // replace: true를 써서 브라우저 기록에 메인 페이지가 남지 않게 합니다.
-      navigate("/admin/dashboard", { replace: true });
+      if (role === "ADMIN") {
+            navigate("/admin/dashboard", { replace: true });
+        } else if (role === "MARKET") {
+            navigate("/market/main", { replace: true });
+        } else if (role === "USER") {
+            navigate("/user/fridge", { replace: true });
+        }
     }
   }, [navigate]);
 

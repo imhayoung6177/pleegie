@@ -19,10 +19,10 @@ public class UserController {
     // ── 회원가입 ──────────────────────────────
 
     @PostMapping("/user/signup")
-    public ResponseEntity<ApiResponse<UserResponse>> signup(
+    public ResponseEntity<ApiResponse<UserLoginResponse>> signup(
             @Valid @RequestBody UserCreateRequest request) {
         return ResponseEntity.ok(
-                ApiResponse.ok(userService.signup(request)));
+                ApiResponse.ok(userService.signupAndLogin(request)));
     }
 
     // ── 로그인 ────────────────────────────────

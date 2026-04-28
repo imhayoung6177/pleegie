@@ -66,7 +66,7 @@ export default defineConfig({
                 secure: false,
             },
             '/recipe/search': {
-                target: 'http://localhost:8080',
+                target: 'http://localhost:8000',
                 changeOrigin: true,
                 secure: false,
             },

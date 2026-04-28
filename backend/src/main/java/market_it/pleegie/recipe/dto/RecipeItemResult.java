@@ -24,4 +24,7 @@ public class RecipeItemResult {
 
     @JsonProperty("has_expiring")
     private Boolean hasExpiring;
+
+    @JsonProperty("cooking_steps")
+    private String cookingSteps;
 }

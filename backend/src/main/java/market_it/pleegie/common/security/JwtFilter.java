@@ -28,15 +28,18 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String token = resolveToken(request);
-        log.info("요청 URL: {}", request.getRequestURI());
-        log.info("추출된 토큰: {}", token);
+        System.out.println("요청 URL: "+ request.getRequestURI());
+        System.out.println("추출된 토큰: "+ token);
 
         if (StringUtils.hasText(token)
                 && jwtProvider.validateToken(token)) {
-            log.info("토큰 유효함");
+            System.out.println("토큰 유효함");
 
             Long userId = jwtProvider.getUserId(token);
             String role = jwtProvider.getRole(token);
+
+            System.out.println("userID : "+ userId);
+            System.out.println("role : " + role);
 
             UserDetails userDetails;
 
@@ -48,6 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 userDetails = userDetailsService
                         .loadUserById(userId);
             }
+            System.out.println("userDetails : "+ userDetails);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -57,7 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
         } else {
-            log.info("토큰 없음 또는 유효하지 않음");
+            System.out.println("토큰 유효하지 않음");
         }
 
         filterChain.doFilter(request, response);

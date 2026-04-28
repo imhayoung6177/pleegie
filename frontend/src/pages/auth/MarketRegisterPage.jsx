@@ -6,7 +6,7 @@ import "../../Styles/auth/RegisterPage.css";
 // ✅ [연동 추가] 상인 회원가입 & 사업자 인증 API 함수 import
 // → marketService.js 에 아래 두 함수를 만들어야 함 (하단 authService 참고)
 // import { verifyBizNumber, registerMarket } from "../../services/MarketService.js"; // 임시중단
-import { registerMarket } from "../../services/marketService.js";
+import { registerMarket } from "../../services/MarketService.js";
 
 const MarketRegisterPage = () => {
   const navigate = useNavigate();
