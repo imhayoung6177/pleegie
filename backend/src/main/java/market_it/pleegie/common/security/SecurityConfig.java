@@ -61,8 +61,8 @@ public class SecurityConfig {
                                 "/user/signup",
                                 "/market/login",
                                 "/market/signup",
-                                "/admin/**",// [준호 추가] /admin으로 시작하는 모든 '화면' 주소를 허용!
-                                "/api/admin/login" // [준호 추가] 벡엔드 데이터 주소
+                                "/admin/login",
+                                "/api/admin/login"
                         ).permitAll()
 
                         // OAuth2 콜백 허용
@@ -120,7 +120,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/index.html", "/static/**", "/assets/**", "/favicon.ico", "/admin/**", "/user/**", "/market/**");
+                .requestMatchers("/index.html", "/static/**", "/assets/**", "/favicon.ico");
     }
 
     // OAuth2 로그인 성공 시 JWT 발급
