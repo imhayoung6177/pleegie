@@ -1,6 +1,10 @@
 /* 상인 테마 배경색 (시장 느낌의 부드러운 그린/오렌지 톤 추천) */
 .auth-bg.market-theme {
     background-color: #f0f4f7;
+    background-image: url('../../assets/pleegemarket.png') !important;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
 }
 
 /* 입력창 상태별 스타일 */
@@ -26,8 +30,8 @@ input.readonly {
 
 .verify-btn {
     white-space: nowrap;
-    background: #1e3048;
-    color: white;
+    background: #B7CCAC !important;
+    color: #2a1f0e !important;
     border: none;
     padding: 0 15px;
     border-radius: 12px;
@@ -36,11 +40,13 @@ input.readonly {
 }
 
 .verify-btn:disabled {
-    background: #2aaa78; /* 인증 성공 시 초록색 */
+    background: rgba(183, 204, 172, 0.6); /* 인증 성공 시 반투명 처리 */
+    color: #555;
     cursor: default;
 }
 
 .auth-submit-btn.market {
-    background: linear-gradient(135deg, #1e3048, #2a3f55);
+    background: #B7CCAC !important;
+    color: #2a1f0e !important;
     margin-top: 20px;
 }

@@ -83,7 +83,7 @@ const ProfileEdit = ({ onBack }) => {
   return (
     <div className="mypage-subpage">
       <div className="mypage-white-box">
-        <div style={{ textAlign: 'center', fontFamily: 'var(--font-title)', fontSize: '1.8rem', color: '#FF6B35', fontWeight: 700, marginBottom: '8px' }}>
+        <div style={{ textAlign: 'center', fontFamily: 'var(--font-title)', fontSize: '1.8rem', color: 'black', fontWeight: 700, marginBottom: '8px' }}>
           pleegie
         </div>
 
@@ -145,19 +145,11 @@ const ProfileEdit = ({ onBack }) => {
               </div>
             </div>
 
-            <button type="submit" className="auth-submit-btn" style={{ marginTop: '8px', width: '100%' }}>
-              {saved ? '✅ 저장 완료!' : '수정 완료'}
-            </button>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button type="button" className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={onBack}>뒤로 가기</button>
+              <button type="submit" className="auth-submit-btn" style={{ flex: 1, margin: 0 }}>{saved ? '✅ 저장 완료!' : '수정 완료'}</button>
+            </div>
           </form>
-        </div>
-
-        <div style={{ marginTop: 'auto', flexShrink: 0 }}>
-          <div className="auth-divider" style={{ margin: '20px 0 16px' }}>
-            <span>변경사항이 없으신가요?</span>
-          </div>
-          <button className="auth-link-btn" onClick={onBack}>
-            마이페이지로 돌아가기
-          </button>
         </div>
       </div>
     </div>

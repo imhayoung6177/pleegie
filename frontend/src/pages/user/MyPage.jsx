@@ -19,8 +19,7 @@ const MENU = [
   { id: 'recipes',  emoji: '📖', label: '레시피북',     desc: '저장한 레시피 모아보기' },
   { id: 'cart',     emoji: '🛒', label: '장바구니',     desc: '구매 예정 재료 목록' },
   { id: 'stamp',    emoji: '🎫', label: '스탬프 현황',   desc: '나의 리워드 혜택' },
-  { id: 'coupons',  emoji: '🎟️', label: '쿠폰 조회',     desc: '보유한 할인 쿠폰 확인' },
-  { id: 'currency', emoji: '💳', label: '지역 화폐 신청', desc: '전통시장 전용 카드 신청' },
+  { id: 'local-currency', emoji: '💳', label: '지역 화폐 신청', desc: '전통시장 전용 카드 신청' },
   { id: 'report',   emoji: '📢', label: '신고하기',     desc: '불편 사항 및 신고 접수' },
 ];
 
@@ -74,7 +73,7 @@ export default function MyPage() {
   // ✅ 메뉴 클릭 시 페이지 이동 또는 탭 변경
   const handleMenuClick = (id) => {
     // 독립 페이지로 이동해야 하는 경우
-    if (['stamp', 'report', 'coupons', 'currency'].includes(id)) {
+    if (['stamp', 'report', 'coupons', 'local-currency'].includes(id)) {
       navigate(`/user/${id}`);
     } else {
       // 마이페이지 내에서 탭으로 보여주는 경우

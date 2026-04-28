@@ -16,7 +16,7 @@ export default function ReportPage() {
   return (
     <div className="mypage-subpage">
       <div className="mypage-white-box">
-        <div style={{ color: '#FF6B35', fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '10px' }}>pleegie</div>
+        <div style={{ color: 'black', fontSize: '1.8rem', fontWeight: 800, textAlign: 'center', marginBottom: '10px' }}>pleegie</div>
         <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>📢 신고 및 불편사항 접수</h2>
         
         <form onSubmit={handleSubmit}>
@@ -40,10 +40,11 @@ export default function ReportPage() {
             <textarea className="auth-input" style={{ height: '150px', paddingTop: '12px' }} placeholder="내용을 구체적으로 적어주시면 큰 도움이 됩니다." value={form.content} onChange={e => setForm({...form, content: e.target.value})} />
           </div>
 
-          <button type="submit" className="auth-submit-btn">신고하기</button>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            <button type="button" className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/mypage')}>돌아가기</button>
+            <button type="submit" className="auth-submit-btn" style={{ flex: 1, margin: 0 }}>신고하기</button>
+          </div>
         </form>
-
-        <button className="auth-link-btn" onClick={() => navigate('/user/mypage')}>취소하고 돌아가기</button>
       </div>
     </div>
   );

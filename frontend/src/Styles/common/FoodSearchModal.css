@@ -39,10 +39,10 @@
 
 .fs-search-btn {
   padding: 10px 20px;
-  background: #FF6B35;
+  background: #fdd537;
   border: none;
   border-radius: 10px;
-  color: white;
+  color: #2a1f0e;
   font-family: 'Jua', sans-serif;
   font-size: 0.95rem;
   cursor: pointer;
@@ -82,8 +82,8 @@
   transition: all 0.15s;
 }
 .fs-history-chip:hover {
-  background: rgba(255, 107, 53, 0.15);
-  border-color: rgba(255, 107, 53, 0.4);
+  background: rgba(253, 213, 55, 0.3);
+  border-color: rgba(253, 213, 55, 0.8);
 }
 .fs-history-clear {
   padding: 6px 12px;
@@ -160,7 +160,7 @@
 .fs-market-name {
   font-family: 'Jua', sans-serif;
   font-size: 1rem;
-  color: #FF6B35;
+  color: #2a1f0e;
 }
 .fs-market-dist {
   font-size: 0.78rem;

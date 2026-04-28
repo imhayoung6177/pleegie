@@ -9,9 +9,15 @@
   --font-title:'Jua',sans-serif;
   --font-body:'Jua',sans-serif;
   --ease-bounce:cubic-bezier(0.34,1.56,0.64,1);
+
+  /* ✅ [추가] 사업자 전용 색상 변수
+     - 나중에 색상 바꾸고 싶으면 여기 한 곳만 수정하면 됩니다 */
+  --market-green: #B7CCAC;
+  --market-green-dark: #8fa882;
+  --market-text: #2a1f0e;
 }
 
-/* 배경 */
+/* 배경 - 일반 사용자용 */
 .auth-bg {
   height: calc(100vh - 88px);
   display: flex; flex-direction: column;
@@ -26,24 +32,72 @@
     linear-gradient(180deg,#d4b896 0%,#c0a070 100%);
   border-top:3px solid #b89060; z-index:0; pointer-events:none;
 }
+
+/* ✅ [핵심 수정] 사업자 로그인/회원가입 배경
+   .auth-bg.market-theme 클래스 조합으로 사업자 페이지만 적용
+   
+   📌 왜 이렇게 하나요?
+   - .auth-bg 는 일반 사용자 / 사업자 공통으로 쓰는 클래스
+   - 사업자 페이지에서만 .market-theme 클래스를 추가로 붙임
+   - CSS에서 .auth-bg.market-theme 처럼 두 클래스를 함께 쓰면
+     "두 클래스가 동시에 있는 요소"에만 적용됩니다
+   
+   ⚠️ JSX에서 아래처럼 클래스 추가 필요:
+   <div className="auth-bg market-theme">  */
+.auth-bg.market-theme {
+  /* 배경색 제거 후 이미지로 교체 */
+  background-color: transparent;
+  
+  /* ✅ public/pleegemarket.png 절대경로 사용
+     → 먼저 터미널에서 실행: cp src/assets/pleegemarket.png public/pleegemarket.png */
+  background-image: url('/pleegemarket.png');
+  background-size: cover;           /* 화면을 꽉 채움 (비율 유지) */
+  background-position: center;      /* 가운데 정렬 */
+  background-repeat: no-repeat;     /* 반복 없음 */
+  background-attachment: fixed;     /* 스크롤해도 배경 고정 */
+  justify-content: center;          /* 카드 세로 중앙 정렬 */
+}
+
+/* 사업자 배경 위 어두운 오버레이 (카드 가독성 향상) */
+.auth-bg.market-theme::before {
+  content: '';
+  position: fixed;
+  inset: 0;                         /* top/right/bottom/left 모두 0 */
+  background: rgba(0, 0, 0, 0.18); /* 18% 어두운 필터 */
+  z-index: 0;
+  pointer-events: none;             /* 클릭 이벤트 방해 안함 */
+}
+
+/* 오버레이 위에 카드가 올라오도록 z-index 설정 */
+.auth-bg.market-theme > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 사업자 카드 - 배경 위에서 선명하게 보이도록 */
+.auth-bg.market-theme .auth-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(10px);       /* 배경 블러 효과 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18) !important;
+  border: 1px solid rgba(183, 204, 172, 0.3) !important;
+}
+
 .auth-circle{position:absolute;border-radius:50%;pointer-events:none;}
 .circle-left{width:400px;height:400px;top:-120px;left:-120px;background:radial-gradient(circle,rgba(255,107,53,0.08),transparent 70%);}
 .circle-right{width:300px;height:300px;bottom:-80px;right:-80px;background:radial-gradient(circle,rgba(46,196,182,0.08),transparent 70%);}
-.shop-theme{background-image:radial-gradient(circle at 15% 15%,rgba(255,107,53,0.14) 0%,transparent 35%),radial-gradient(circle at 85% 85%,rgba(255,209,102,0.1) 0%,transparent 35%),radial-gradient(rgba(255,107,53,0.05) 1px,transparent 1px);}
 
 /* 카드 */
 .auth-card {
   width:100%; max-width:440px;
   background:rgba(255,255,255,0.97);
-  border-radius:28px; border:1px solid rgba(0,0,0,0.08); /* 로그인 카드 테두리 삭제 */
+  border-radius:28px; border:1px solid rgba(0,0,0,0.08);
   padding:36px 32px 32px;
   display:flex; flex-direction:column; gap:0;
   position:relative; z-index:1;
-  margin: auto; /* 스크롤 잘리지 않고 세로 중앙 정렬 보장 */
+  margin: auto;
 }
 .auth-card::before {
   content:''; position:absolute; top:0;left:0;right:0;height:5px;
-  /* background:#FF6B35; */
   border-radius:28px 28px 0 0;
 }
 .register-card{max-width:480px;}
@@ -53,7 +107,12 @@
 /* 로고 */
 .auth-logo{display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:24px;transition:transform 0.2s var(--ease-bounce);}
 .auth-logo:hover{transform:scale(1.03);}
-.auth-logo-text{font-family:var(--font-title);font-size:1.8rem;letter-spacing:-0.5px;color:#FF6B35;text-transform:lowercase;}
+.auth-logo-text{font-family:var(--font-title);font-size:1.8rem;letter-spacing:-0.5px;color:black;text-transform:lowercase;}
+
+/* ✅ [추가] 사업자 로그인 로고 색상 → 그린으로 변경 */
+.auth-bg.market-theme .auth-logo-text {
+  color: black;
+}
 
 /* 헤더 */
 .auth-header{text-align:center;margin-bottom:28px;}
@@ -84,12 +143,32 @@
   padding:0 14px;
   transition:border-color 0.2s,box-shadow 0.2s;
 }
-.auth-input-wrap:focus-within{border-color:rgba(0,0,0,0.3);} /* 포커스 색상 제거 */
+.auth-input-wrap:focus-within{border-color:rgba(0,0,0,0.3);}
 .auth-input-wrap.error{border-color:#E53935;background:#FFF5F5;}
 .auth-input{flex:1;border:none;background:transparent;outline:none;font-family:var(--font-body);font-size:0.95rem;color:#1A1A2E;padding:14px 0;}
 .auth-input::placeholder{color:rgba(150,130,110,0.5);}
-.auth-pw-toggle{background:none;border:none;font-size:0.72rem;color:rgba(255,107,53,0.6);cursor:pointer;font-family:var(--font-body);white-space:nowrap;padding:4px;transition:color 0.15s;}
+.auth-pw-toggle{background:none;border:none;font-size:0.72rem;color:black;cursor:pointer;font-family:var(--font-body);white-space:nowrap;padding:4px;transition:color 0.15s;}
 .auth-pw-toggle:hover{color:var(--c-primary);}
+
+/* 수정 가능 필드 */
+.auth-input-wrap.editable {
+  background-color: #ffffff;
+  border: 2px solid rgba(0,0,0,0.12);
+}
+.auth-input-wrap.editable:focus-within {
+  border-color: rgba(0,0,0,0.3);
+}
+
+/* 수정 불가 필드 (회색 배경) */
+.auth-input-wrap.readonly {
+  background-color: #f0f2f5;
+  border: 2px solid #dcdcdc;
+  cursor: not-allowed;
+}
+.auth-input-wrap.readonly .auth-input {
+  color: #888;
+  pointer-events: none;
+}
 
 /* 에러/성공 */
 .auth-field-error{font-size:0.72rem;color:#E53935;padding-left:4px;}
@@ -102,14 +181,78 @@
 .auth-agree-text{font-size:0.78rem;color:var(--c-text-mid);line-height:1.6;cursor:pointer;}
 .auth-agree-text a{color:var(--c-primary);text-decoration:underline;cursor:pointer;font-weight:500;}
 
-/* 제출 버튼 */
-.auth-submit-btn{padding:14px;background:#FF6B35;border:none;border-radius:14px;color:white;font-family:var(--font-title);font-size:1.05rem;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s var(--ease-bounce);margin-top:8px;}
-
+/* ══ 제출 버튼 ══
+   기본(일반 사용자)은 노란색 유지
+   사업자 페이지(.auth-bg.market-theme 안)에서는 그린으로 덮어씌움 */
+.auth-submit-btn{
+  padding:14px;
+  background:#fdd537;        /* 일반 사용자: 노란색 */
+  border:none;
+  border-radius:14px;
+  color:#2a1f0e;
+  font-family:var(--font-title);
+  font-size:1.05rem;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  transition:all 0.2s var(--ease-bounce);
+  margin-top:8px;
+}
 .auth-submit-btn:hover{transform:translateY(-2px);}
-
 .auth-submit-btn:active{transform:translateY(0);}
 .auth-submit-btn:disabled{opacity:0.6;cursor:wait;transform:none;}
-.auth-submit-btn.shop{background:#FF6B35;color:white;}
+
+/* ✅ [핵심] 사업자 페이지 제출 버튼 → #B7CCAC 그린으로 덮어씌우기
+   선택자 우선순위:
+   .auth-bg.market-theme .auth-submit-btn
+   = 클래스 3개 = 일반 .auth-submit-btn (클래스 1개)보다 우선순위 높음
+   → !important 없이도 덮어씌워짐 */
+.auth-bg.market-theme .auth-submit-btn {
+  background: var(--market-green);   /* #B7CCAC */
+  color: var(--market-text);          /* #2a1f0e */
+  box-shadow: 0 3px 0 var(--market-green-dark);
+}
+.auth-bg.market-theme .auth-submit-btn:hover:not(:disabled) {
+  background: var(--market-green-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #6b8a5e;
+}
+.auth-bg.market-theme .auth-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 0 var(--market-green-dark);
+}
+.auth-bg.market-theme .auth-submit-btn:disabled {
+  background: rgba(183, 204, 172, 0.5);
+  box-shadow: none;
+}
+
+/* ✅ [추가] 사업자 페이지 링크 버튼 → 그린 테두리/글자색 */
+.auth-bg.market-theme .auth-link-btn {
+  color: var(--market-green) !important;
+  border: 2px solid var(--market-green) !important;
+  background: rgba(183, 204, 172, 0.06) !important;
+}
+.auth-bg.market-theme .auth-link-btn:hover {
+  background: var(--market-green) !important;
+  color: var(--market-text) !important;
+}
+
+/* ✅ [추가] 사업자 인증 버튼 (조회하기) → 그린 */
+.auth-bg.market-theme .reg-addr-btn {
+  background: var(--market-green) !important;
+  color: var(--market-text) !important;
+  border: none !important;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.auth-bg.market-theme .reg-addr-btn:hover:not(:disabled) {
+  background: var(--market-green-dark) !important;
+}
+
 .auth-loading{display:flex;align-items:center;justify-content:center;gap:8px;}
 .auth-spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -128,7 +271,7 @@
 .social-btn.naver{background:#03C75A;color:white;border-color:#02A84B;}
 .social-btn.google{background:white;color:#3C4043;border-color:rgba(0,0,0,0.12);}
 
-/* 하단 링크 */
+/* 하단 링크 버튼 - 일반 사용자용 기본값 */
 .auth-link-btn{display:block;width:100%;padding:13px;background:rgba(255,107,53,0.06);border:2px solid rgba(255,107,53,0.2);border-radius:14px;color:var(--c-primary);font-family:var(--font-title);font-size:0.92rem;text-align:center;text-decoration:none;cursor:pointer;transition:all 0.2s var(--ease-bounce);letter-spacing:0.3px;}
 .auth-link-btn:hover{background:rgba(255,107,53,0.1);border-color:rgba(255,107,53,0.4);transform:translateY(-2px);}
 

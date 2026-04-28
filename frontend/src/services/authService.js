@@ -1,50 +1,130 @@
-import axios from "axios";
+/**
+ * authService.js
+ *
+ * 백엔드 DTO 필드명 기준:
+ *   로그인:   UserLoginRequest  { loginId, password }
+ *   회원가입: UserCreateRequest { loginId, password, name, phone, email, address, role }
+ *   응답:     ApiResponse<T>    { success, message, data }
+ *   로그인응답: UserLoginResponse { accessToken, refreshToken, user: UserResponse }
+ *   UserResponse: { id, loginId, name, phone, email, role, status, ... }
+ */
 
-// 1. axios 인스턴스 생성 (설정 공통화)
-const apiClient = axios.create({
-  baseURL: "", // vite-proxy를 사용하므로 비워둡니다.
-  withCredentials: true,
-});
-
-// 2. 인터셉터: 모든 요청에 토큰 자동 탑승
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    // Bearer 뒤에 한 칸 공백 필수!
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => Promise.reject(error));
-
-// 3. 로그인 API (백엔드 UserLoginRequest DTO 이름에 맞춤)
-export const login = async ({ userId, password }) => {
-  const response = await apiClient.post("/user/login", {
-    loginId: userId, // 백엔드가 'loginId'를 받기로 했다면 이렇게 매핑
-    password: password,
+/* ══════════════════════════════════════════════════════════
+   로그인
+   POST /user/login
+   요청: { loginId, password }
+   응답: ApiResponse<UserLoginResponse>
+         { success, message, data: { accessToken, refreshToken, user } }
+══════════════════════════════════════════════════════════ */
+export const login = async (form) => {
+  const response = await fetch('/user/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      loginId:  form.loginId,   // ✅ 백엔드 UserLoginRequest.loginId
+      password: form.password,
+    }),
   });
-  
-  // 백엔드 성공 시: { status: 200, data: { accessToken: "...", ... } } 구조라고 가정
-  // const result = response.data;
-  // if (result.data && result.data.accessToken) {
-  //   localStorage.setItem('accessToken', result.data.accessToken);
-  //   localStorage.setItem('userName', result.data.name);
-  // }
 
-  // ↑ 현재 중복저장 문제 해결. result.data.name은 없고 data.user.name은 있음
-  // if문에서 한번 저장한걸 LoginPage.jsx에서 또 저장하고 있었음.
-  // 여기서는 저장하지 않고 반환만, LoginPage에서 저장하도록 위임
-  return response.data.data;
+  // 응답이 JSON인지 확인 (500 에러 시 HTML 반환 방지)
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(`서버 오류 (${response.status})`);
+  }
+
+  // ApiResponse { success, message, data }
+  const apiResponse = await response.json();
+
+  if (!response.ok || !apiResponse.success) {
+    throw new Error(apiResponse.message || '로그인에 실패했습니다.');
+  }
+
+  // apiResponse.data = { accessToken, refreshToken, user }
+  return apiResponse.data;
 };
 
-// 4. 회원가입 API
-export const register = async (userData) => {
-  const response = await apiClient.post("/user/signup", {
-    loginId: userData.userId,
-    password: userData.password,
-    name: userData.name,
-    email: userData.email,
-    phone: userData.phone,
-    role: "USER" // 기본 권한 설정
+/* ══════════════════════════════════════════════════════════
+   회원가입
+   POST /user/signup
+   요청: { loginId, password, name, phone, email, address, role }
+   응답: ApiResponse<UserResponse>
+══════════════════════════════════════════════════════════ */
+export const register = async (form) => {
+  const response = await fetch('/user/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      loginId:  form.loginId,   // ✅ 백엔드 UserCreateRequest.loginId
+      password: form.password,
+      name:     form.name,
+      phone:    form.phone,
+      email:    form.email,
+      address:  form.address,
+      role:     'USER',         // ✅ 일반 회원가입 고정값
+    }),
   });
-  return response.data;
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(`서버 오류 (${response.status})`);
+  }
+
+  const apiResponse = await response.json();
+
+  if (!response.ok || !apiResponse.success) {
+    throw new Error(apiResponse.message || '회원가입에 실패했습니다.');
+  }
+
+  return apiResponse.data;
+};
+
+/* ══════════════════════════════════════════════════════════
+   로그아웃
+   POST /user/logout
+══════════════════════════════════════════════════════════ */
+export const logout = async () => {
+  try {
+    await fetch('/user/logout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (err) {
+    console.error('로그아웃 API 실패:', err);
+  } finally {
+    localStorage.clear();
+  }
+};
+
+/* ══════════════════════════════════════════════════════════
+   토큰 재발급
+   POST /user/reissue
+   Header: Refresh-Token: {refreshToken}
+══════════════════════════════════════════════════════════ */
+export const reissueToken = async () => {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) throw new Error('로그인이 필요합니다.');
+
+  const response = await fetch('/user/reissue', {
+    method: 'POST',
+    headers: {
+      'Refresh-Token': refreshToken,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const apiResponse = await response.json();
+
+  if (!response.ok || !apiResponse.success) {
+    localStorage.clear();
+    throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
+  }
+
+  const { accessToken, refreshToken: newRefresh } = apiResponse.data;
+  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('refreshToken', newRefresh);
+
+  return apiResponse.data;
 };

@@ -3,8 +3,8 @@
 ══════════════════════════════════════════════════════════ */
 
 :root {
-  --accent-green:  #FF6B35; /* 모든 포인트를 주황색으로 통일 */
-  --accent-orange: #FF6B35;
+  --accent-green:  #fdd537; 
+  --accent-orange: #fdd537;
   --font-title:    'Jua', sans-serif;
   --font-body:     'Jua', sans-serif;
   --bg-cream:      #f5ede0;
@@ -171,12 +171,12 @@
   font-size: 0.82rem; white-space: nowrap;
 }
 .rrp-tag--have {
-  background: rgba(255,107,53,0.1); color: var(--accent-orange);
-  border: 1px solid rgba(255,107,53,0.3);
+  background: rgba(253,213,55,0.3); color: var(--text-dark);
+  border: 1px solid rgba(253,213,55,0.8);
 }
 .rrp-tag--missing {
-  background: rgba(255,107,53,0.1); color: #d95f2e;
-  border: 1px solid rgba(255,107,53,0.25);
+  background: rgba(253,213,55,0.3); color: #d95f2e;
+  border: 1px solid rgba(253,213,55,0.8);
 }
 .rrp-tag--ingredient {
   background: rgba(90,74,50,0.07); color: #5a4a32;
@@ -223,13 +223,13 @@
 }
 
 .rrp-back-btn {
-  background: rgba(255,255,255,0.7);
+  background: #fdd537;
   border: 1.5px solid rgba(0,0,0,0.1);
   border-radius: 10px;
   padding: 8px 16px;
   font-family: var(--font-title);
   font-size: 0.88rem;
-  color: var(--accent-orange);
+  color: #000000;
   cursor: pointer;
   align-self: flex-start;
   transition: background 0.15s;
@@ -276,7 +276,7 @@
   padding: 9px 18px;
   background: var(--accent-orange);
   border: none; border-radius: 10px;
-  color: white;
+  color: #2a1f0e;
   font-family: var(--font-title);
   font-size: 0.9rem;
   cursor: pointer;
@@ -285,7 +285,7 @@
 .rrp-ai-btn:hover:not(:disabled) { transform: translateY(-1px); }
 .rrp-ai-btn:active:not(:disabled) { transform: translateY(1px); }
 .rrp-ai-btn--loading {
-  background: rgba(255,107,53,0.6);
+  background: rgba(253,213,55,0.6);
   box-shadow: none;
   cursor: wait;
 }
@@ -304,7 +304,7 @@
   background: rgba(255,255,255,0.6);
   border-radius: 12px;
   padding: 14px 16px;
-  border: 1px solid rgba(255,107,53,0.2);
+  border: 1px solid rgba(253,213,55,0.8);
 }
 .rrp-ai-text {
   font-family: var(--font-body);
@@ -343,13 +343,13 @@
 }
 .rrp-save-btn--idle {
   background: var(--accent-orange);
-  color: white;
+  color: #2a1f0e;
 }
 .rrp-save-btn--idle:hover { transform: translateY(-2px); }
 .rrp-save-btn--idle:active { transform: translateY(1px); }
 .rrp-save-btn--saving {
-  background: rgba(255,107,53,0.5);
-  color: white; cursor: wait;
+  background: rgba(253,213,55,0.5);
+  color: #2a1f0e; cursor: wait;
 }
 .rrp-save-btn--saved {
   background: #e8ddd0; color: #8a7a60;
@@ -385,7 +385,7 @@
 .rrp-step-num {
   width: 28px; height: 28px; border-radius: 50%;
   background: var(--accent-orange); color: white;
-  font-family: var(--font-title); font-size: 0.85rem;
+  font-family: var(--font-title); font-size: 0.85rem; color: #2a1f0e;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .rrp-step-text { font-size: 0.9rem; color: #3a3028; line-height: 1.65; padding-top: 3px; }
@@ -454,7 +454,7 @@
 .rrp-buy-btn:active { transform: translateY(1px); }
 .rrp-buy-btn--none {
   background: var(--accent-orange);
-  color: white;
+  color: #2a1f0e;
 }
 .rrp-buy-btn--upcoming {
   background: #ffc107;

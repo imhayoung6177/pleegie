@@ -123,7 +123,7 @@ export default function QrScanPage() {
       <div style={styles.page}>
         <div style={styles.card}>
           <div style={{ ...styles.iconWrap, fontSize: '3.5rem' }}>🎉</div>
-          <h2 style={{ ...styles.title, color: '#FF6B35' }}>
+          <h2 style={{ ...styles.title, color: '#fdd537' }}>
             스탬프 적립 완료!
           </h2>
           <p style={styles.sub}>방문해 주셔서 감사합니다 😊</p>
@@ -242,7 +242,7 @@ const styles = {
     borderRadius: '24px',
     padding: '40px 32px',
     textAlign: 'center',
-    boxShadow: '0 8px 32px rgba(255, 107, 53, 0.15)',
+    boxShadow: '0 8px 32px rgba(253, 213, 55, 0.25)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -276,7 +276,7 @@ const styles = {
     borderRadius: '14px',
     padding: '16px 20px',
     width: '100%',
-    border: '1.5px solid rgba(255,107,53,0.2)',
+    border: '1.5px solid rgba(253,213,55,0.8)',
   },
   stampIcon: {
     fontSize: '2rem',
@@ -291,8 +291,8 @@ const styles = {
   },
   btnPrimary: {
     padding: '14px',
-    background: '#FF6B35',
-    color: '#fff',
+    background: '#fdd537',
+    color: '#2a1f0e',
     border: 'none',
     borderRadius: '14px',
     fontSize: '1rem',
@@ -314,7 +314,7 @@ const styles = {
     width: '36px',
     height: '36px',
     border: '3px solid #ffe8d0',
-    borderTop: '3px solid #FF6B35',
+    borderTop: '3px solid #fdd537',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
     marginTop: '8px',

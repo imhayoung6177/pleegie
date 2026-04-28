@@ -18,12 +18,19 @@ const HomePage = () => {
   // [추가] 로그인 상태 체크: 관리자라면 메인 페이지 접근 금지!
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("userRole");
+
     if (token) {
-      // 관리자 토큰이 있다면, 메인 페이지를 보여주지 않고 즉시 대시보드로 보냅니다.
-      // replace: true를 써서 브라우저 기록에 메인 페이지가 남지 않게 합니다.
-      navigate("/admin/dashboard", { replace: true });
+        // ✅ role에 따라 다른 페이지로 이동
+        if (role === "ADMIN") {
+            navigate("/admin/dashboard", { replace: true });
+        } else if (role === "MARKET") {
+            navigate("/market/main", { replace: true });
+        } else if (role === "USER") {
+            navigate("/user/fridge", { replace: true });
+        }
     }
-  }, [navigate]);
+}, [navigate]);
 
   const handleLogin = (role) => {
     if (openSide !== null) return;
@@ -81,7 +88,6 @@ const HomePage = () => {
               <img src={topLeftImg} alt="왼쪽 문" className="piece" />
               <div className="post-it post-it-left">
                 <div className="tape" />
-                <span className="post-it-icon">🧑‍💼</span>
                 <span className="post-it-text">일반회원</span>
               </div>
             </div>
@@ -104,7 +110,6 @@ const HomePage = () => {
               <img src={topRightImg} alt="오른쪽 문" className="piece" />
               <div className="post-it post-it-right">
                 <div className="tape" />
-                <span className="post-it-icon">🏪</span>
                 <span className="post-it-text">소상공인</span>
               </div>
             </div>

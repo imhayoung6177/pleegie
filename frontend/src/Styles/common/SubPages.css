@@ -133,15 +133,15 @@
 /* ── 버튼 공통 ─────────────────────────────────────────── */
 .sp-btn-primary {
   padding: 12px 24px;
-  background: #FF6B35;
+  background: #fdd537;
   border: none;
   border-radius: 12px;
-  color: white;
+  color: #2a1f0e;
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 0 #C04010;
+  box-shadow: none;
   transition: transform 0.15s;
   width: 100%;
 }

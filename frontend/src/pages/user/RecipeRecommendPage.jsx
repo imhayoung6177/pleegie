@@ -182,8 +182,8 @@ export default function RecipeRecommendPage() {
               <button
                 onClick={fetchRecommend}
                 style={{
-                  padding: '12px 24px', background: '#FF6B35',
-                  color: '#fff', border: 'none', borderRadius: '12px',
+                padding: '12px 24px', background: '#fdd537',
+                color: '#2a1f0e', border: 'none', borderRadius: '12px',
                   fontWeight: 700, cursor: 'pointer',
                 }}
               >
@@ -229,18 +229,18 @@ export default function RecipeRecommendPage() {
                       <div style={{
                         height: '100%',
                         width: `${Math.round(r.match_score * 100)}%`,
-                        background: r.match_score >= 0.7 ? '#4CAF50' : '#FF6B35',
+                    background: r.match_score >= 0.7 ? '#4CAF50' : '#fdd537',
                         borderRadius: '4px',
                       }} />
                     </div>
-                    <p style={{ fontSize: '0.75rem', color: '#8a7a60', margin: '3px 0 0' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'black', margin: '3px 0 0' }}>
                       재료 {Math.round(r.match_score * 100)}% 보유
                     </p>
                   </div>
 
                   {/* ✅ missing_ingredients: 부족한 재료 표시 */}
                   {r.missing_ingredients?.length > 0 && (
-                    <p style={{ fontSize: '0.76rem', color: '#FF6B35', margin: '4px 0 0' }}>
+                      <p style={{ fontSize: '0.76rem' ,color: 'black', margin: '4px 0 0' }}>
                       ⚠️ 부족: {r.missing_ingredients.join(', ')}
                     </p>
                   )}
@@ -268,7 +268,7 @@ export default function RecipeRecommendPage() {
             {selectedRecipe.has_expiring && (
               <div style={{
                 display: 'inline-block', background: '#fff3e0',
-                color: '#FF6B35', padding: '4px 12px',
+            color: '#000000', padding: '4px 12px',
                 borderRadius: '20px', fontSize: '0.82rem',
                 fontWeight: 700, marginBottom: '12px',
               }}>
@@ -291,7 +291,7 @@ export default function RecipeRecommendPage() {
                 <div style={{
                   height: '100%',
                   width: `${Math.round(selectedRecipe.match_score * 100)}%`,
-                  background: selectedRecipe.match_score >= 0.7 ? '#4CAF50' : '#FF6B35',
+              background: selectedRecipe.match_score >= 0.7 ? '#4CAF50' : '#fdd537',
                   borderRadius: '8px',
                 }} />
               </div>
@@ -324,8 +324,8 @@ export default function RecipeRecommendPage() {
                         padding: '4px 12px', borderRadius: '20px',
                         fontSize: '0.82rem', fontWeight: 600,
                         background: isMissing ? '#fff3e0' : '#e8f5e9',
-                        color:      isMissing ? '#FF6B35' : '#4CAF50',
-                        border: `1px solid ${isMissing ? '#FF6B35' : '#4CAF50'}`,
+                  color:      isMissing ? '#000000' : '#000000',
+                  border: `1px solid ${isMissing ? '#fdd537' : '#4CAF50'}`,
                       }}
                     >
                       {isMissing ? '❌ ' : '✅ '}{ing}
@@ -351,8 +351,8 @@ export default function RecipeRecommendPage() {
                             })}
                             style={{
                                 padding: '10px 20px',
-                                background: '#FF6B35',
-                                color: '#fff',
+                              background: '#fdd537',
+                              color: '#2a1f0e',
                                 border: 'none',
                                 borderRadius: '12px',
                                 fontWeight: 700,
@@ -371,8 +371,8 @@ export default function RecipeRecommendPage() {
                       style={{
                           width: '100%',
                           padding: '14px',
-                          background: '#4CAF50',
-                          color: '#fff',
+                            background: '#fdd537',
+                            color: '#2a1f0e',
                           border: 'none',
                           borderRadius: '12px',
                           fontWeight: 700,

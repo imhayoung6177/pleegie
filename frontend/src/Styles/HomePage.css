@@ -11,7 +11,7 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background-color: #fde87a;
+  background-color: #fdd537;
 }
 
 .bg-img {
@@ -235,8 +235,7 @@
   inset: 0;
   transform: rotateY(180deg);
   backface-visibility: hidden;
-  background: #fde87a;
-  border-radius: 32px;
+  background: #fdd537;
   border: 2.5px solid rgba(200, 180, 100, 0.4);
 }
 

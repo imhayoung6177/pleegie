@@ -212,7 +212,7 @@ export default function FoodSearchPage() {
             padding: '12px 16px',
             marginBottom: '16px',
             fontSize: '0.85rem',
-            color: '#FF6B35'
+            color: '#fdd537'
           }}>
             ⚠️ 부족한 재료:
             {missingFromRecipe.join(', ')}

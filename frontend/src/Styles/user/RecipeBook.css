@@ -11,16 +11,16 @@
     flex: 1;
     padding: 12px;
     border-radius: 12px;
-    border: 1.5px solid #FF6B35;
+    border: 1.5px solid #fdd537;
     background: white;
-    color: #FF6B35;
+    color: #2a1f0e;
     font-weight: 600;
     cursor: pointer;
 }
 
 .recipe-tab-btn.active {
-    background: #FF6B35;
-    color: white;
+    background: #fdd537;
+    color: #2a1f0e;
 }
 
 /* 레시피 카드 그리드 */

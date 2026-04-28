@@ -90,10 +90,10 @@ export const SaleAlertButton = ({ item, onClick }) => {
       boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
     },
     soon: {
-      background: 'rgba(255,107,53,0.08)',
+      background: 'rgba(253,213,55,0.3)',
       color: '#D94F1E',
-      border: '1.5px solid rgba(255,107,53,0.35)',
-      boxShadow: '0 2px 10px rgba(255,107,53,0.15)',
+      border: '1.5px solid rgba(253,213,55,0.8)',
+      boxShadow: '0 2px 10px rgba(253,213,55,0.3)',
       animation: 'soonPulse 1.8s ease-in-out infinite',
     },
     active: {
@@ -108,8 +108,8 @@ export const SaleAlertButton = ({ item, onClick }) => {
     <>
       <style>{`
         @keyframes soonPulse {
-          0%,100% { box-shadow: 0 2px 10px rgba(255,107,53,0.15); }
-          50%      { box-shadow: 0 2px 18px rgba(255,107,53,0.35); }
+          0%,100% { box-shadow: 0 2px 10px rgba(253,213,55,0.3); }
+          50%      { box-shadow: 0 2px 18px rgba(253,213,55,0.6); }
         }
         .sale-alert-btn:hover { transform: translateY(-2px); }
         .sale-alert-btn:active { transform: translateY(0); }
@@ -135,7 +135,7 @@ export const SaleAlertButton = ({ item, onClick }) => {
             borderRadius: 999,
             fontSize: '0.68rem',
             fontWeight: 700,
-            background: status === 'active' ? 'rgba(255,255,255,0.25)' : 'rgba(255,107,53,0.9)',
+            background: status === 'active' ? 'rgba(255,255,255,0.25)' : 'rgba(253,213,55,0.9)',
             color: 'white',
             whiteSpace: 'nowrap',
           }}>
@@ -161,7 +161,7 @@ export const SaleAlertList = ({ missingIngredients, marketItems }) => {
   return (
     <div style={{
       background: 'rgba(255,255,255,0.7)',
-      border: '1.5px solid rgba(255,107,53,0.18)',
+      border: '1.5px solid rgba(253,213,55,0.8)',
       borderRadius: 16,
       padding: '16px 16px 12px',
       display: 'flex',
