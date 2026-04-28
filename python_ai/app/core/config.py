@@ -4,7 +4,6 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     groq_api_key: str
     recipe_api_key: str
-    groq_api_key: str
     vector_db_path: str = "./vector_store"
     redis_host: str = "localhost"
     redis_port: int = 6379
