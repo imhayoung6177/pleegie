@@ -151,13 +151,27 @@ async def fetch_recipes_from_api(query: str) -> list[dict]:
 
 
 def calculate_match_score(
-    recipe_ingredients: str, fridge_ingredients: list[str]
+    recipe_ingredients: list[str], fridge_ingredients: list[str]
 ) -> float:
     """냉장고 재료 매칭 점수 계산 (0.0~1.0)"""
     if not recipe_ingredients or not fridge_ingredients:
         return 0.0
-    matched = sum(1 for fi in fridge_ingredients if fi in recipe_ingredients)
-    return round(matched / len(fridge_ingredients), 2)
+    # 레시피 재료 중 냉장고에 있는 것 개수
+    matched = sum(
+        1
+        for ing in recipe_ingredients
+        if any(fridge in ing or ing in fridge for fridge in fridge_ingredients)
+    )
+    score = round(matched / len(recipe_ingredients), 2)
+
+    # ✅ 로그 추가
+    print(f"레시피 재료: {recipe_ingredients}")
+    print(f"냉장고 재료: {fridge_ingredients}")
+    print(f"매칭 수: {matched}")
+    print(f"총 재료 수: {len(recipe_ingredients)}")
+    print(f"매칭률: {score}")
+
+    return score
 
 
 def has_expiring_ingredient(
@@ -171,10 +185,11 @@ def parse_recipes(
     text: str, fridge_ingredients: list[str], expiring_ingredients: list[str]
 ) -> list[RecipeItem]:
     results = []
+    # --- 로 분리
     blocks = text.strip().split("---")
 
     # --- 없으면 "제목:" 으로 분리
-    if len(blocks) == 1:
+    if len(blocks) <= 1:
         import re
 
         blocks = re.split(r"\n(?=제목:)", text.strip())
@@ -190,13 +205,31 @@ def parse_recipes(
             if ":" in line
         }
 
-        recipe_ingredients = [i.strip() for i in lines.get("재료", "").split(",")]
-        missing_ingredients = [
-            i.strip() for i in lines.get("부족한재료", "").split(",")
+        # 제목 없으면 스킵
+        if not lines.get("제목"):
+            continue
+
+        # 재료 없으면 스킵
+        if not lines.get("재료"):
+            continue
+
+        recipe_ingredients = [
+            i.strip() for i in lines.get("재료", "").split(",") if i.strip()
         ]
+        missing_ingredients = [
+            i.strip() for i in lines.get("부족한재료", "").split(",") if i.strip()
+        ]
+
+        # 부족한재료를 재료 목록 기반으로 재계산, LLM이 잘못 계산한 경우 보정
+        recalculated_missing = [
+            ing
+            for ing in recipe_ingredients
+            if not any(fridge in ing or ing in fridge for fridge in fridge_ingredients)
+        ]
+
         ingredients_text = " ".join(recipe_ingredients)
 
-        match_score = calculate_match_score(ingredients_text, fridge_ingredients)
+        match_score = calculate_match_score(recipe_ingredients, fridge_ingredients)
         has_expiring = has_expiring_ingredient(ingredients_text, expiring_ingredients)
 
         results.append(
@@ -204,7 +237,7 @@ def parse_recipes(
                 title=lines.get("제목", ""),
                 description=lines.get("설명", ""),
                 ingredients=recipe_ingredients,
-                missing_ingredients=missing_ingredients,
+                missing_ingredients=recalculated_missing,  # ← LLM 부족한재료 대신 재계산한 값 사용
                 match_score=match_score,
                 has_expiring=has_expiring,
             )
