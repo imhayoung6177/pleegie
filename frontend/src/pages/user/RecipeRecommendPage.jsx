@@ -138,7 +138,7 @@ export default function RecipeRecommendPage() {
             const json = await res.json();
             alert(json.message || '저장 실패');
         }
-    } catch (err) {
+    } catch {
         alert('저장 중 오류가 발생했어요.');
     }
 };
@@ -364,6 +364,16 @@ export default function RecipeRecommendPage() {
                         </button>
                     </div>
                 )}
+                <div className='detail-section'>
+                  <h3>🍳 요리법</h3>
+                  <p style={{
+                      color: '#5a4a32',
+                      lineHeight: 1.8,
+                      whiteSpace: 'pre-wrap'
+                  }}>
+                      {selectedRecipe.cooking_steps}
+                  </p>
+                </div>
             {/* 레시피북 저장 버튼 */}
             <div className="detail-section">
               <button

@@ -1,5 +1,6 @@
 import json
 import httpx
+import re
 from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -31,6 +32,7 @@ RECOMMEND_TEMPLATE = PromptTemplate(
 2. 부족한재료는 냉장고에 없는 재료만 써줘.
 3. 재료명은 쉼표(,)로만 구분해줘. 다른 구분자 쓰지 마.
 4. 재료명 사이에 공백만 있으면 안돼. 반드시 쉼표로 구분해줘.
+5. 요리법은 순서대로 번호를 붙여서 써줘.
 
 레시피 목록:
 {recipes}
@@ -42,6 +44,7 @@ RECOMMEND_TEMPLATE = PromptTemplate(
 설명: 간단한 설명
 재료: 재료1, 재료2, ...
 부족한재료: 재료1, 재료2, ...
+요리법: 1. 첫번째 단계. 2. 두번째 단계. 3. 세번째 단계. 4....
 ---
 """,
 )
@@ -69,6 +72,7 @@ RECOMMEND_TEMPLATE_DIRECT = PromptTemplate(
 설명: 간단한 설명
 재료: 재료1, 재료2, ...
 부족한재료: 냉장고에 없는 재료1, 재료2, ...
+요리법: 1. 첫번째 단계. 2. 두번째 단계. 3. 세번째 단계. 4....
 ---
 """,
 )
@@ -87,6 +91,10 @@ SEARCH_TEMPLATE = PromptTemplate(
 중요: 재료명은 아래 목록에 있는 이름 그대로 써줘.
       임의로 바꾸지 마.
 
+중요 규칙:
+1. 재료명은 쉼표(,)로만 구분해줘.
+2. 요리법은 순서대로 번호를 붙여서 써줘.
+
 레시피 목록:
 {recipes}
 
@@ -96,6 +104,7 @@ SEARCH_TEMPLATE = PromptTemplate(
 설명: 간단한 설명
 재료: 재료1, 재료2, ...
 부족한재료: 재료1, 재료2, ...
+요리법: 1. 첫번째 단계. 2. 두번째 단계. 3. 세번째 단계. 4....
 ---
 """,
 )
@@ -164,13 +173,6 @@ def calculate_match_score(
     )
     score = round(matched / len(recipe_ingredients), 2)
 
-    # ✅ 로그 추가
-    print(f"레시피 재료: {recipe_ingredients}")
-    print(f"냉장고 재료: {fridge_ingredients}")
-    print(f"매칭 수: {matched}")
-    print(f"총 재료 수: {len(recipe_ingredients)}")
-    print(f"매칭률: {score}")
-
     return score
 
 
@@ -186,18 +188,23 @@ def parse_recipes(
 ) -> list[RecipeItem]:
     results = []
     # --- 로 분리
+    results = []
     blocks = text.strip().split("---")
 
     # --- 없으면 "제목:" 으로 분리
     if len(blocks) <= 1:
-        import re
-
         blocks = re.split(r"\n(?=제목:)", text.strip())
 
     for block in blocks:
         block = block.strip()
         if not block:
             continue
+
+        # 요리법 별도 추출(여러 줄)
+        cooking_steps = ""
+        cooking_match = re.search(r"요리법[:：]\s*([\s\S]*?)$", block)
+        if cooking_match:
+            cooking_steps = cooking_match.group(1).strip()
 
         lines = {
             line.split(":")[0].strip(): line.split(":", 1)[1].strip()
@@ -215,9 +222,6 @@ def parse_recipes(
 
         recipe_ingredients = [
             i.strip() for i in lines.get("재료", "").split(",") if i.strip()
-        ]
-        missing_ingredients = [
-            i.strip() for i in lines.get("부족한재료", "").split(",") if i.strip()
         ]
 
         # 부족한재료를 재료 목록 기반으로 재계산, LLM이 잘못 계산한 경우 보정
@@ -240,6 +244,7 @@ def parse_recipes(
                 missing_ingredients=recalculated_missing,  # ← LLM 부족한재료 대신 재계산한 값 사용
                 match_score=match_score,
                 has_expiring=has_expiring,
+                cooking_steps=cooking_steps,
             )
         )
 
@@ -297,9 +302,56 @@ async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse
         )
 
     parsed = parse_recipes(result, request.ingredients, request.expiring_ingredients)
-    print("파싱된 레시피 수:", len(parsed))
 
     return RecipeResponse(recipes=parsed)
+
+
+async def fetch_recipes_by_name(query: str) -> list[dict]:
+    """레시피 이름으로 공공 API 검색"""
+    all_recipes = []
+    for start in range(1, 601, 100):
+        end = start + 99
+        url = (
+            f"http://openapi.foodsafetykorea.go.kr/api/"
+            f"{settings.recipe_api_key}"
+            f"/COOKRCP01/json/{start}/{end}"
+        )
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                if not response.text:
+                    continue
+                data = response.json()
+            recipes = data.get("COOKRCP01", {}).get("row", [])
+            all_recipes.extend(
+                [
+                    {
+                        "title": r.get("RCP_NM"),
+                        "ingredients": r.get("RCP_PARTS_DTLS"),
+                        "image_url": r.get("ATT_FILE_NO_MAIN"),
+                        "category": r.get("RCP_PAT2"),
+                    }
+                    for r in recipes
+                ]
+            )
+        except Exception as e:
+            print(f"API 오류: {e}")
+            continue
+
+    # 레시피 이름으로 필터링
+    filtered = [r for r in all_recipes if r["title"] and query in r["title"]]
+
+    print(f"이름 검색 결과: {len(filtered)}개")
+
+    # 없으면 재료로 검색
+    if len(filtered) < 3:
+        keyword_filtered = [
+            r for r in all_recipes if r["ingredients"] and query in r["ingredients"]
+        ]
+        filtered.extend(keyword_filtered)
+        print(f"재료 검색 추가: {len(keyword_filtered)}개")
+
+    return filtered[:10]
 
 
 async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
@@ -312,17 +364,40 @@ async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
         recipes = [RecipeItem(**r) for r in json.loads(cached)]
         return RecipeResponse(recipes=recipes)
 
-    # 공공 API에서 레시피 조회
-    recipes_data = await fetch_recipes_from_api(request.query)
+    # 이름으로 검색하는 함수 사용
+    recipes_data = await fetch_recipes_by_name(request.query)
 
-    recipe_text = "\n".join(
-        [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
-    )
+    if not recipes_data:
+        # 공공데이터에 없으면 LLM 직접 생성
+        chain = RECOMMEND_TEMPLATE_DIRECT | llm | StrOutputParser()
+        result = await chain.ainvoke(
+            {
+                "ingredients": "없음",
+                "expiring_ingredients": "없음",
+            }
+        )
+    else:
+        top_recipes = recipes_data[:10]
+        recipe_text = "\n".join(
+            [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
+        )
+    #     chain = SEARCH_TEMPLATE | llm | StrOutputParser()
+    #     result = await chain.ainvoke({
+    #         "query": request.query,
+    #         "ingredients": "없음",
+    #         "recipes": recipe_text
+    #     })
 
-    chain = SEARCH_TEMPLATE | llm | StrOutputParser()
-    result = await chain.ainvoke(
-        {"query": request.query, "ingredients": "없음", "recipes": recipe_text}
-    )
+    # top_recipes = recipes_data[:10]
+
+    # recipe_text = "\n".join(
+    #     [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
+    # )
+
+    # chain = SEARCH_TEMPLATE | llm | StrOutputParser()
+    # result = await chain.ainvoke(
+    #     {"query": request.query, "ingredients": "없음", "recipes": recipe_text}
+    # )
 
     parsed = parse_recipes(result, [], [])
 

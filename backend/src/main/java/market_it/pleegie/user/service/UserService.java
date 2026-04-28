@@ -23,6 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.redis.core.RedisTemplate;
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // ── 회원가입 ──────────────────────────────
 
@@ -204,4 +208,36 @@ public class UserService {
         refreshTokenRepository.deleteById(
                 String.valueOf(userId));
     }
+
+
+    @Transactional
+    public UserLoginResponse signupAndLogin(
+            UserCreateRequest request) {
+
+        // 기존 회원가입 로직
+        if (userRepository.existsByLoginId(request.getLoginId())) {
+            throw new CustomException(ErrorCode.DUPLICATE_LOGIN_ID);
+        }
+
+        User user = request.toEntity(
+                passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        // 가입 후 바로 토큰 발급
+        String accessToken = jwtProvider.generateAccessToken(
+                user.getId(), user.getRole());
+        String refreshToken = jwtProvider.generateRefreshToken(
+                user.getId());
+
+        // Redis에 refreshToken 저장
+        redisTemplate.opsForValue().set(
+                "refresh:" + user.getId(),
+                refreshToken,
+                14, TimeUnit.DAYS);
+
+        return new UserLoginResponse(
+                accessToken, refreshToken,
+                UserResponse.from(user));
+    }
+
 }

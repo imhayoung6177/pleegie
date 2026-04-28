@@ -1,274 +1,447 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
 
-const SALE_STATUS = { NONE: 'NONE', UPCOMING: 'UPCOMING', ON_SALE: 'ON_SALE' };
-
-// 할인 상태 계산 로직
-const getSaleStatus = (item, now) => {
-  if (!item?.saleStart || !item?.saleEnd || !item?.discountRate) return SALE_STATUS.NONE;
-  const [sh, sm] = item.saleStart.split(':').map(Number);
-  const [eh, em] = item.saleEnd.split(':').map(Number);
-  const start = new Date(now); start.setHours(sh, sm, 0, 0);
-  const end = new Date(now); end.setHours(eh, em, 0, 0);
-  const soon = new Date(start.getTime() - 60 * 60 * 1000);
-  if (now >= start && now < end) return SALE_STATUS.ON_SALE;
-  if (now >= soon && now < start) return SALE_STATUS.UPCOMING;
-  return SALE_STATUS.NONE;
-};
-
-// 부족 재료 카드
-const MissingIngredientCard = ({ ingName, marketItems, onAddToCart }) => {
-  const now = new Date();
-  const marketItem = marketItems?.find(m => m.name.includes(ingName) || ingName.includes(m.name));
-  const status = getSaleStatus(marketItem, now);
-  const salePrice = marketItem && status === SALE_STATUS.ON_SALE
-    ? Math.round(marketItem.price * (1 - marketItem.discountRate / 100))
-    : null;
-
-  return (
-    <div className={`rrp-missing-card rrp-missing-card--${status.toLowerCase()}`}>
-      <div className="rrp-missing-top">
-        <span className="rrp-missing-name">{ingName}</span>
-        {status === SALE_STATUS.ON_SALE && <span className="rrp-badge rrp-badge--on-sale">🔴 할인 중</span>}
-        {status === SALE_STATUS.UPCOMING && <span className="rrp-badge rrp-badge--upcoming">⏰ 할인 예정</span>}
-      </div>
-      {marketItem ? (
-        <>
-          <div className="rrp-market-info">
-            <span className="rrp-shop-name">🏪 {marketItem.shopName}</span>
-            <div className="rrp-price-row">
-              {status === SALE_STATUS.ON_SALE ? (
-                <>
-                  <span className="rrp-price-original">{marketItem.price.toLocaleString()}원</span>
-                  <span className="rrp-price-sale">{salePrice.toLocaleString()}원</span>
-                </>
-              ) : ( <span className="rrp-price-normal">{marketItem.price.toLocaleString()}원</span> )}
-            </div>
-          </div>
-          <button className={`rrp-buy-btn rrp-buy-btn--${status.toLowerCase()}`} onClick={() => onAddToCart(ingName, marketItem, status)}>
-            {status === SALE_STATUS.ON_SALE ? `🔴 지금 구매 (-${marketItem.discountRate}%)` : `🛒 장바구니 담기`}
-          </button>
-        </>
-      ) : ( <p className="rrp-no-market">근처 시장에 정보가 없습니다.</p> )}
-    </div>
-  );
-};
-
 export default function FoodSearchPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const missingFromRecipe = location.state?.missingIngredients || []; // RecipeRecommendPage에서 전달한 missingIngredients 받기
-  // missingIngredients가 있으면 자동으로 첫번째 재료로 검색
-  const [query, setQuery] = useState(missingFromRecipe.length > 0 ? missingFromRecipe.join(' ') : '');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [saveState, setSaveState] = useState('idle');
-  const [toast, setToast] = useState('');
-  const [marketItems, setMarketItems] = useState([]);
-  const [fridgeItems, setFridgeItems] = useState([]);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const missingFromRecipe =
+            location.state?.missingIngredients || [];
 
-  const getAuthHeaders = () => ({
-    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-    'Content-Type': 'application/json',
-  });
+    const [query, setQuery] = useState(
+            missingFromRecipe.length > 0
+                ? missingFromRecipe.join(' ') : '');
+    const [loading, setLoading] = useState(false);
+    const [recipes, setRecipes] = useState([]);
+    const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [fridgeItems, setFridgeItems] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
+    const getAuthHeaders = () => ({
+        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const fridgeRes = await fetch(
+                        '/user/fridge/items', {
+                    headers: getAuthHeaders()
+                });
+                const fridgeJson = await fridgeRes.json();
+                if (fridgeRes.ok) {
+                    setFridgeItems(fridgeJson.data || []);
+                }
+            } catch (err) {
+                console.error('데이터 로드 실패:', err);
+            }
+        };
+        fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleSearch = async () => {
+        if (!query.trim()) return;
+        setLoading(true);
+        setRecipes([]);
+        setSelectedRecipe(null);
+        setErrorMsg('');
+
         try {
-        // 냉장고 재료 API로 가져오기
-        const fridgeRes = await fetch('/user/fridge/items', {
-          headers: getAuthHeaders()
-        });
-        const fridgeJson = await fridgeRes.json();
-        if (fridgeRes.ok) {
-          setFridgeItems(fridgeJson.data || []);
-        }
-
-        // 시장 아이템 (localStorage 임시)
-        const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
-        setMarketItems(market);
-      } catch (err) {
-        console.error('데이터 로드 실패: ', err);
-      }
-    };
-    fetchData();
-  }, []);
-
-
-  // useEffect(() => {
-  //   const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
-  //   setMarketItems(market);
-  // }, []);
-
-  // ✅ [수정] 백엔드 연동: 메뉴 이름으로 레시피 검색
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setResult(null);
-
-    try {
-      // 1. 백엔드에 검색 요청 (Spring Boot RecipeController)
-      // const response = await fetch(`/user/recipe/search?keyword=${encodeURIComponent(query)}`, {
-      //   headers: getAuthHeaders()
-      // });
-
-      // python 서버 직접 호출
-      const response = await fetch(
-                    '/recipe/search', {
+            const response = await fetch('/recipe/search', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    query: query.trim()
-                })
-      });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query.trim() })
+            });
 
-      const resData = await response.json();
+            const resData = await response.json();
 
-      if (response.ok && resData.recipes?.length > 0) {
-        const recipe = resData.recipes[0]; // RecipeResponse DTO
-        
-        // 2. 내 냉장고 재료와 비교 로직
-        // const fridgeItems = JSON.parse(localStorage.getItem('fridgeItems') || '[]');
-        const myIngredientNames = fridgeItems.map(i => i.name);
+            if (response.ok && resData.recipes?.length > 0) {
+                // 냉장고 재료와 비교해서 missing_ingredients 보정
+                const myIngredientNames =
+                        fridgeItems.map(i => i.name);
 
-        // const recipeIngNames = recipe.recipeItems.map(ri => ri.name);
-        // const have = recipeIngNames.filter(rn => myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
-        const have = recipe.ingredients.filter(
-          rn => myIngredientNames.some(
-            mn => mn.includes(rn) || rn.includes(mn)));
-        // const missing = recipeIngNames.filter(rn => !myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
-        const missing = recipe.missing_ingredients || [];
+                const enriched = resData.recipes.map(recipe => {
+                    const recalcMissing =
+                            recipe.ingredients.filter(ing =>
+                                !myIngredientNames.some(
+                                    fridge =>
+                                        fridge.includes(ing) ||
+                                        ing.includes(fridge)
+                                )
+                            );
+                    return {
+                        ...recipe,
+                        missing_ingredients: recalcMissing
+                    };
+                });
 
-        setResult({ recipe, have, missing });
-      } else {
-        showToast("검색 결과가 없습니다.");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("서버 연결 실패");
-    } finally {
-      setLoading(false);
-    }
-  };
+                setRecipes(enriched);
+            } else {
+                setErrorMsg('검색 결과가 없습니다.');
+            }
+        } catch (err) {
+            console.error(err);
+            setErrorMsg('서버 연결 실패');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const cartIdRef = useRef(0);
-
-  const handleAddToCart = (ingName, marketItem, status) => {
-    const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    const finalPrice = status === SALE_STATUS.ON_SALE ? Math.round(marketItem.price * (1 - marketItem.discountRate / 100)) : marketItem.price;
-    cartIdRef.current += 1;
-    cart.push({ id: cartIdRef.current, name: ingName, price: finalPrice, emoji: '🛒', desc: marketItem.shopName });
-    localStorage.setItem('cartItems', JSON.stringify(cart));
-    showToast(`'${ingName}'을(를) 장바구니에 담았습니다!`);
-  };
-
-  const handleSaveRecipe = async () => {
-    if (saveState !== 'idle' || !result) return;
-    setSaveState('saving');
-    try {
-      // ✅ [수정] 백엔드 레시피북 저장 API 호출
-      // const response = await fetch(`/user/recipe-book?recipeId=${result.recipe.id}`, {
-      //   method: 'POST',
-      //   headers: getAuthHeaders()
-      // });
-
-      // url수정
-      const response = await fetch(
-                    '/user/recipebook', {
+    const saveRecipe = async (recipe) => {
+        try {
+            const res = await fetch('/user/recipebook', {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({
-                    title: result.recipe.title,
-                    description: result.recipe.description,
-                    ingredients: result.recipe.ingredients
+                    title: recipe.title,
+                    description: recipe.description,
+                    ingredients: recipe.ingredients
                 })
             });
-      if (response.ok) {
-        setSaveState('saved');
-        showToast("레시피북에 저장되었습니다!");
-      }
-    } catch { setSaveState('idle'); }
-  };
+            if (res.ok) {
+                alert('레시피북에 저장되었습니다! 📖');
+            } else {
+                const json = await res.json();
+                alert(json.message || '이미 저장된 레시피입니다.');
+            }
+        } catch {
+            alert('저장 중 오류가 발생했어요.');
+        }
+    };
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+    return (
+        <div className="rrp-page">
+            <div className="rrp-header">
+                <button
+                    className="rrp-header-back"
+                    onClick={() => navigate(-1)}
+                >←</button>
+                <span className="rrp-header-title">
+                    {selectedRecipe ? '레시피 상세' : '메뉴 검색'}
+                </span>
+            </div>
 
-  return (
-    <div className="rrp-page">
-      <div className="rrp-header">
-        <button className="rrp-header-back" onClick={() => navigate(-1)}>←</button>
-        <span className="rrp-header-title">메뉴 검색 추천</span>
-        <div style={{ width: 40 }} />
-      </div>
+            <div className="rrp-body">
 
-      <div className="rrp-body">
-        {/* missingIngredients 있으면 안내 표시 */}
-        {missingFromRecipe.length > 0 && (
-          <div style={{
-            background: '#fff3e0',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-            fontSize: '0.85rem',
-            color: '#FF6B35'
-          }}>
-            ⚠️ 부족한 재료:
-            {missingFromRecipe.join(', ')}
-          </div>
-        )}
-        <div className="search-box" style={{ background: 'rgba(0,0,0,0.02)', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: '16px', padding: '16px 18px', marginBottom: '20px' }}>
-          <div className="search-row" style={{display:'flex', gap:'10px'}}>
-            <input style={{flex:1, padding:'12px 16px', borderRadius:'12px', border:'1.5px solid rgba(0,0,0,0.12)', outline: 'none'}}
-                   type="text" placeholder="먹고 싶은 메뉴를 입력하세요" 
-                   value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
-            <button className="ai-btn ai-btn-orange" onClick={handleSearch} disabled={loading}>검색</button>
-          </div>
+                {/* 부족한 재료 안내 */}
+                {missingFromRecipe.length > 0 && (
+                    <div style={{
+                        background: '#fff3e0',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        marginBottom: '16px',
+                        fontSize: '0.85rem',
+                        color: '#FF6B35'
+                    }}>
+                        ⚠️ 부족한 재료: {missingFromRecipe.join(', ')}
+                    </div>
+                )}
+
+                {/* 검색창 */}
+                {!selectedRecipe && (
+                    <div style={{
+                        background: 'rgba(0,0,0,0.02)',
+                        border: '1.5px solid rgba(0,0,0,0.08)',
+                        borderRadius: '16px',
+                        padding: '16px 18px',
+                        marginBottom: '20px'
+                    }}>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input
+                                style={{
+                                    flex: 1,
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    border: '1.5px solid rgba(0,0,0,0.12)',
+                                    outline: 'none'
+                                }}
+                                type="text"
+                                placeholder="먹고 싶은 메뉴를 입력하세요"
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                onKeyDown={e =>
+                                    e.key === 'Enter' && handleSearch()}
+                            />
+                            <button
+                                className="ai-btn"
+                                onClick={handleSearch}
+                                disabled={loading}
+                                style={{
+                                    background: '#FF6B35',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    padding: '0 20px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer'
+                                }}
+                            >검색</button>
+                        </div>
+                    </div>
+                )}
+
+                {/* 로딩 */}
+                {loading && (
+                    <div className="rrp-loading">
+                        <div className="rrp-loading-spinner" />
+                        <p>AI가 레시피를 검색 중입니다...</p>
+                    </div>
+                )}
+
+                {/* 에러 */}
+                {!loading && errorMsg && (
+                    <div style={{
+                        textAlign: 'center', padding: '40px 20px'
+                    }}>
+                        <div style={{
+                            fontSize: '3rem', marginBottom: '12px'
+                        }}>🥲</div>
+                        <p style={{ color: '#8a7a60' }}>{errorMsg}</p>
+                    </div>
+                )}
+
+                {/* 레시피 목록 */}
+                {!loading && !errorMsg && !selectedRecipe
+                        && recipes.length > 0 && (
+                    <div className="rrp-recipe-list">
+                        {recipes.map((r, idx) => (
+                            <div
+                                key={idx}
+                                className="rrp-recipe-card"
+                                onClick={() => setSelectedRecipe(r)}
+                            >
+                                <div className="rrp-card-info">
+                                    <strong className="rrp-card-name">
+                                        {r.has_expiring ? '🔥 ' : '🥗 '}
+                                        {r.title}
+                                    </strong>
+                                    <p className="rrp-card-desc">
+                                        {r.description}
+                                    </p>
+                                    <div style={{ marginTop: '6px' }}>
+                                        <div style={{
+                                            height: '4px',
+                                            background: '#f0ede8',
+                                            borderRadius: '4px',
+                                            overflow: 'hidden',
+                                        }}>
+                                            <div style={{
+                                                height: '100%',
+                                                width: `${Math.round(
+                                                    r.match_score * 100)}%`,
+                                                background: r.match_score >= 0.7
+                                                    ? '#4CAF50' : '#FF6B35',
+                                                borderRadius: '4px',
+                                            }} />
+                                        </div>
+                                        <p style={{
+                                            fontSize: '0.75rem',
+                                            color: '#8a7a60',
+                                            margin: '3px 0 0'
+                                        }}>
+                                            재료 {Math.round(
+                                                r.match_score * 100)}% 보유
+                                        </p>
+                                    </div>
+                                    {r.missing_ingredients?.length > 0 && (
+                                        <p style={{
+                                            fontSize: '0.76rem',
+                                            color: '#FF6B35',
+                                            margin: '4px 0 0'
+                                        }}>
+                                            ⚠️ 부족: {r.missing_ingredients
+                                                .join(', ')}
+                                        </p>
+                                    )}
+                                </div>
+                                <span className="rrp-card-arrow">〉</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* 레시피 상세 */}
+                {!loading && selectedRecipe && (
+                    <div className="rrp-detail">
+                        <button
+                            className="rrp-back-btn"
+                            onClick={() => setSelectedRecipe(null)}
+                        >
+                            ← 목록으로
+                        </button>
+
+                        <h2 className="detail-title">
+                            {selectedRecipe.title}
+                        </h2>
+
+                        {selectedRecipe.has_expiring && (
+                            <div style={{
+                                display: 'inline-block',
+                                background: '#fff3e0',
+                                color: '#FF6B35',
+                                padding: '4px 12px',
+                                borderRadius: '20px',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
+                                marginBottom: '12px',
+                            }}>
+                                🔥 유통기한 임박 재료 활용 레시피
+                            </div>
+                        )}
+
+                        {/* 매칭률 */}
+                        <div style={{
+                            background: '#f8f5f0',
+                            borderRadius: '12px',
+                            padding: '12px 16px',
+                            marginBottom: '16px',
+                        }}>
+                            <div style={{
+                                fontSize: '0.82rem',
+                                color: '#8a7a60',
+                                marginBottom: '6px'
+                            }}>
+                                냉장고 재료 매칭률
+                            </div>
+                            <div style={{
+                                height: '8px',
+                                background: '#e8e3db',
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                            }}>
+                                <div style={{
+                                    height: '100%',
+                                    width: `${Math.round(
+                                        selectedRecipe.match_score * 100)}%`,
+                                    background: selectedRecipe.match_score >= 0.7
+                                        ? '#4CAF50' : '#FF6B35',
+                                    borderRadius: '8px',
+                                }} />
+                            </div>
+                            <div style={{
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                color: '#2a1f0e',
+                                marginTop: '6px'
+                            }}>
+                                {Math.round(
+                                    selectedRecipe.match_score * 100)}% 보유
+                            </div>
+                        </div>
+
+                        {/* 설명 */}
+                        <div className="detail-section">
+                            <h3>💬 레시피 설명</h3>
+                            <p style={{
+                                color: '#5a4a32', lineHeight: 1.6
+                            }}>
+                                {selectedRecipe.description}
+                            </p>
+                        </div>
+
+                        {/* 필요 재료 */}
+                        <div className="detail-section">
+                            <h3>📋 필요 재료</h3>
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '8px'
+                            }}>
+                                {selectedRecipe.ingredients?.map((ing, i) => {
+                                    const isMissing =
+                                            selectedRecipe.missing_ingredients
+                                                ?.some(missing =>
+                                                    missing === ing ||
+                                                    missing.includes(ing) ||
+                                                    ing.includes(missing));
+                                    return (
+                                        <span key={i} style={{
+                                            padding: '4px 12px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.82rem',
+                                            fontWeight: 600,
+                                            background: isMissing
+                                                ? '#fff3e0' : '#e8f5e9',
+                                            color: isMissing
+                                                ? '#FF6B35' : '#4CAF50',
+                                            border: `1px solid ${
+                                                isMissing
+                                                    ? '#FF6B35' : '#4CAF50'}`,
+                                        }}>
+                                            {isMissing ? '❌ ' : '✅ '}{ing}
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* 부족한 재료 */}
+                        {selectedRecipe.missing_ingredients?.length > 0 && (
+                            <div className="detail-section">
+                                <h3>🛒 부족한 재료</h3>
+                                <p className="missing-alert">
+                                    ⚠️ {selectedRecipe.missing_ingredients
+                                        .join(', ')}
+                                </p>
+                                <button
+                                    onClick={() => navigate(
+                                        '/user/food-search', {
+                                        state: {
+                                            missingIngredients:
+                                                selectedRecipe
+                                                    .missing_ingredients
+                                        }
+                                    })}
+                                    style={{
+                                        padding: '10px 20px',
+                                        background: '#FF6B35',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '12px',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        marginTop: '8px'
+                                    }}
+                                >
+                                    🏪 근처 시장에서 구매하기
+                                </button>
+                            </div>
+                        )}
+                        <div className='detail-section'>
+                            <h3>🍳 요리법</h3>
+                            <p style={{
+                                color: '#5a4a32',
+                                lineHeight: 1.8,
+                                whiteSpace: 'pre-wrap'
+                            }}>
+                                {selectedRecipe.cooking_steps}
+                            </p>
+                      </div>
+
+                        {/* 레시피북 저장 */}
+                        <div className="detail-section">
+                            <button
+                                onClick={() => saveRecipe(selectedRecipe)}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px',
+                                    background: '#4CAF50',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '12px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    marginTop: '16px'
+                                }}
+                            >
+                                📖 레시피북에 저장
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
-
-        {loading && <div className="rrp-loading"><div className="rrp-loading-spinner" /><p>AI 분석 중...</p></div>}
-
-        {result && (
-          <div className="rrp-detail">
-            <div className="rrp-detail-header" style={{ marginBottom: '16px' }}>
-              <span className="rrp-detail-emoji">🍱</span>
-              <div>
-                <h2 className="rrp-detail-title">{result.recipe.title}</h2>
-                <p className="rrp-detail-meta">작성자: {result.recipe.writerName || 'AI'}</p>
-              </div>
-            </div>
-
-            <button className={`rrp-save-btn rrp-save-btn--${saveState}`} onClick={handleSaveRecipe} disabled={saveState !== 'idle'}>
-              <span>{saveState === 'idle' ? '📖 레시피북 저장' : saveState === 'saving' ? '⏳ 저장 중' : '✅ 저장 완료'}</span>
-            </button>
-
-            <div className="rrp-section">
-              <div className="rrp-section-title rrp-section-title--have">✅ 보유 중인 재료</div>
-              <div className="rrp-tag-row">
-                {result.have.map(i => <span key={i} className="rrp-tag rrp-tag--have">{i}</span>)}
-              </div>
-            </div>
-
-            <div className="rrp-section">
-              <div className="rrp-section-title rrp-section-title--missing">🛒 부족한 재료 (주변 시장)</div>
-              <div className="rrp-missing-list">
-                {result.missing.map(ing => (
-                  <MissingIngredientCard key={ing} ingName={ing} marketItems={marketItems} onAddToCart={handleAddToCart} />
-                ))}
-              </div>
-            </div>
-
-            <div className="rrp-section">
-              <div className="rrp-section-title">🍳 레시피 내용</div>
-              <div className="rrp-recipe-content" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#444' }}>
-                {result.recipe.description}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      {toast && <div className="rrp-toast">{toast}</div>}
-    </div>
-  );
+    );
 }

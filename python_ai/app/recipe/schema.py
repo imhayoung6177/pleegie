@@ -17,6 +17,7 @@ class RecipeItem(BaseModel):
     missing_ingredients: list[str]  # 냉장고에 없는 재료
     match_score: float = 0.0  # 매칭 점수
     has_expiring: bool = False  # 유통기한 임박 재료 포함 여부
+    cooking_steps: str = ""  # 요리법
 
 
 class RecipeResponse(BaseModel):
