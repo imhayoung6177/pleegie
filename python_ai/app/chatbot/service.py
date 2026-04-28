@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.redis_client import redis_client
 from app.chatbot.schema import ChatbotRequest, ChatbotResponse
 
-llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=settings.groq_api_key)
+llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key)
 
 SYSTEM_PROMPT = """
 너는 Pleegie 서비스의 친절한 챗봇 어시스턴트야.

@@ -1,10 +1,14 @@
-from groq import Groq
+from langchain_groq import ChatGroq
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from app.core.config import settings
 from app.ai.schema import AiRequest, AiResponse
 
-client = Groq(api_key=settings.groq_api_key)
+llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key)
 
-INTENT_PROMPT = """
+INTENT_PROMPT = PromptTemplate(
+    input_variables=["message"],
+    template="""
 너는 사용자의 메시지를 분석해서 의도를 파악하는 AI야.
 아래 4가지 intent 중 하나만 반환해.
 
@@ -16,16 +20,14 @@ INTENT_PROMPT = """
 반드시 intent 값만 한 단어로 반환해. 다른 말은 하지 마.
 
 사용자 메시지: {message}
-"""
+""",
+)
 
 
 async def detect_intent(request: AiRequest) -> AiResponse:
-    prompt = INTENT_PROMPT.format(message=request.message)
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}]
-    )
-
-    intent = response.choices[0].message.content.strip()
+    chain = INTENT_PROMPT | llm | StrOutputParser()
+    result = await chain.ainvoke({"message": request.message})
+    intent = result.strip()
 
     if intent not in ["RECIPE_RECOMMEND", "RECIPE_SEARCH", "MARKET_GUIDE", "CHATBOT"]:
         intent = "CHATBOT"

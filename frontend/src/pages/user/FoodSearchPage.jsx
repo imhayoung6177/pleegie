@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
 
 const SALE_STATUS = { NONE: 'NONE', UPCOMING: 'UPCOMING', ON_SALE: 'ON_SALE' };
@@ -19,7 +19,7 @@ const getSaleStatus = (item, now) => {
 
 // 부족 재료 카드
 const MissingIngredientCard = ({ ingName, marketItems, onAddToCart }) => {
-  const [now] = useState(new Date());
+  const now = new Date();
   const marketItem = marketItems?.find(m => m.name.includes(ingName) || ingName.includes(m.name));
   const status = getSaleStatus(marketItem, now);
   const salePrice = marketItem && status === SALE_STATUS.ON_SALE
@@ -57,12 +57,16 @@ const MissingIngredientCard = ({ ingName, marketItems, onAddToCart }) => {
 
 export default function FoodSearchPage() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const location = useLocation();
+  const missingFromRecipe = location.state?.missingIngredients || []; // RecipeRecommendPage에서 전달한 missingIngredients 받기
+  // missingIngredients가 있으면 자동으로 첫번째 재료로 검색
+  const [query, setQuery] = useState(missingFromRecipe.length > 0 ? missingFromRecipe.join(' ') : '');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [saveState, setSaveState] = useState('idle');
   const [toast, setToast] = useState('');
   const [marketItems, setMarketItems] = useState([]);
+  const [fridgeItems, setFridgeItems] = useState([]);
 
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -70,9 +74,32 @@ export default function FoodSearchPage() {
   });
 
   useEffect(() => {
-    const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
-    setMarketItems(market);
+    const fetchData = async () => {
+        try {
+        // 냉장고 재료 API로 가져오기
+        const fridgeRes = await fetch('/user/fridge/items', {
+          headers: getAuthHeaders()
+        });
+        const fridgeJson = await fridgeRes.json();
+        if (fridgeRes.ok) {
+          setFridgeItems(fridgeJson.data || []);
+        }
+
+        // 시장 아이템 (localStorage 임시)
+        const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
+        setMarketItems(market);
+      } catch (err) {
+        console.error('데이터 로드 실패: ', err);
+      }
+    };
+    fetchData();
   }, []);
+
+
+  // useEffect(() => {
+  //   const market = JSON.parse(localStorage.getItem('marketItems') || '[]');
+  //   setMarketItems(market);
+  // }, []);
 
   // ✅ [수정] 백엔드 연동: 메뉴 이름으로 레시피 검색
   const handleSearch = async () => {
@@ -82,21 +109,38 @@ export default function FoodSearchPage() {
 
     try {
       // 1. 백엔드에 검색 요청 (Spring Boot RecipeController)
-      const response = await fetch(`/user/recipe/search?keyword=${encodeURIComponent(query)}`, {
-        headers: getAuthHeaders()
+      // const response = await fetch(`/user/recipe/search?keyword=${encodeURIComponent(query)}`, {
+      //   headers: getAuthHeaders()
+      // });
+
+      // python 서버 직접 호출
+      const response = await fetch(
+                    '/recipe/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    query: query.trim()
+                })
       });
+
       const resData = await response.json();
 
-      if (response.ok && resData.data) {
-        const recipe = resData.data; // RecipeResponse DTO
+      if (response.ok && resData.recipes?.length > 0) {
+        const recipe = resData.recipes[0]; // RecipeResponse DTO
         
         // 2. 내 냉장고 재료와 비교 로직
-        const fridgeItems = JSON.parse(localStorage.getItem('fridgeItems') || '[]');
+        // const fridgeItems = JSON.parse(localStorage.getItem('fridgeItems') || '[]');
         const myIngredientNames = fridgeItems.map(i => i.name);
 
-        const recipeIngNames = recipe.recipeItems.map(ri => ri.name);
-        const have = recipeIngNames.filter(rn => myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
-        const missing = recipeIngNames.filter(rn => !myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
+        // const recipeIngNames = recipe.recipeItems.map(ri => ri.name);
+        // const have = recipeIngNames.filter(rn => myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
+        const have = recipe.ingredients.filter(
+          rn => myIngredientNames.some(
+            mn => mn.includes(rn) || rn.includes(mn)));
+        // const missing = recipeIngNames.filter(rn => !myIngredientNames.some(mn => mn.includes(rn) || rn.includes(mn)));
+        const missing = recipe.missing_ingredients || [];
 
         setResult({ recipe, have, missing });
       } else {
@@ -110,10 +154,13 @@ export default function FoodSearchPage() {
     }
   };
 
+  const cartIdRef = useRef(0);
+
   const handleAddToCart = (ingName, marketItem, status) => {
     const cart = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const finalPrice = status === SALE_STATUS.ON_SALE ? Math.round(marketItem.price * (1 - marketItem.discountRate / 100)) : marketItem.price;
-    cart.push({ id: Date.now(), name: ingName, price: finalPrice, emoji: '🛒', desc: marketItem.shopName });
+    cartIdRef.current += 1;
+    cart.push({ id: cartIdRef.current, name: ingName, price: finalPrice, emoji: '🛒', desc: marketItem.shopName });
     localStorage.setItem('cartItems', JSON.stringify(cart));
     showToast(`'${ingName}'을(를) 장바구니에 담았습니다!`);
   };
@@ -123,15 +170,27 @@ export default function FoodSearchPage() {
     setSaveState('saving');
     try {
       // ✅ [수정] 백엔드 레시피북 저장 API 호출
-      const response = await fetch(`/user/recipe-book?recipeId=${result.recipe.id}`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
+      // const response = await fetch(`/user/recipe-book?recipeId=${result.recipe.id}`, {
+      //   method: 'POST',
+      //   headers: getAuthHeaders()
+      // });
+
+      // url수정
+      const response = await fetch(
+                    '/user/recipebook', {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    title: result.recipe.title,
+                    description: result.recipe.description,
+                    ingredients: result.recipe.ingredients
+                })
+            });
       if (response.ok) {
         setSaveState('saved');
         showToast("레시피북에 저장되었습니다!");
       }
-    } catch (err) { setSaveState('idle'); }
+    } catch { setSaveState('idle'); }
   };
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
@@ -145,6 +204,20 @@ export default function FoodSearchPage() {
       </div>
 
       <div className="rrp-body">
+        {/* missingIngredients 있으면 안내 표시 */}
+        {missingFromRecipe.length > 0 && (
+          <div style={{
+            background: '#fff3e0',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '16px',
+            fontSize: '0.85rem',
+            color: '#FF6B35'
+          }}>
+            ⚠️ 부족한 재료:
+            {missingFromRecipe.join(', ')}
+          </div>
+        )}
         <div className="search-box" style={{ background: 'rgba(0,0,0,0.02)', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: '16px', padding: '16px 18px', marginBottom: '20px' }}>
           <div className="search-row" style={{display:'flex', gap:'10px'}}>
             <input style={{flex:1, padding:'12px 16px', borderRadius:'12px', border:'1.5px solid rgba(0,0,0,0.12)', outline: 'none'}}
@@ -189,7 +262,7 @@ export default function FoodSearchPage() {
             <div className="rrp-section">
               <div className="rrp-section-title">🍳 레시피 내용</div>
               <div className="rrp-recipe-content" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#444' }}>
-                {result.recipe.content}
+                {result.recipe.description}
               </div>
             </div>
           </div>
