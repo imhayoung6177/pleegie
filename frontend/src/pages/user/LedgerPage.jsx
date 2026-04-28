@@ -75,8 +75,8 @@ const LedgerPage = () => {
     <div>
       {/* 지출 합계 카드 (디자인 유지) */}
       <div style={{
-        background: '#FF6B35',
-        padding: '24px', borderRadius: '20px', color: 'white',
+        background: '#fdd537',
+        padding: '24px', borderRadius: '20px', color: '#2a1f0e',
         textAlign: 'center', marginBottom: '20px',
       }}>
         <div style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '6px' }}>이번 달 총 지출</div>
@@ -92,7 +92,7 @@ const LedgerPage = () => {
         marginBottom: '16px',
         border: '1.5px solid rgba(0,0,0,0.08)',
       }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fdd537', marginBottom: '10px' }}>
           + 지출 직접 입력
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -110,7 +110,7 @@ const LedgerPage = () => {
           />
           <button
             onClick={handleAdd}
-            style={{ padding: '10px 16px', borderRadius: '10px', background: '#FF6B35', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer' }}
+            style={{ padding: '10px 16px', borderRadius: '10px', background: '#fdd537', color: '#2a1f0e', border: 'none', fontWeight: 700, cursor: 'pointer' }}
           >
             추가
           </button>
@@ -134,7 +134,7 @@ const LedgerPage = () => {
                 {new Date(item.purchaseDate).toLocaleDateString('ko-KR')}
               </div>
             </div>
-            <div style={{ fontWeight: 800, color: '#FF6B35', marginRight: '10px' }}>
+            <div style={{ fontWeight: 800, color: '#fdd537', marginRight: '10px' }}>
               -{item.total.toLocaleString()}원
             </div>
             <button

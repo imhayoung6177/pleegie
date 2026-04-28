@@ -169,6 +169,19 @@ const handleVerifyBiz = async () => {
     }
   };
 
+  /* 공통 입력 필드 렌더 헬퍼 */
+  const Field = ({ id, label, name, type = "text", placeholder, value, onChange, readOnly, error, children }) => (
+    <div className="auth-field">
+      <label className="auth-label" htmlFor={id}>{label}</label>
+      <div className={`auth-input-wrap ${readOnly ? "readonly" : "editable"}`}>
+        <input id={id} type={type} name={name} className="auth-input"
+          placeholder={placeholder} value={value} onChange={onChange} readOnly={readOnly} />
+        {children}
+      </div>
+      {error && <p className="auth-field-error">⚠ {error}</p>}
+    </div>
+  );
+
   return (
     <div className="auth-bg">
       <div className="auth-circle circle-left" />

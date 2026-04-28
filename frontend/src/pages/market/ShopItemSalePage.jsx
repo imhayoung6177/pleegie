@@ -3,6 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import '../../Styles/market/MarketMyPage.css';
 import '../../Styles/user/MyPage.css';
 
+import pleegemarket from "../../assets/pleegemarket.png";
+
+const BG_LAYER = {
+  position: "fixed",
+  top: 0, left: 0,
+  width: "100%", height: "100%",
+  backgroundImage: `url(${pleegemarket})`,
+  backgroundSize: "100% 100%",
+  backgroundRepeat: "no-repeat",
+  zIndex: 0,
+};
+
 export default function ShopItemSalePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,7 +43,14 @@ export default function ShopItemSalePage() {
     setTimeout(() => setToast(''), 2500);
   };
 
-  if (!item) return <div className="mypage-subpage"><div className="mypage-white-box">상품 정보를 불러오는 중입니다...</div></div>;
+  if (!item) return (
+    <div style={{ position: "relative" }}>
+      <div style={BG_LAYER} />
+      <div className="mypage-subpage" style={{ position: "relative", zIndex: 1, background: "transparent", minHeight: "100vh" }}>
+        <div className="mypage-white-box">상품 정보를 불러오는 중입니다...</div>
+      </div>
+    </div>
+  );
 
   const currentRate = item.price && salePrice
     ? Math.round((1 - Number(salePrice) / item.price) * 100)
@@ -59,9 +78,11 @@ export default function ShopItemSalePage() {
   };
 
   return (
-    <div className="mypage-subpage">
+    <div style={{ position: "relative" }}>
+      <div style={BG_LAYER} />
+      <div className="mypage-subpage" style={{ position: "relative", zIndex: 1, background: "transparent", minHeight: "100vh" }}>
       <div className="mypage-white-box">
-        <div style={{ textAlign: 'center', fontFamily: 'var(--font-title)', fontSize: '1.8rem', color: '#FF6B35', fontWeight: 700, marginBottom: '8px' }}>
+        <div style={{ textAlign: 'center', fontFamily: 'var(--font-title)', fontSize: '1.8rem', color: 'black', fontWeight: 700, marginBottom: '8px' }}>
           pleegie
         </div>
 
@@ -115,6 +136,7 @@ export default function ShopItemSalePage() {
         </div>
       </div>
       {toast && <div className="shop-toast">{toast}</div>}
+      </div>
     </div>
   );
 }

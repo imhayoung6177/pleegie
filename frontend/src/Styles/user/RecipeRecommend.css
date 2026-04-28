@@ -50,9 +50,9 @@
 .status-none .sale-badge.not-found { background: rgba(0,0,0,0.05); color: #8a7a60; font-weight: normal; }
 
 /* 상태 2: UPCOMING (할인 임박) */
-.status-upcoming { background: rgba(255,107,53,0.05); border-color: rgba(255,107,53,0.4); box-shadow: 0 2px 8px rgba(255,107,53,0.15); }
-.status-upcoming .sale-badge.upcoming { background: rgba(255,107,53,0.15); color: #D94F1E; }
-.status-upcoming .missing-ing-name { color: #D94F1E; }
+.status-upcoming { background: rgba(253,213,55,0.1); border-color: rgba(253,213,55,0.8); box-shadow: 0 2px 8px rgba(253,213,55,0.3); }
+.status-upcoming .sale-badge.upcoming { background: rgba(253,213,55,0.3); color: #5a4a32; }
+.status-upcoming .missing-ing-name { color: #5a4a32; }
 
 /* 상태 3: ON_SALE (할인 중) */
 .status-on_sale { background: #E53535; border-color: #C82020; box-shadow: 0 4px 12px rgba(229,53,53,0.3); }

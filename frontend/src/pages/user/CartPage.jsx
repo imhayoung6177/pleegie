@@ -39,7 +39,7 @@ const CartPage = ({ onPurchase }) => {
         <div key={item.id} style={{
           display: 'flex', alignItems: 'center', padding: '16px',
           background: 'white', borderRadius: '18px',
-          border: '1.5px solid rgba(255,107,53,0.2)',
+          border: '1.5px solid rgba(253,213,55,0.8)',
         }}>
           <span style={{ fontSize: '2rem', marginRight: '15px' }}>{item.emoji}</span>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -50,7 +50,7 @@ const CartPage = ({ onPurchase }) => {
             display: 'flex', flexDirection: 'column',
             alignItems: 'flex-end', gap: '6px',
           }}>
-            <span style={{ fontWeight: 700, color: '#FF6B35' }}>
+            <span style={{ fontWeight: 700, color: '#fdd537' }}>
               {item.price.toLocaleString()}원
             </span>
             <div style={{ display: 'flex', gap: '6px' }}>
@@ -63,8 +63,8 @@ const CartPage = ({ onPurchase }) => {
               <button
                 onClick={() => handleBuy(item)}
                 style={{
-                  background: '#FF6B35',
-                  color: 'white', border: 'none', padding: '6px 14px',
+                background: '#fdd537',
+                color: '#2a1f0e', border: 'none', padding: '6px 14px',
                   borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer',
                   fontWeight: 700,
                 }}

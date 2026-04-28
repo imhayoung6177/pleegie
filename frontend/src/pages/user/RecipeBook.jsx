@@ -141,7 +141,7 @@ const RecipeBook = ({ onBack }) => {
         <button
           onClick={() => setSelected(null)}
           style={{
-            background: 'none', border: 'none', color: '#FF6B35',
+            background: 'none', border: 'none', color: '#fdd537',
             fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
             marginBottom: '16px', padding: 0,
           }}
@@ -169,7 +169,7 @@ const RecipeBook = ({ onBack }) => {
 
         {selected.ingredients?.length > 0 && (
           <div style={{ marginBottom: '18px' }}>
-            <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
+            <div style={{ fontWeight: 700, color: '#fdd537', marginBottom: '10px' }}>
               🥬 필요 재료
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -192,7 +192,7 @@ const RecipeBook = ({ onBack }) => {
 
         {selected.steps?.length > 0 && (
           <div>
-            <div style={{ fontWeight: 700, color: '#FF6B35', marginBottom: '10px' }}>
+            <div style={{ fontWeight: 700, color: '#fdd537', marginBottom: '10px' }}>
               📋 조리 순서
             </div>
             {selected.steps.map((step, i) => (
@@ -202,7 +202,7 @@ const RecipeBook = ({ onBack }) => {
               >
                 <div style={{
                   width: '24px', height: '24px', borderRadius: '50%',
-                  background: '#FF6B35', color: 'white', fontWeight: 700,
+                  background: '#fdd537', color: '#2a1f0e', fontWeight: 700,
                   fontSize: '0.8rem', display: 'flex', alignItems: 'center',
                   justifyContent: 'center', flexShrink: 0,
                 }}>
@@ -230,9 +230,9 @@ const RecipeBook = ({ onBack }) => {
       {/* 에러 메시지 */}
       {error && (
         <div style={{
-          background: '#fff8ee', border: '1px solid #FF6B35',
+          background: '#fff8ee', border: '1px solid #fdd537',
           borderRadius: '10px', padding: '10px 14px',
-          fontSize: '0.82rem', color: '#FF6B35', marginBottom: '16px',
+          fontSize: '0.82rem', color: '#fdd537', marginBottom: '16px',
         }}>
           ⚠️ {error}
         </div>
@@ -256,7 +256,7 @@ const RecipeBook = ({ onBack }) => {
           onClick={handleSearch}
           style={{
             padding: '12px 20px', borderRadius: '12px',
-            background: '#FF6B35', color: 'white',
+            background: '#fdd537', color: '#2a1f0e',
             border: 'none', fontWeight: 700, cursor: 'pointer',
           }}
         >
@@ -303,14 +303,14 @@ const RecipeBook = ({ onBack }) => {
               <button
                 onClick={e => handleRemove(e, r)}
                 style={{
-                  background: '#FF6B35', border: 'none', color: 'white',
+                  background: '#fdd537', border: 'none', color: '#2a1f0e',
                   padding: '6px 14px', borderRadius: '8px',
                   fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer',
                 }}
               >
                 삭제
               </button>
-              <span style={{ color: '#FF6B35', fontSize: '1.2rem', marginLeft: '4px' }}>›</span>
+              <span style={{ color: '#fdd537', fontSize: '1.2rem', marginLeft: '4px' }}>›</span>
             </div>
           ))
         )}

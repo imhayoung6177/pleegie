@@ -1,5 +1,5 @@
 :root {
-  --market-navy: #FF6B35;      /* 일반 회원 메인 컬러와 주황색으로 통일 */
+  --market-navy: #B7CCAC;      /* 시장 회원 메인 컬러 (버튼 색상 통일) */
   --market-blue-lt: #a8d8f0;   /* 강조 포인트 (연한 블루) */
   --market-gray-bg: #f0f2f5;   /* 수정 불가 배경 (회색) */
   --market-white-bg: #ffffff;  /* 수정 가능 배경 (흰색) */
@@ -15,7 +15,11 @@
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: var(--bg-cream); /* 타일 배경이 깔리는 기본 색상 */
+  background-color: var(--bg-cream); 
+  background-image: url('../../assets/pleegemarket.png') !important; /* 배경 이미지 강제 적용 */
+  background-size: 100% 100% !important; /* 잘리는 부분 없이 꽉 차게 */
+  background-position: center !important;
+  background-repeat: no-repeat !important;
   font-family: 'Jua', sans-serif;
   padding: 20px;
 }
@@ -42,7 +46,7 @@
 .auth-logo-text {
   font-family: var(--font-title);
   font-size: 2.3rem;
-  color: var(--market-navy);
+  color: black;
   letter-spacing: -1px;
   text-transform: lowercase;
 }
@@ -125,8 +129,8 @@
   font-weight: 700;
   cursor: pointer;
   margin-top: 15px;
-  background: var(--market-navy); /* 그라데이션 제거 및 통일 */
-  color: white;
+  background: var(--market-navy) !important;
+  color: #2a1f0e;
   transition: all 0.2s ease;
 }
 
@@ -164,17 +168,17 @@
   text-align: center;
   text-decoration: none;
   font-size: 0.95rem;
-  color: var(--market-navy);
+  color: var(--market-navy) !important;
   font-weight: 600;
   padding: 14px;
-  border: 1.5px solid var(--market-navy);
+  border: 1.5px solid var(--market-navy) !important;
   border-radius: 14px;
   transition: all 0.2s;
 }
 
 .auth-link-btn:hover {
-  background-color: var(--market-navy);
-  color: white;
+  background-color: var(--market-navy) !important;
+  color: #2a1f0e !important;
 }
 
 /* 애니메이션 */

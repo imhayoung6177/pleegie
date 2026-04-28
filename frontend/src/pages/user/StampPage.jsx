@@ -54,14 +54,14 @@ export default function StampPage() {
         
         <div className="stamp-board" style={{ margin: '30px 0', padding: '20px', background: '#fdfcf0', borderRadius: '15px' }}>
           <div style={{ marginBottom: '15px', fontWeight: 700 }}>
-            현재 적립: <span style={{ color: '#FF6B35' }}>{currentCount} / 10</span>
+            현재 적립: <span style={{ color: '#fdd537' }}>{currentCount} / 10</span>
           </div>
           <div className="stamp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className={`stamp-cell ${i < currentCount ? 'filled' : ''}`} 
                    style={{ 
-                     height: '50px', 
-                     background: i < currentCount ? '#FF6B35' : '#eee', 
+                 height: '50px', 
+                 background: i < currentCount ? '#fdd537' : '#eee', 
                      borderRadius: '50%', 
                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' 
                    }}>
@@ -71,12 +71,14 @@ export default function StampPage() {
           </div>
         </div>
 
-        <button className="auth-submit-btn" onClick={() => navigate('/user/coupons')}>
-          내 쿠폰함 바로가기
-        </button>
-        <button className="auth-link-btn" style={{marginTop: '10px'}} onClick={() => navigate('/user/mypage')}>
-          마이페이지로 돌아가기
-        </button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px', width: '100%' }}>
+          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/mypage')}>
+            돌아가기
+          </button>
+          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/coupons')}>
+            내 쿠폰함 바로가기
+          </button>
+        </div>
       </div>
     </div>
   );

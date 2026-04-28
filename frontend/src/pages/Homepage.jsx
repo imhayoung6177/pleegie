@@ -30,7 +30,7 @@ const HomePage = () => {
             navigate("/user/fridge", { replace: true });
         }
     }
-  }, [navigate]);
+}, [navigate]);
 
   const handleLogin = (role) => {
     if (openSide !== null) return;
@@ -86,7 +86,6 @@ const HomePage = () => {
               <img src={topLeftImg} alt="왼쪽 문" className="piece" />
               <div className="post-it post-it-left">
                 <div className="tape" />
-                <span className="post-it-icon">🧑‍💼</span>
                 <span className="post-it-text">일반회원</span>
               </div>
             </div>
@@ -109,7 +108,6 @@ const HomePage = () => {
               <img src={topRightImg} alt="오른쪽 문" className="piece" />
               <div className="post-it post-it-right">
                 <div className="tape" />
-                <span className="post-it-icon">🏪</span>
                 <span className="post-it-text">소상공인</span>
               </div>
             </div>

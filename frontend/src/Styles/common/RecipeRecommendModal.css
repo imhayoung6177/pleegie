@@ -35,14 +35,14 @@
   padding: 16px 20px;
   background: rgba(255,255,255,0.45);
   border-bottom: 1px solid rgba(0,0,0,0.08);
-  border-left: 4px solid #2EC4B6;
+  border-left: 4px solid #fdd537;
   flex-shrink: 0;
 }
 .rr-header-title {
   font-family: 'Jua', sans-serif; font-size: 1.15rem; color: #2a1f0e;
 }
 .rr-back-btn {
-  background: none; border: none; color: #2EC4B6;
+  background: none; border: none; color: #2a1f0e;
   font-family: 'Jua', sans-serif; font-size: 0.95rem; cursor: pointer; padding: 0;
 }
 .rr-close-btn {
@@ -67,7 +67,7 @@
 .rr-spinner {
   width: 40px; height: 40px;
   border: 3px solid rgba(0,0,0,0.1);
-  border-top-color: #2EC4B6;
+  border-top-color: #fdd537;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -112,7 +112,7 @@
 }
 .match-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2EC4B6, #1A9A8A);
+  background: #fdd537;
   border-radius: 999px; transition: width 0.6s ease;
 }
 .match-rate-text { font-size: 0.75rem; color: #8a7a60; white-space: nowrap; }
@@ -129,8 +129,8 @@
   border: 1px solid rgba(46,196,182,0.3);
 }
 .recipe-tag--missing {
-  background: rgba(255,107,53,0.1); color: #d95f2e;
-  border: 1px solid rgba(255,107,53,0.25);
+  background: rgba(253,213,55,0.3); color: #d95f2e;
+  border: 1px solid rgba(253,213,55,0.8);
 }
 .recipe-tag--ingredient {
   background: rgba(90,74,50,0.07); color: #5a4a32;
@@ -258,31 +258,29 @@
 
 /* NONE — 민트 초록 */
 .missing-buy-btn--none {
-  background: linear-gradient(135deg, #2EC4B6, #1A9A8A);
-  color: white;
-  box-shadow: 0 3px 0 #0E6A5A;
+  background: #fdd537;
+  color: #2a1f0e;
+  box-shadow: none;
 }
 /* UPCOMING — 노란색 */
 .missing-buy-btn--upcoming {
-  background: linear-gradient(135deg, #ffc107, #e6a800);
-  color: #3d2e00;
-  box-shadow: 0 3px 0 #b38600;
-  animation: upcomingBtnPulse 2s ease-in-out infinite;
+  background: #fdd537;
+  color: #2a1f0e;
+  box-shadow: none;
 }
 @keyframes upcomingBtnPulse {
-  0%,100%{box-shadow:0 3px 0 #b38600,0 0 0 0 rgba(255,193,7,0.4)}
-  50%    {box-shadow:0 3px 0 #b38600,0 0 0 8px rgba(255,193,7,0)}
+  0%,100%{box-shadow:none}
+  50%    {box-shadow:none}
 }
 /* ON_SALE — 빨간색 + 강한 펄스 */
 .missing-buy-btn--on_sale {
-  background: linear-gradient(135deg, #E53535, #C82020);
-  color: white;
-  box-shadow: 0 3px 0 #A01010;
-  animation: onSaleBtnPulse 1.5s ease-in-out infinite;
+  background: #fdd537;
+  color: #2a1f0e;
+  box-shadow: none;
 }
 @keyframes onSaleBtnPulse {
-  0%,100%{box-shadow:0 3px 0 #A01010,0 0 0 0 rgba(229,53,53,0.4)}
-  50%    {box-shadow:0 3px 0 #A01010,0 0 0 8px rgba(229,53,53,0)}
+  0%,100%{box-shadow:none}
+  50%    {box-shadow:none}
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -323,23 +321,23 @@
 
 /* idle: 민트 그라데이션 */
 .recipe-save-btn--idle {
-  background: linear-gradient(135deg, #2EC4B6, #1A9A8A);
-  color: white;
-  box-shadow: 0 4px 0 #0E6A5A, 0 6px 20px rgba(46,196,182,0.3);
+  background: #fdd537;
+  color: #2a1f0e;
+  box-shadow: none;
 }
 .recipe-save-btn--idle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #0E6A5A, 0 10px 24px rgba(46,196,182,0.35);
+  box-shadow: none;
 }
 .recipe-save-btn--idle:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 0 #0E6A5A;
+  box-shadow: none;
 }
 
 /* saving: 반투명 + 스피너 */
 .recipe-save-btn--saving {
-  background: rgba(46,196,182,0.6);
-  color: white;
+  background: rgba(253,213,55,0.6);
+  color: #2a1f0e;
   box-shadow: none;
   cursor: wait;
 }
@@ -383,7 +381,7 @@
 .recipe-step-item  { display: flex; gap: 12px; align-items: flex-start; }
 .recipe-step-num {
   width: 26px; height: 26px; border-radius: 50%;
-  background: #2EC4B6; color: white;
+  background: #fdd537; color: #2a1f0e;
   font-family: 'Jua', sans-serif; font-size: 0.82rem;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }

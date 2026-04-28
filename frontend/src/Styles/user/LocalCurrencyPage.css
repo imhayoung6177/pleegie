@@ -1,0 +1,113 @@
+/* ══════════════════════════════════════════════════════════
+   LocalCurrencyPage.css - 지역화폐 신청 및 내역 페이지
+══════════════════════════════════════════════════════════ */
+
+/* 총 보유 금액 요약 카드 */
+.lc-summary {
+  background: #fdd537;
+  padding: 24px;
+  border-radius: 20px;
+  text-align: center;
+  color: #2a1f0e;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(253, 213, 55, 0.2);
+}
+
+.lc-title {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin-bottom: 6px;
+  font-family: var(--font-body);
+}
+
+.lc-amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-family: var(--font-title);
+}
+
+/* 신청하기 박스 */
+.lc-apply-box {
+  background: rgba(253, 213, 55, 0.1);
+  border: 1.5px solid rgba(253, 213, 55, 0.5);
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-apply-info {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  color: #2a1f0e;
+}
+
+.lc-apply-info span {
+  color: #d95f2e;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.lc-apply-btn {
+  width: 100%;
+  background: #fdd537;
+  color: #2a1f0e;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.lc-apply-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(253, 213, 55, 0.3);
+}
+
+.lc-apply-btn:disabled {
+  background: #e8ddd0;
+  color: #8a7a60;
+  cursor: not-allowed;
+}
+
+/* 지역화폐 이용 내역 리스트 */
+.lc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lc-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  gap: 14px;
+  transition: transform 0.15s;
+}
+.lc-item:hover { transform: translateY(-1px); }
+
+.lc-icon { font-size: 1.8rem; }
+.lc-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.lc-name { font-family: var(--font-title); font-size: 1.05rem; color: #2a1f0e; }
+.lc-date { font-size: 0.78rem; color: #8a7a60; }
+
+.lc-amount-col { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.lc-item-amount { font-family: var(--font-title); font-size: 1.1rem; color: #fdd537; }
+.lc-item-amount.used { color: #2a1f0e; } /* 사용한 금액은 검은색 */
+
+.lc-badge {
+  font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 700;
+  white-space: nowrap;
+}
+.lc-badge.requested { background: #fff8e1; color: #fdd537; border: 1px solid #fdd537; }
+.lc-badge.issued    { background: #e8f5e9; color: #4CAF50; border: 1px solid #4CAF50; }
+.lc-badge.used      { background: #f5f5f5; color: #888; border: 1px solid #ddd; }
+.lc-badge.rejected  { background: #ffebee; color: #E53535; border: 1px solid #E53535; }

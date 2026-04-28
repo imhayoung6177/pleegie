@@ -370,9 +370,9 @@ const FoodSearchModal = ({ myIngredients, onClose }) => {
   return (
     <div className="rr-overlay" onClick={onClose}>
       <div className="rr-modal" onClick={e => e.stopPropagation()}>
-        <div className="rr-header" style={{ borderLeft: '4px solid #FF6B35' }}>
+        <div className="rr-header" style={{ borderLeft: '4px solid #fdd537' }}>
           {result ? (
-            <button className="rr-back-btn" style={{ color: '#FF6B35' }} onClick={() => setResult(null)}>
+            <button className="rr-back-btn" style={{ color: '#2a1f0e' }} onClick={() => setResult(null)}>
               ← 다시 검색
             </button>
           ) : (
