@@ -11,14 +11,19 @@ const AdminDashboardPage = () => {
       // 1. 금고(localStorage)에서 아까 저장한 열쇠를 꺼냅니다.
       const token = localStorage.getItem("accessToken");
 
+      if (!token) {
+            navigate("/admin/login", { replace: true });
+            return;
+        }
+
       try {
         // 2. 서버에 요청할 때 'Authorization' 주머니에 열쇠를 넣어서 보냅니다.
         // 📡 백엔드 AdminController에 /api/admin/dashboard-info 같은 엔드포인트가 있다고 가정합니다.
-        const response = await axios.get("http://localhost:8080/api/admin/users", {
-          // 예시로 유저 목록 주소 사용
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+
+        await axios.get("/admin/users", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
         });
 
         // 성공 시 받아온 데이터 중 이름을 상태에 저장 (구조는 백엔드 응답에 맞춰 조절)
