@@ -381,7 +381,7 @@ export default function FoodSearchPage() {
                         {selectedRecipe.missing_ingredients?.length > 0 && (
                             <div className="detail-section">
                                 <h3>🛒 부족한 재료</h3>
-                                <p className="missing-alert">
+                                <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
                                     ⚠️ {selectedRecipe.missing_ingredients
                                         .join(', ')}
                                 </p>

@@ -27,12 +27,23 @@ const getSaleStatus = (item) => {
 
 /* ── 할인 설정 모달 ── */
 const DiscountModal = ({ item, onSave, onClose }) => {
-  const today = new Date().toISOString().slice(0, 10);
-  const [startTime, setStartTime] = useState(item.startTime ? item.startTime.slice(0,16) : `${today}T18:00`);
-  const [endTime,   setEndTime]   = useState(item.endTime   ? item.endTime.slice(0,16)   : `${today}T20:00`);
-  const [discountPrice, setDiscountPrice] = useState(item.discountPrice || item.originalPrice || 0);
-  const currentRate = item.originalPrice && discountPrice ? Math.round((1 - discountPrice / item.originalPrice) * 100) : 0;
+  // 할인이 활성 상태일 때만 기존 값을 채움
+  // endSale() 후 백엔드가 startTime/endTime을 지우지 않으므로 saleStatus로 판단해야 함
+  const hasActiveSale = item.saleStatus !== 'NONE';
+  const [startTime, setStartTime] = useState(hasActiveSale && item.startTime ? item.startTime.slice(0,16) : '');
+  const [endTime,   setEndTime]   = useState(hasActiveSale && item.endTime   ? item.endTime.slice(0,16)   : '');
+  const [discountPrice, setDiscountPrice] = useState(hasActiveSale && item.discountPrice ? item.discountPrice : '');
+  const dpNum = Number(discountPrice) || 0;
+  const currentRate = item.originalPrice && dpNum ? Math.round((1 - dpNum / item.originalPrice) * 100) : 0;
   const PRESETS = [10, 20, 30, 50, 70];
+
+  const handleSave = () => {
+    if (!dpNum || dpNum <= 0) { alert('할인가를 입력해주세요.'); return; }
+    if (!startTime || !endTime) { alert('할인 시작/종료 일시를 입력해주세요.'); return; }
+    if (new Date(endTime) <= new Date(startTime)) { alert('종료 일시는 시작 일시보다 늦어야 합니다.'); return; }
+    onSave({ discountPrice: dpNum, discountRate: currentRate, startTime: startTime + ':00', endTime: endTime + ':00' });
+    onClose();
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -45,7 +56,7 @@ const DiscountModal = ({ item, onSave, onClose }) => {
         <div className="discount-form">
           <div className="discount-field">
             <label className="discount-label">할인가 (원)</label>
-            <input className="discount-inp" type="number" value={discountPrice} onChange={e => setDiscountPrice(Number(e.target.value))} />
+            <input className="discount-inp" type="number" placeholder="할인 가격 입력" value={discountPrice} onChange={e => setDiscountPrice(e.target.value)} />
             <div className="discount-presets">
               {PRESETS.map(p => (
                 <button key={p} className={`discount-preset-btn ${currentRate === p ? 'active' : ''}`}
@@ -62,16 +73,18 @@ const DiscountModal = ({ item, onSave, onClose }) => {
             <label className="discount-label">할인 종료 일시</label>
             <input className="discount-inp" type="datetime-local" value={endTime} onChange={e => setEndTime(e.target.value)} />
           </div>
-          <div className="discount-preview">
-            <span className="discount-preview-label">할인 적용 가격</span>
-            <div className="discount-preview-price">
-              <span className="original-price">{item.originalPrice?.toLocaleString()}원</span>
-              <span className="sale-price">{discountPrice.toLocaleString()}원</span>
+          {dpNum > 0 && (
+            <div className="discount-preview">
+              <span className="discount-preview-label">할인 적용 가격</span>
+              <div className="discount-preview-price">
+                <span className="original-price">{item.originalPrice?.toLocaleString()}원</span>
+                <span className="sale-price">{dpNum.toLocaleString()}원</span>
+              </div>
             </div>
-          </div>
+          )}
           <button className="modal-submit-btn"
-            style={{ background: MG, color: MT, boxShadow: `0 3px 0 ${MGD}` }}
-            onClick={() => { onSave({ discountPrice, discountRate: currentRate, startTime: startTime + ':00', endTime: endTime + ':00' }); onClose(); }}>
+            style={{ background: MG, color: MT }}
+            onClick={handleSave}>
             할인 설정 저장
           </button>
         </div>
@@ -96,7 +109,12 @@ const ProductCard = ({ item, onDelete, onDiscount }) => {
       <div className="product-price-wrap">
         {status === 'active' && <span className="product-original-price">{item.originalPrice?.toLocaleString()}원/{item.unit || '개'}</span>}
         <span className={`product-price ${status === 'active' ? 'discounted' : ''}`}>{displayPrice?.toLocaleString()}원/{item.unit || '개'}</span>
-        {item.startTime && <span style={{ fontSize: '0.72rem', color: '#FF6B35' }}>{item.startTime.slice(11,16)}~{item.endTime?.slice(11,16)} 할인</span>}
+        {/* saleStatus가 NONE이면 endSale() 후 startTime이 남아있어도 표시하지 않음 */}
+        {item.saleStatus !== 'NONE' && item.startTime && (
+          <span style={{ fontSize: '0.72rem', color: '#FF6B35' }}>
+            {item.startTime.slice(11,16)}~{item.endTime?.slice(11,16)} 할인
+          </span>
+        )}
       </div>
       <div className="product-card-btns">
         <button className="product-edit-btn" style={{ background: 'rgba(183,204,172,0.2)', borderColor: MG, color: MT }} onClick={() => onDiscount(item)}>할인 설정</button>
@@ -177,12 +195,18 @@ export default function ShopPage() {
 
         {/* 헤더 */}
         <div className="page-header" style={{ background: 'transparent', position: 'sticky', top: 0, zIndex: 50 }}>
-          <h1 className="page-title" style={{ color: 'black' }}>pleegie</h1>
+          <h1
+          className="page-title"
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }}
+        >
+          pleegie
+        </h1>
           <div className="header-actions">
-            <button className="header-user-btn" style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: MG, color: MT, fontWeight: 'bold', border: '3px solid black', borderRadius: '12px', padding: '0 14px', boxShadow: `0 2px 0 ${MGD}`, fontFamily: 'var(--font-title)' }} onClick={() => navigate('/market/mypage')}>
-              <span className="header-user-name" style={{ color: MT, fontSize: '0.95rem' }}>{shopName}</span>
+            <button className="header-user-btn" style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: MG, color: MT, fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }} onClick={() => navigate('/market/mypage')}>
+             {shopName}
             </button>
-            <button className="header-logout-btn" style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: MG, color: MT, fontWeight: 'bold', border: '3px solid black', borderRadius: '12px', padding: '0 14px', boxShadow: `0 2px 0 ${MGD}`, fontSize: '0.95rem', fontFamily: 'var(--font-title)' }} onClick={() => { localStorage.clear(); window.location.href = '/'; }}>
+            <button className="header-logout-btn" style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: MG, color: MT, fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }} onClick={() => { localStorage.clear(); window.location.href = '/'; }}>
               로그아웃
             </button>
           </div>
@@ -196,7 +220,7 @@ export default function ShopPage() {
           <div className="fridge-ai-bar" style={{ background: 'rgba(255,255,255,0.6)' }}>
             {/* ✅ 재료 등록하기 버튼 → #B7CCAC */}
             <button onClick={() => navigate('/market/items')}
-              style={{ background: MG, color: MT, border: 'none', padding: '10px 20px', borderRadius: '12px', fontFamily: 'var(--font-title)', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold', boxShadow: `0 3px 0 ${MGD}` }}>
+              style={{ background: MG, color: MT, border: 'none', boxShadow: 'none', padding: '10px 20px', borderRadius: '12px', fontFamily: 'var(--font-title)', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold' }}>
               <strong>재료 등록하기</strong>
             </button>
             <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem', color: '#3a2e1e', fontWeight: 'bold' }}>
@@ -217,7 +241,7 @@ export default function ShopPage() {
                   <div className="empty-title">등록된 품목이 없어요</div>
                   <div className="empty-sub">아래 버튼을 눌러 첫 품목을 등록해보세요!</div>
                   <button onClick={() => navigate('/market/items')}
-                    style={{ marginTop: '16px', padding: '12px 28px', background: MG, color: MT, border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer' }}>
+                    style={{ marginTop: '16px', padding: '12px 28px', background: MG, color: MT, border: 'none', boxShadow: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer' }}>
                     📦 재료 등록하러 가기
                   </button>
                 </div>

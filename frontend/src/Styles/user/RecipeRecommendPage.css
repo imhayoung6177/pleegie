@@ -130,7 +130,7 @@
 }
 .rrp-recipe-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(46,196,182,0.4);
+  border-color: #2a1f0e;
 }
 .rrp-card-left {
   display: flex; align-items: center;

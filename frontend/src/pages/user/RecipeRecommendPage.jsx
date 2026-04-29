@@ -193,7 +193,7 @@ export default function RecipeRecommendPage() {
                 onClick={() => navigate('/user/fridge')}
                 style={{
                   padding: '12px 24px', background: 'transparent',
-                  color: '#8a7a60', border: '1.5px solid #ddd',
+                  color: '#2a1f0e', border: '1.5px solid #ddd',fontWeight : 700,
                   borderRadius: '12px', cursor: 'pointer',
                 }}
               >
@@ -339,7 +339,7 @@ export default function RecipeRecommendPage() {
              {selectedRecipe.missing_ingredients?.length > 0 && (
                     <div className="detail-section">
                         <h3>🛒 부족한 재료</h3>
-                        <p className="missing-alert">
+                        <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
                             ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
                         </p>
                         <button

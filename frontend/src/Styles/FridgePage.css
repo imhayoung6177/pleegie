@@ -648,16 +648,6 @@
   word-break: keep-all;
 }
 
-/* 선택 체크 표시 */
-.chip-check {
-  position: absolute;
-  top: 5px;
-  right: 6px;
-  font-size: 0.65rem;
-  color: var(--accent-orange);
-  font-weight: 900;
-}
-
 .grid-empty {
   grid-column: 1 / -1;
   text-align: center;
