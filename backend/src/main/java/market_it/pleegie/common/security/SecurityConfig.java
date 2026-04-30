@@ -61,7 +61,9 @@ public class SecurityConfig {
                                 "/user/signup",
                                 "/market/login",
                                 "/market/signup",
-                                "/recipe/missing-items"
+                                "/recipe/missing-items",
+                                "/item-master",
+                                "/item-master/**"
 //                                "/swagger-ui/**", //swagger테스트 후 삭제할게요 (하영) build.gradle도 수정 필요
 //                                "/v3/api-docs/**"
                         ).permitAll()
