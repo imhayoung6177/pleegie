@@ -21,8 +21,6 @@ public class Report extends BaseEntity {
     @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
 
-    private String targetType;          // USER / MARKET
-    private Long targetId;              // 신고 대상 ID
     private String title;
 
     @Column(columnDefinition = "TEXT")

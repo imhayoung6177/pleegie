@@ -75,9 +75,9 @@ const AdminReportManagePage = () => {
             <thead>
               <tr>
                 <th>신고일</th>
-                <th>신고자</th>
-                <th>피신고자</th>
-                <th>사유</th>
+                <th>접수자</th>
+                <th>제목</th>
+                <th>내용</th>
                 <th>상태</th>
                 <th>관리 액션</th>
               </tr>
@@ -88,8 +88,8 @@ const AdminReportManagePage = () => {
                   <tr key={r.id}>
                     <td>{new Date(r.createdAt).toLocaleDateString('ko-KR')}</td>
                     <td>{r.writerName || '-'}</td>
-                    <td style={{ fontWeight: "bold" }}>{r.targetType || '-'} ({r.targetId})</td>
-                    <td style={{ textAlign: "left" }}>{r.title}<br/><small>{r.content}</small></td>
+                    <td style={{ fontWeight: "bold" }}>{r.title || '-'}</td>
+                    <td style={{ textAlign: "left" }}>{r.content}</td>
                     <td>
                       {/* 상태에 따른 배지 색상 구분 */}
                       <span
@@ -106,10 +106,10 @@ const AdminReportManagePage = () => {
                       <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
                         <button className="admin-action-btn"
                           style={{ backgroundColor: "#faad14", color: "white" }}
-                          onClick={() => handleReportAction(r.id, "WARNED")}>경고</button>
+                          onClick={() => handleReportAction(r.id, "IN_PROGRESS")}>처리중</button>
                         <button className="admin-action-btn"
                           style={{ backgroundColor: "#ff4d4f", color: "white" }}
-                          onClick={() => handleReportAction(r.id, "SUSPENDED")}>정지</button>
+                          onClick={() => handleReportAction(r.id, "RESOLVED")}>완료</button>
                         <button className="admin-action-btn"
                           style={{ backgroundColor: "#bfbfbf", color: "white" }}
                           onClick={() => handleReportAction(r.id, "REJECTED")}>반려</button>
@@ -121,7 +121,7 @@ const AdminReportManagePage = () => {
               ) : (
                 <tr>
                   <td colSpan="6" style={{ padding: "40px", color: "#999" }}>
-                    접수된 신고 내역이 없습니다.
+                    접수된 불편사항이 없습니다.
                   </td>
                 </tr>
               )}
