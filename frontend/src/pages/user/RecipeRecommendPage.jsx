@@ -33,6 +33,10 @@ export default function RecipeRecommendPage() {
   const [errorMsg,       setErrorMsg]       = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
 
+  const [showMap, setShowMap] = useState(false);
+  const [mapMarkets, setMapMarkets] = useState([]);
+  const [mapLoading, setMapLoading] = useState(false);
+
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     'Content-Type': 'application/json',
@@ -343,12 +347,41 @@ export default function RecipeRecommendPage() {
                             ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
                         </p>
                         <button
-                            onClick={() => navigate('/user/food-search', {
-                                state: {
-                                    missingIngredients:
-                                        selectedRecipe.missing_ingredients
-                                }
-                            })}
+                            onClick={async()=>{
+                                        setMapLoading(true);
+                                        setShowMap(true);
+
+                                        const getLocation = () => new Promise((resolve)=>{
+                                            navigator.geolocation.getCurrentPosition(
+                                                pos => resolve({
+                                                    latitude: pos.coords.latitude,
+                                                    longitude: pos.coords.longitude
+                                                }),
+                                                ()=>resolve({latitude: 37.5665, longitude:126.9780})
+                                            );
+                                        });
+
+                                        const location = await getLocation();
+
+                                        try{
+                                            const res = await fetch('/market/missing-items',{
+                                                method: 'POST',
+                                                headers: getAuthHeaders(),
+                                                body: JSON.stringify({
+                                                    missingIngredients: selectedRecipe.missing_ingredients,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude
+                                                })
+                                            });
+                                            const json = await res.json();
+                                            setMapMarkets(json.data?.markets || []);
+                                        }catch(err){
+                                            console.error('시장 검색 실패:',err);
+                                        }finally{
+                                            setMapLoading(false);
+                                        }
+                                        }
+                                    }
                             style={{
                                 padding: '10px 20px',
                               background: '#fdd537',

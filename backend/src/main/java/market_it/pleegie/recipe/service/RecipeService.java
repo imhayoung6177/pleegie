@@ -7,6 +7,10 @@ import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.fridge.repository.FridgeItemRepository;
 import market_it.pleegie.fridge.repository.FridgeRepository;
+import market_it.pleegie.item.repository.ItemMasterRepository;
+import market_it.pleegie.market.entity.Market;
+import market_it.pleegie.market.repository.MarketItemRepository;
+import market_it.pleegie.market.repository.MarketRepository;
 import market_it.pleegie.recipe.dto.*;
 import market_it.pleegie.recipe.entity.RecipeBook;
 import market_it.pleegie.recipe.repository.RecipeBookRepository;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +35,9 @@ public class RecipeService {
     private final FridgeItemRepository fridgeItemRepository;
     private final RecipeBookRepository recipeBookRepository;
     private final UserRepository userRepository;
+    private final MarketRepository marketRepository;
+    private final MarketItemRepository marketItemRepository;
+    private final ItemMasterRepository itemMasterRepository;
 
     // ── 냉장고 기반 레시피 추천 ───────────────
 
@@ -89,6 +97,56 @@ public class RecipeService {
 
     public RecipeRecommendResponse searchRecipe(String query) {
         return aiClient.searchRecipe(query);
+    }
+
+    // ── 부족한 재료 시장 검색 ─────────────────────
+    public MissingItemResponse findMissingItemsInMarkets(MissingItemRequest request) {
+        // 가까운 시장 목록 조회
+        List<Market> nearestMarkets = marketRepository.findNearestMarkets(request.getLatitude(), request.getLongitude());
+
+        //상위 5개 시장
+        List<Long> marketIds = nearestMarkets.stream().limit(5).map(Market::getId).collect(Collectors.toList());
+
+        // 부족한 재료 -> item_master 매칭
+        List<MissingItemResponse.MarketItemInfo> marketItemInfos = new ArrayList<>();
+
+        for (Market market : nearestMarkets.stream().limit(5).collect(Collectors.toList())) {
+
+            List<MissingItemResponse.ItemInfo> itemInfos = new ArrayList<>();
+
+            for (String ingredientName : request.getMissingIngredients()) {
+                // item_master에서 재료 찾기
+                itemMasterRepository.findByName(ingredientName).ifPresent(itemMaster -> {
+                    // 해당 시장에서 재료 판매 여부 확인
+                    marketItemRepository.findByMarketIdsAndItemMasterId(marketIds, itemMaster.getId())
+                            .stream()
+                            .filter(mi -> mi.getMarket()
+                                    .getId().equals(market.getId()))
+                            .findFirst()
+                            .ifPresent(mi -> itemInfos.add(
+                                    new MissingItemResponse.ItemInfo(
+                                            mi.getId(),
+                                            mi.getName(),
+                                            mi.getOriginalPrice(),
+                                            mi.getDiscountPrice(),
+                                            mi.getDiscountRate(),
+                                            mi.getOnSale()
+                                    )
+                            ));
+                });
+            }
+            // 판매중인 재료가 있는 시장만 추가
+            if (!itemInfos.isEmpty()) {
+                marketItemInfos.add(new MissingItemResponse.MarketItemInfo(
+                        market.getId(),
+                        market.getName(),
+                        market.getLatitude(),
+                        market.getLongitude(),
+                        itemInfos
+                ));
+            }
+        }
+        return new MissingItemResponse(marketItemInfos);
     }
 
     // ── 레시피북 저장 ─────────────────────────

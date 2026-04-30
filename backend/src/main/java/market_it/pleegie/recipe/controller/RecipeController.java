@@ -38,6 +38,18 @@ public class RecipeController {
                         recipeService.searchRecipe(query)));
     }
 
+    // 부족한 재료 시장 검색
+    @PostMapping("/recipe/missing-items")
+    public  ResponseEntity<ApiResponse<MissingItemResponse>>
+    findMissingItems(
+            @RequestBody MissingItemRequest request){
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        recipeService.findMissingItemsInMarkets(request)
+                )
+        );
+    }
+
     // 레시피북 저장
     @PostMapping("/user/recipebook")
     public ResponseEntity<ApiResponse<RecipeBookSaveResponse>>

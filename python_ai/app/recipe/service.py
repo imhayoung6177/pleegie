@@ -381,12 +381,10 @@ async def search_recipe(request: RecipeSearchRequest) -> RecipeResponse:
         recipe_text = "\n".join(
             [f"- {r['title']}: {r['ingredients']}" for r in top_recipes]
         )
-    #     chain = SEARCH_TEMPLATE | llm | StrOutputParser()
-    #     result = await chain.ainvoke({
-    #         "query": request.query,
-    #         "ingredients": "없음",
-    #         "recipes": recipe_text
-    #     })
+        chain = SEARCH_TEMPLATE | llm | StrOutputParser()
+        result = await chain.ainvoke(
+            {"query": request.query, "ingredients": "없음", "recipes": recipe_text}
+        )
 
     # top_recipes = recipes_data[:10]
 
