@@ -29,6 +29,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // role + status로 조회 (관리자 - 상태별 필터링)
     List<User> findAllByRoleAndStatus(String role, String status);
 
+    // ROLE이 USER이고, 상태가 DELETED가 아닌 사람만 골라내는 도구 [준호 추가]
+    List<User> findAllByRoleAndStatusNot(String role, String status);
+
     // 관리자 - 이름으로 검색
     @Query("SELECT u FROM User u WHERE u.role = :role AND u.name LIKE %:name%")
     List<User> findAllByRoleAndNameContaining(
