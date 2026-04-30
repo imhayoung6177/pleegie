@@ -94,26 +94,42 @@ export default function FoodSearchPage() {
     };
 
     const saveRecipe = async (recipe) => {
-        try {
-            const res = await fetch('/user/recipebook', {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    title: recipe.title,
-                    description: recipe.description,
-                    ingredients: recipe.ingredients
-                })
-            });
-            if (res.ok) {
-                alert('레시피북에 저장되었습니다! 📖');
-            } else {
-                const json = await res.json();
-                alert(json.message || '이미 저장된 레시피입니다.');
-            }
-        } catch {
-            alert('저장 중 오류가 발생했어요.');
+    try {
+        // cooking_steps, sauce_steps를 마커로 구분해서 description에 합치기
+        let fullDescription = recipe.description || '';
+
+        if (Array.isArray(recipe.cooking_steps) && recipe.cooking_steps.length > 0) {
+            fullDescription += `\n\n[🍳 조리법]\n${recipe.cooking_steps.join('\n')}`;
         }
-    };
+
+        if (Array.isArray(recipe.sauce_steps) && recipe.sauce_steps.length > 0) {
+            fullDescription += `\n\n[🥣 소스/양념]\n${recipe.sauce_steps.join('\n')}`;
+        }
+
+        if (recipe.missing_ingredients?.length > 0) {
+            fullDescription += `\n\n[🛒 부족한 재료]\n${recipe.missing_ingredients.join('\n')}`;
+        }
+
+        const res = await fetch('/user/recipebook', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                title: recipe.title,
+                description: fullDescription,  // ← 마커 포함해서 저장
+                ingredients: recipe.ingredients
+            })
+        });
+
+        if (res.ok) {
+            alert('레시피북에 저장되었습니다! 📖');
+        } else {
+            const json = await res.json();
+            alert(json.message || '이미 저장된 레시피입니다.');
+        }
+    } catch {
+        alert('저장 중 오류가 발생했어요.');
+    }
+};
 
     return (
         <div className="rrp-page">
