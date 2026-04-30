@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import market_it.pleegie.admin.dto.AdminLoginRequest;
 import market_it.pleegie.admin.service.AdminService;
 import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomAdminDetails;
 import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.notice.dto.NoticeCreateRequest;
 import market_it.pleegie.notice.dto.NoticeResponse;
@@ -123,11 +124,11 @@ public class AdminController {
     public ResponseEntity<ApiResponse<NoticeResponse>>
     createNotice(
             @AuthenticationPrincipal
-            CustomUserDetails userDetails,
+            CustomAdminDetails adminDetails,
             @Valid @RequestBody NoticeCreateRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.createNotice(
-                        userDetails.getUserId(), request)));
+                        adminDetails.getAdminId(), request)));
     }
 
     @PutMapping("/notices/{noticeId}")
@@ -163,9 +164,9 @@ public class AdminController {
     approveLocalCurrency(
             @PathVariable Long logId,
             @AuthenticationPrincipal
-            CustomUserDetails userDetails) {
+            CustomAdminDetails adminDetails) {
         adminService.approveLocalCurrency(
-                logId, userDetails.getUserId());
+                logId, adminDetails.getAdminId());
         return ResponseEntity.ok(
                 ApiResponse.ok("지역화폐가 승인되었습니다", null));
     }
@@ -175,9 +176,9 @@ public class AdminController {
     rejectLocalCurrency(
             @PathVariable Long logId,
             @AuthenticationPrincipal
-            CustomUserDetails userDetails) {
+            CustomAdminDetails adminDetails) {
         adminService.rejectLocalCurrency(
-                logId, userDetails.getUserId());
+                logId, adminDetails.getAdminId());
         return ResponseEntity.ok(
                 ApiResponse.ok("지역화폐가 반려되었습니다", null));
     }

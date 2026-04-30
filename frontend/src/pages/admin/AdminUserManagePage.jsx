@@ -12,7 +12,7 @@ const AdminUserManagementPage = () => {
     const fetchUsers = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const response = await axios.get("http://localhost:8080/api/admin/users", {
+        const response = await axios.get("/admin/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
         // 서버에서 받은 데이터를 장부에 저장
@@ -40,7 +40,7 @@ const AdminUserManagementPage = () => {
 
     try {
       await axios.put(
-        `http://localhost:8080/api/admin/users/${userId}/status`,
+        `/admin/users/${userId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } },
       );
