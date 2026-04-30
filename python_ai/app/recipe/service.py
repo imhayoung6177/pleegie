@@ -66,7 +66,7 @@ SEARCH_TEMPLATE_DIRECT = PromptTemplate(
 제목: 레시피명
 설명: 간단한 설명
 재료: 재료1, 재료2, 재료3
-부족한재료: 
+부족한재료:
 소스만드는법: 1. 첫번째 단계. (소스가 없으면 이 줄 생략)
 요리법: 1. 첫번째 단계. 2. 두번째 단계. 3. 세번째 단계.
 ---
@@ -136,6 +136,7 @@ async def fetch_recipes_from_api(query: str) -> list[dict]:
             print(f"API 오류 ({start}~{end}):", e)
             continue
 
+    # 재료 키워드로 필터링
     keywords = query.split()
     filtered = [
         r
@@ -212,8 +213,10 @@ def is_ingredient_available(ing: str, fridge_ingredients: list[str]) -> bool:
 def calculate_match_score(
     recipe_ingredients: list[str], fridge_ingredients: list[str]
 ) -> float:
+    """냉장고 재료 매칭 점수 계산 (0.0~1.0)"""
     if not recipe_ingredients or not fridge_ingredients:
         return 0.0
+    # 레시피 재료 중 냉장고에 있는 것 개수
     matched = sum(
         1
         for ing in recipe_ingredients
@@ -225,6 +228,7 @@ def calculate_match_score(
 def has_expiring_ingredient(
     recipe_ingredients_text: str, expiring_ingredients: list[str]
 ) -> bool:
+    """레시피에 유통기한 임박 재료가 포함되어 있는지 확인"""
     return any(ei in recipe_ingredients_text for ei in expiring_ingredients)
 
 
@@ -281,6 +285,7 @@ def parse_llm_recipes(
     results = []
     blocks = text.strip().split("---")
 
+    # --- 없으면 "제목:" 으로 분리
     if len(blocks) <= 1:
         blocks = re.split(r"\n(?=제목:)", text.strip())
 
@@ -312,8 +317,11 @@ def parse_llm_recipes(
             if ":" in line
         }
 
+        # 제목 없으면 스킵
         if not lines.get("제목"):
             continue
+
+        # 재료 없으면 스킵
         if not lines.get("재료"):
             continue
 
@@ -321,6 +329,7 @@ def parse_llm_recipes(
             i.strip() for i in lines.get("재료", "").split(",") if i.strip()
         ]
 
+        # 부족한재료를 재료 목록 기반으로 재계산, LLM이 잘못 계산한 경우 보정
         recalculated_missing = [
             ing
             for ing in recipe_ingredients

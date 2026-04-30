@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { resolvePath, useLocation, useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
 
 export default function FoodSearchPage() {
@@ -16,6 +16,10 @@ export default function FoodSearchPage() {
     const [selectedRecipe, setSelectedRecipe] = useState(null);
     const [errorMsg, setErrorMsg] = useState('');
     const [fridgeItems, setFridgeItems] = useState([]);
+
+    const [showMap, setShowMap] = useState(false);
+    const [mapMarkets, setMapMarkets] = useState([]);
+    const [mapLoading, setMapLoading] = useState(false);
 
     const getAuthHeaders = () => ({
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -386,17 +390,46 @@ export default function FoodSearchPage() {
                                         .join(', ')}
                                 </p>
                                 <button
-                                    onClick={() => navigate(
-                                        '/user/food-search', {
-                                        state: {
-                                            missingIngredients:
-                                                selectedRecipe
-                                                    .missing_ingredients
+                                    onClick={async()=>{
+                                        setMapLoading(true);
+                                        setShowMap(true);
+
+                                        const getLocation = () => new Promise((resolve)=>{
+                                            navigator.geolocation.getCurrentPosition(
+                                                pos => resolve({
+                                                    latitude: pos.coords.latitude,
+                                                    longitude: pos.coords.longitude
+                                                }),
+                                                ()=>resolve({latitude: 37.5665, longitude:126.9780})
+                                            );
+                                        });
+
+                                        const location = await getLocation();
+
+                                        try{
+                                            const res = await fetch('/market/missing-items',{
+                                                method: 'POST',
+                                                headers: getAuthHeaders(),
+                                                body: JSON.stringify({
+                                                    missingIngredients: selectedRecipe.missing_ingredients,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude
+                                                })
+                                            });
+                                            const json = await res.json();
+                                            setMapMarkets(json.data?.markets || []);
+                                        }catch(err){
+                                            console.error('시장 검색 실패:',err);
+                                        }finally{
+                                            setMapLoading(false);
                                         }
-                                    })}
+                                        }
+                                    }
+
+                                    
                                     style={{
                                         padding: '10px 20px',
-                                        background: '#FF6B35',
+                                        background: '#fdd537',
                                         color: '#fff',
                                         border: 'none',
                                         borderRadius: '12px',

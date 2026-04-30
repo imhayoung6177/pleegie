@@ -67,7 +67,10 @@ public class SecurityConfig {
                                 "/market/login",
                                 "/market/signup",
                                 "/admin/login",
-                                "/api/admin/login"
+                                "/api/admin/login",
+                                "/recipe/missing-items"
+//                                "/swagger-ui/**", //swagger테스트 후 삭제할게요 (하영) build.gradle도 수정 필요
+//                                "/v3/api-docs/**"
                         ).permitAll()
 
                         // OAuth2 콜백 허용
