@@ -344,7 +344,6 @@ export default function RecipeRecommendPage() {
                         </p>
                         <button
                             onClick={async()=>{
-                              console.log("버튼클릭됨");
                               console.log("부족한 재료:", selectedRecipe.missing_ingredients);
                                         setMapLoading(true);
                                         setShowMap(true);
@@ -373,9 +372,7 @@ export default function RecipeRecommendPage() {
                                                 })
                                             });
                                             const json = await res.json();
-                                            console.log("시장 데이터:", json);
-setMapMarkets(json.data?.markets || []);
-console.log("mapMarkets:", json.data?.markets);
+                                            setMapMarkets(json.data?.markets || []);
                                             
                                             setMapMarkets(json.data?.markets || []);
                                         }catch(err){

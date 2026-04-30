@@ -262,7 +262,9 @@ def parse_api_recipes(
                 ing,
             )
             clean = re.sub(r"\s*[:：].*", "", clean)
+            clean = re.sub(r"\s*\(.*", "", clean)
             clean = clean.strip()
+            clean = clean.rstrip(",")
             if clean:
                 clean_missing.append(clean)
 
@@ -356,7 +358,9 @@ def parse_llm_recipes(
                 ing,
             )
             clean = re.sub(r"\s*[:：].*", "", clean)
+            clean = re.sub(r"\s*\(.*", "", clean)
             clean = clean.strip()
+            clean = clean.rstrip(",")
             if clean:
                 clean_missing.append(clean)
 

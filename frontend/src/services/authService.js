@@ -60,6 +60,8 @@ export const register = async (form) => {
       phone:    form.phone,
       email:    form.email,
       address:  form.address,
+      latitude:  form.latitude  ? parseFloat(form.latitude)  : null,
+      longitude: form.longitude ? parseFloat(form.longitude) : null,
       role:     'USER',         // ✅ 일반 회원가입 고정값
     }),
   });

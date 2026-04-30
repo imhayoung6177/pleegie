@@ -17,6 +17,8 @@ const RegisterPage = () => {
     email:           "",
     address:         "",
     addressDetail:   "",
+    latitude: "",
+    longitude: "",
   });
 
   const [errors,    setErrors]    = useState({});
@@ -40,6 +42,28 @@ const RegisterPage = () => {
     else                         formatted = `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7,11)}`;
     setForm((prev) => ({ ...prev, phone: formatted }));
     if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+  };
+
+  const handleAddressSearch = () =>{
+    new window.daum.Postcode({
+      oncomplete: (data) =>{
+        const address = data.roadAddress || data.jibunAddress;
+        const geocoder = new window.kakao.maps.services.Geocoder();
+        geocoder.addressSearch(address, (result,status)=>{
+          if(status === window.kakao.maps.services.Status.OK){
+            setForm(prev=>({
+              ...prev,
+              address,
+              latitude: result[0].y,
+              longitude: result[0].x
+            }));
+          }else{
+            setForm(prev=>({...prev,address}));
+            alert('좌표 변환에 실패했어요. 다시 시도해주세요.');
+          }
+        });
+      }
+    }).open();
   };
 
   const validate = () => {
@@ -211,15 +235,25 @@ const RegisterPage = () => {
 
           <div className="auth-field">
             <label className="auth-label">주소</label>
-            <div className={`auth-input-wrap ${errors.address ? "error" : ""}`}>
-              <input
-                type="text"
-                name="address"
-                className="auth-input"
-                placeholder="서울시..."
-                value={form.address}
-                onChange={handleChange}
-              />
+            <div className="reg-addr-row">
+              <div className={`auth-input-wrap reg-addr-input ${errors.address ? "error" : ""}`}>
+                <input
+                  type="text"
+                  name="address"
+                  className="auth-input"
+                  placeholder="주소 검색 버튼을 클릭하세요"
+                  value={form.address}
+                  readOnly
+                />
+              </div>
+              <button
+                  type="button"
+                  className="reg-addr-btn"
+                  onClick={handleAddressSearch}
+              >
+                주소 검색
+              </button>
+
             </div>
             {errors.address && <p className="auth-field-error">{errors.address}</p>}
           </div>

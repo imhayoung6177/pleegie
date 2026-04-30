@@ -66,6 +66,29 @@ const handleVerifyBiz = async () => {
     return;
   }
 
+const handleAddressSearch=()=>{
+  new window.daum.Postcode({
+    oncomplete:(data) => {
+      const address = data.roadAddress || data.jibunAddress;
+
+      const geocoder = new window.kakao.maps.services.Geocoder();
+      geocoder.addressSearch(address, (result,status)=>{
+        if (status===window.kakao.maps.services.Status.OK){
+          setForm(prev=>({
+            ...prev,
+            address,
+            latitude: result[0].y,
+            longitude: result[0].x
+          }));
+        }else{
+          setForm(prev => ({...prev, address}));
+          alert('좌표 변환에 실패했어요. 다시 시도해주세요.');
+        }
+      });
+    }
+  }).open();
+};
+
   // ✅ 임시: API 호출 없이 바로 인증 성공 처리
   // 🔴 나중에 실제 API 연동할 때 이 블록을 제거하고
   //    아래 주석처리된 try/catch 블록을 살려야 함
@@ -381,11 +404,19 @@ const handleVerifyBiz = async () => {
                 type="text"
                 name="address"
                 className="auth-input"
-                placeholder={isVerified ? "예) 서울시 마포구 홍익로 12" : "인증 후 입력 가능"}
+                placeholder={isVerified ? "주소 검색 버튼을 클릭하세요" : "인증 후 입력 가능"}
                 value={form.address}
-                onChange={handleChange}
-                readOnly={!isVerified}
+                readOnly
               />
+              <button
+                type="button"
+                className="reg-addr-btn"
+                onClick={handleAddressSearch}
+                disabled={!isVerified}
+                style={{opacity:!isVerified?0.6:1}}
+                >
+                  주소 검색
+                </button>
             </div>
             {errors.address && <p className="auth-field-error">⚠ {errors.address}</p>}
           </div>

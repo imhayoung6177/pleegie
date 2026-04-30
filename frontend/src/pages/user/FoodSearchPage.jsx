@@ -514,9 +514,55 @@ export default function FoodSearchPage() {
                 <span style={{ fontWeight: 700, fontSize: '1rem' }}>
                     🏪 근처 시장 찾기
                 </span>
-                <button onClick={() => setShowMap(false)}
-                    style={{ background: 'none', border: 'none',
-                        fontSize: '1.2rem', cursor: 'pointer' }}>
+                <button onClick={async()=>{
+                              console.log("부족한 재료:", selectedRecipe.missing_ingredients);
+                                        setMapLoading(true);
+                                        setShowMap(true);
+                                        console.log("showMap:",true)
+
+                                        const getLocation = () => new Promise((resolve)=>{
+                                            navigator.geolocation.getCurrentPosition(
+                                                pos => resolve({
+                                                    latitude: pos.coords.latitude,
+                                                    longitude: pos.coords.longitude
+                                                }),
+                                                ()=>resolve({latitude: 37.5665, longitude:126.9780})
+                                            );
+                                        });
+
+                                        const location = await getLocation();
+
+                                        try{
+                                            const res = await fetch('/market/missing-items',{
+                                                method: 'POST',
+                                                headers: getAuthHeaders(),
+                                                body: JSON.stringify({
+                                                    missingIngredients: selectedRecipe.missing_ingredients,
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude
+                                                })
+                                            });
+                                            const json = await res.json();
+                                            setMapMarkets(json.data?.markets || []);
+                                            
+                                            setMapMarkets(json.data?.markets || []);
+                                        }catch(err){
+                                            console.error('시장 검색 실패:',err);
+                                        }finally{
+                                            setMapLoading(false);
+                                        }
+                                        }
+                                    }
+                            style={{
+                                padding: '10px 20px',
+                              background: '#fdd537',
+                              color: '#2a1f0e',
+                                border: 'none',
+                                borderRadius: '12px',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                marginTop: '8px'
+                            }}>
                     ✕
                 </button>
             </div>
