@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
+import '../../components/ui/KakaoMap';
 
 /**
  * RecipeRecommendPage.jsx
@@ -430,6 +431,98 @@ export default function RecipeRecommendPage() {
         )}
 
       </div>
+      {/* 카카오 맵 모달*/}
+      {showMap && (
+    <div style={{
+        position: 'fixed', top: 0, left: 0,
+        width: '100%', height: '100%',
+        background: 'rgba(0,0,0,0.5)',
+        zIndex: 1000,
+        display: 'flex', flexDirection: 'column'
+    }}>
+        <div style={{
+            background: '#fff',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
+            <div style={{
+                padding: '16px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '1px solid #eee'
+            }}>
+                <span style={{ fontWeight: 700, fontSize: '1rem' }}>
+                    🏪 근처 시장 찾기
+                </span>
+                <button onClick={() => setShowMap(false)}
+                    style={{ background: 'none', border: 'none',
+                        fontSize: '1.2rem', cursor: 'pointer' }}>
+                    ✕
+                </button>
+            </div>
+
+            {mapLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px' }}>
+                    <p>시장을 검색 중입니다...</p>
+                </div>
+            ) : (
+                <>
+                    <KakaoMap markets={mapMarkets} />
+                    <div style={{
+                        overflowY: 'auto',
+                        padding: '16px',
+                        flex: 1
+                    }}>
+                        {mapMarkets.length === 0 ? (
+                            <p style={{ textAlign: 'center', color: '#888' }}>
+                                근처 시장에 해당 재료가 없어요
+                            </p>
+                        ) : (
+                            mapMarkets.map((market, idx) => (
+                                <div key={idx} style={{
+                                    background: '#f8f5f0',
+                                    borderRadius: '12px',
+                                    padding: '12px 16px',
+                                    marginBottom: '10px'
+                                }}>
+                                    <strong>🏪 {market.marketName}</strong>
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: '6px',
+                                        marginTop: '8px'
+                                    }}>
+                                        {market.items?.map((item, i) => (
+                                            <span key={i} style={{
+                                                padding: '4px 10px',
+                                                borderRadius: '20px',
+                                                fontSize: '0.8rem',
+                                                background: item.onSale
+                                                    ? '#fff3e0' : '#e8f5e9',
+                                                color: item.onSale
+                                                    ? '#FF6B35' : '#4CAF50',
+                                                border: `1px solid ${
+                                                    item.onSale
+                                                        ? '#FF6B35' : '#4CAF50'}`
+                                            }}>
+                                                {item.onSale ? '🔴 ' : ''}
+                                                {item.name} {item.onSale
+                                                    ? `${item.discountPrice?.toLocaleString()}원`
+                                                    : `${item.originalPrice?.toLocaleString()}원`}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    </div>
+)}
     </div>
   );
 }
