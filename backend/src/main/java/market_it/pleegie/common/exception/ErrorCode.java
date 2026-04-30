@@ -17,6 +17,7 @@ public enum ErrorCode {
 
     // Report
     DUPLICATE_REPORT(HttpStatus.CONFLICT, "이미 신고한 대상입니다"),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 신고 내역을 찾을 수 없습니다"), // 준호 추가
 
     // Market
     MARKET_NOT_FOUND(HttpStatus.NOT_FOUND, "시장을 찾을 수 없습니다"),
