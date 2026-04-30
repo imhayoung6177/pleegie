@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import '../../Styles/user/CartPage.css';
 
 const INIT_CART = [
-  { id: 1, name: '소고기', price: 15000, emoji: '🥩', desc: '스테이크용 200g' },
-  { id: 2, name: '애호박', price: 2000,  emoji: '🥒', desc: '된장찌개용 1개' },
-  { id: 3, name: '두부',   price: 1500,  emoji: '🌫️', desc: '찌개용 1모' },
+  { id: 1, name: '소고기', price: 15000, desc: '스테이크용 200g' },
+  { id: 2, name: '애호박', price: 2000, desc: '된장찌개용 1개' },
+  { id: 3, name: '두부',   price: 1500, desc: '찌개용 1모' },
 ];
 
 const CartPage = ({ onPurchase }) => {
@@ -32,7 +32,7 @@ const CartPage = ({ onPurchase }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {cartItems.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#aaa', padding: '32px 0' }}>
+        <p style={{ textAlign: 'center', color: '#2a1f0e', padding: '32px 0' }}>
           장바구니가 비었습니다 🛍️
         </p>
       ) : cartItems.map(item => (
@@ -41,16 +41,16 @@ const CartPage = ({ onPurchase }) => {
           background: 'white', borderRadius: '18px',
           border: '1.5px solid rgba(253,213,55,0.8)',
         }}>
-          <span style={{ fontSize: '2rem', marginRight: '15px' }}>{item.emoji}</span>
+          {/* <span style={{ fontSize: '2rem', marginRight: '15px' }}>{item.emoji}</span> */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <strong style={{ fontSize: '1rem', color: '#333' }}>{item.name}</strong>
-            <span style={{ fontSize: '0.8rem', color: '#888' }}>{item.desc}</span>
+            <strong style={{ fontSize: '1rem', color: '#2a1f0e' }}>{item.name}</strong>
+            <span style={{ fontSize: '0.8rem', color: '#5A4A32' }}>{item.desc}</span>
           </div>
           <div style={{
             display: 'flex', flexDirection: 'column',
             alignItems: 'flex-end', gap: '6px',
           }}>
-            <span style={{ fontWeight: 700, color: '#fdd537' }}>
+            <span style={{ fontWeight: 700, color: '#2a1f0e' }}>
               {item.price.toLocaleString()}원
             </span>
             <div style={{ display: 'flex', gap: '6px' }}>

@@ -39,9 +39,21 @@
 }
 
 .header-user-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
   font-family: var(--font-title);
   font-size: 1.1rem;
-  color: #5a4a32;
+  color: #2a1f0e;
+}
+.header-user-name:hover {
+  background: rgba(0,0,0,0.05);
 }
 
 .header-logout-btn {
@@ -51,7 +63,13 @@
   border: none;
   border-radius: 999px;
   font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: bolder;
   cursor: pointer;
+  transition: background 0.15s;
+}
+.header-logout-btn:hover {
+  background: rgba(253, 213, 55, 0.8);
 }
 
 /* ══ 3. 냉장고 외관 (노란색 -> 흰색 수정 및 문 제거) ════ */
@@ -270,7 +288,7 @@
 .qty-save-btn {
   flex: 2; padding: 12px; background: var(--accent-orange); border: none; border-radius: 12px;
   color: #2a1f0e; font-family: var(--font-title); font-size: 1.05rem; cursor: pointer;
-  transition: transform 0.15s; box-shadow: 0 4px 12px rgba(253, 213, 55, 0.3);
+  transition: transform 0.15s;
 }
 .qty-save-btn:hover { transform: translateY(-2px); }
 

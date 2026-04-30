@@ -1,7 +1,11 @@
 /**
  * marketService.js
+ *
+ * BASE_URL을 빈 문자열로 두면 Vite 개발 서버의 프록시(vite.config.js)를 통해
+ * 백엔드로 요청이 전달됩니다. 절대 URL을 사용하면 프록시를 우회하여 CORS 에러가
+ * 발생할 수 있으므로 반드시 상대 경로를 사용해야 합니다.
  */
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /* ══════════════════════════════════════════════════════════
    공통 요청 헬퍼

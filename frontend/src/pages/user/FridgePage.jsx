@@ -191,9 +191,6 @@ const AddPanel = ({ myIngredients, masterList, onAdd, onManualAdd, onRemove, onC
               >
                 <span className="chip-emoji">🍱</span>
                 <span className="chip-name">{ing.name}</span>
-                {isInFridge(ing.name) && (
-                  <span style={{ fontSize: '0.7rem', color: '#fdd537' }}>✓</span>
-                )}
               </div>
             ))
           ) : (
@@ -495,15 +492,16 @@ export default function FridgePage() {
           pleegie
         </h1>
         <div className="header-actions">
-          <div
-            className="header-user-name"
+          <button
+            className="header-user-btn"
+            style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: '#fdd537', color: '#2a1f0e', fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }}
             onClick={() => navigate('/user/mypage')}
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
-            👤 <span style={{ marginLeft: '4px', textDecoration: 'underline' }}>{userName}님</span>
-          </div>
+            👤 {userName}님
+          </button>
           <button
             className="header-logout-btn"
+            style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: '#fdd537', color: '#2a1f0e', fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }}
             onClick={() => { localStorage.clear(); navigate('/'); }}
           >
             로그아웃

@@ -14,7 +14,7 @@ const ChatbotPage = () => {
     {
       id: 1,
       type: "bot",
-      text: "안녕하세요! Pleegie AI 챗봇입니다. 🍎\n냉장고 재료 관리나 레시피, 시장 할인 정보에 대해 무엇이든 물어보세요!",
+      text: "안녕하세요! Pleegie AI 챗봇입니다. \n냉장고 재료 관리나 레시피, 시장 할인 정보에 대해 무엇이든 물어보세요!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -91,9 +91,9 @@ const ChatbotPage = () => {
   let errorText = "서버와 연결이 원활하지 않습니다.";
   
   if (error.response?.status === 429 || error.response?.data?.message?.includes("Quota")) {
-    errorText = "AI가 지금 너무 많은 요청을 받고 있어요. 1분만 쉬었다가 다시 말을 걸어주세요! 😅";
+    errorText = "AI가 지금 너무 많은 요청을 받고 있어요. 잠시만 쉬었다가 다시 말을 걸어주세요! ";
   } else if (error.response?.status === 500) {
-    errorText = "AI 서버가 잠시 아픈 것 같아요. 잠시 후 다시 시도해주세요.";
+    errorText = "죄송합니다 ! 잠시 후 다시 시도해주세요.";
   }
       setMessages((prev) => [
         ...prev,

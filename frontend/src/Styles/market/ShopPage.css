@@ -23,7 +23,7 @@
   --font-body:    'Jua', sans-serif;
   --ease-bounce:  cubic-bezier(0.34,1.56,0.64,1);
   --shadow-card:  0 4px 0 rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.07);
-  --shadow-btn:   0 4px 0 var(--c-primary-dk);
+  --shadow-btn:   none;
 }
 
 
@@ -86,21 +86,25 @@
 
 .shop-header-name {
   display: flex; align-items: center; gap: 6px;
-  padding: 8px 16px;
-  background: rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.12);
+  padding: 8px 12px;
+  background: rgb(183, 204, 172);
+  border: none;
   border-radius: 999px;
   cursor: pointer; transition: background 0.15s;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  color: var(--c-text);
 }
+.shop-header-name:hover { background: rgba(0,0,0,0.05); }
 
 .shop-logout-btn {
-  padding: 6px 14px;
+  padding: 8px 18px;
   background: rgb(183, 204, 172);
-  border: 1.5px solid rgba(0,0,0,0.12);
+  border: none;
   border-radius: 999px;
   color: var(--c-text);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-family: var(--font-title);
+  font-size: 1.1rem;
   font-weight: bolder;
   cursor: pointer;
   transition: background 0.15s;
@@ -341,15 +345,14 @@
   font-size: 1.1rem; /* 글자 크기 증가 */
   font-weight: bolder;
   cursor: pointer;
-  box-shadow: none;
   transition: all 0.2s var(--ease-bounce);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
 }
-.item-add-btn:hover  { transform: translateY(-2px); box-shadow: none; }
-.item-add-btn:active { transform: translateY(0); box-shadow: none; }
+.item-add-btn:hover  { transform: translateY(-2px); }
+.item-add-btn:active { transform: translateY(0); }
 .item-add-btn:hover  { transform: translateY(-2px); }
 .item-add-btn:active { transform: translateY(0); }
 
@@ -662,11 +665,8 @@
   font-family: var(--font-title);
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: var(--shadow-btn);
   transition: all 0.2s var(--ease-bounce);
 }
-.modal-submit-btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 var(--c-primary-dk); }
-.modal-submit-btn:active { transform: translateY(0); box-shadow: 0 2px 0 var(--c-primary-dk); }
 .modal-submit-btn:hover  { transform: translateY(-2px); }
 .modal-submit-btn:active { transform: translateY(0); }
 
@@ -948,7 +948,6 @@
   flex: 1; padding: 12px;
   background: #C82020; border: none; border-radius: 12px;
   color: white; font-family: var(--font-title); font-size: 0.9rem;
-  cursor: pointer; box-shadow: 0 3px 0 #8A1010;
   cursor: pointer;
   transition: transform 0.15s;
 }

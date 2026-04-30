@@ -148,7 +148,7 @@ const LoginPage = ({ role }) => {
           to={role === "SHOP" ? "/shop/register" : "/user/register"}
           className="auth-link-btn"
         >
-          {roleName} 회원가입 하기
+          회원가입 하기
         </Link>
 
       </div>

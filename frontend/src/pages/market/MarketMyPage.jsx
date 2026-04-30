@@ -27,6 +27,17 @@ const MENU = [
   { id: 'discount',    emoji: '🏷️', label: '할인 관리',      desc: '할인 등록 및 취소' },
 ];
 
+const fmtTime = (t) => {
+  if (!t) return '';
+  const d = new Date(t);
+  if (isNaN(d.getTime())) return t.slice(0, 5);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${mm}/${dd} ${hh}:${min}`;
+};
+
 const getSaleStatus = (item) => {
   if (item.saleStatus === 'ON_SALE')  return 'active';
   if (item.saleStatus === 'UPCOMING') return 'soon';
@@ -58,7 +69,9 @@ const PageCard = ({ emoji, title, onBack, children }) => (
 /* ── QR 섹션 ── */
 const QRSection = ({ marketInfo, onReissue }) => {
   const [isReissuing, setIsReissuing] = useState(false);
-  const qrValue = `http://192.168.0.16:5173/market/scan/${marketInfo?.id}`;
+  // window.location.origin을 사용하여 현재 접속 환경의 URL을 자동으로 반영합니다.
+  // 하드코딩된 IP(예: 192.168.0.x)를 사용하면 다른 기기나 환경에서 QR이 동작하지 않습니다.
+  const qrValue = `${window.location.origin}/market/scan/${marketInfo?.id}`;
 
   const handleSave = () => {
     const canvas = document.querySelector('#qr-canvas canvas');
@@ -90,8 +103,8 @@ const QRSection = ({ marketInfo, onReissue }) => {
       <div className="mmp-qr-shop">{marketInfo?.name}</div>
       <div style={{ fontSize: '0.72rem', color: '#8a7a60', wordBreak: 'break-all', textAlign: 'center', marginTop: '4px' }}>{qrValue}</div>
       <div style={{ display: 'flex', gap: '10px', marginTop: '16px', width: '100%' }}>
-        <button className="mmp-primary-btn" style={{ flex: 2, background: MG, color: MT }} onClick={handleSave}>📥 QR 코드 저장</button>
-        <button className="mmp-primary-btn" style={{ flex: 1, background: MGD, color: 'white', fontSize: '0.85rem' }} onClick={handleReissue} disabled={isReissuing}>
+        <button className="mmp-primary-btn" style={{ flex: 1, background: MG, color: MT }} onClick={handleSave}>📥 QR 코드 저장</button>
+        <button className="mmp-primary-btn" style={{ flex: 1, background: MGD, color: 'white' }} onClick={handleReissue} disabled={isReissuing}>
           {isReissuing ? '재발급 중...' : '🔄 재발급'}
         </button>
       </div>
@@ -127,8 +140,9 @@ const DiscountSection = ({ products, onRefresh }) => {
               <span className="mmp-product-row-name">{item.name}</span>
               <span className="mmp-product-row-price">{item.originalPrice?.toLocaleString()}원</span>
               {hasDiscount && item.startTime && (
-                <span style={{ fontSize: '0.76rem', color: '#FF6B35' }}>
-                  {item.startTime.slice(11,16)}~{item.endTime?.slice(11,16)} · {item.discountRate}% 할인
+                <span style={{ fontSize: '0.76rem', color: '#FF6B35', display: 'block' }}>
+                  {fmtTime(item.startTime)} ~ {fmtTime(item.endTime)}<br />
+                  {item.discountRate}% 할인 · {item.discountPrice?.toLocaleString()}원
                 </span>
               )}
               {status === 'active' && <span className="mmp-badge-active">🔴 할인 중</span>}
@@ -161,20 +175,56 @@ export default function MarketMyPage() {
   const [products,  setProducts]  = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [market, itemList] = await Promise.all([getMyMarket(), getMarketItems()]);
-      setShopInfo(market);
-      setProducts(itemList || []);
-      if (market?.name) localStorage.setItem('shopName', market.name);
-    } catch (err) {
-      if (err.message === '로그인이 필요합니다') navigate('/market/login');
-    } finally { setIsLoading(false); }
-  };
+  const triggerRefresh = () => setRefreshKey(k => k + 1);
 
-  useEffect(() => { fetchData(); }, [navigate]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const [market, itemList] = await Promise.all([getMyMarket(), getMarketItems()]);
+        if (cancelled) return;
+        setShopInfo(market);
+        setProducts(itemList || []);
+        if (market?.name) localStorage.setItem('shopName', market.name);
+      } catch (err) {
+        if (!cancelled && err.message === '로그인이 필요합니다') navigate('/market/login');
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [navigate, refreshKey]);
+
+  // 만료된 할인 자동 취소
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    const now = Date.now();
+    const expired = products.filter(p =>
+      p.saleStatus !== 'NONE' && p.endTime && new Date(p.endTime).getTime() < now
+    );
+
+    if (expired.length > 0) {
+      Promise.all(expired.map(p => cancelSale(p.id).catch(() => {})))
+        .then(() => triggerRefresh());
+      return;
+    }
+
+    // 다음 만료 시각에 맞춰 자동 갱신 타이머 설정
+    const nextExpiry = products
+      .filter(p => p.saleStatus !== 'NONE' && p.endTime)
+      .map(p => new Date(p.endTime).getTime())
+      .filter(t => t > now)
+      .sort((a, b) => a - b)[0];
+
+    if (!nextExpiry) return;
+    const timer = setTimeout(() => triggerRefresh(), nextExpiry - now + 500);
+    return () => clearTimeout(timer);
+  }, [products]);
 
   const setActiveTab = (tab) => setSearchParams(tab === 'main' ? {} : { tab });
   const goBack = () => setActiveTab('main');
@@ -199,8 +249,8 @@ export default function MarketMyPage() {
       shopInfo={{ shopId: shopInfo?.id, bizNumber: shopInfo?.businessNumber, shopName: shopInfo?.name, ownerName: shopInfo?.ceoName, phone: shopInfo?.phone }}
       onBack={goBack} onSave={(u) => setShopInfo(p => ({ ...p, ...u }))} />
   );
-  if (activeTab === 'qr')       return <PageCard emoji="📱" title="QR 코드"  onBack={goBack}><QRSection marketInfo={shopInfo} onReissue={fetchData} /></PageCard>;
-  if (activeTab === 'discount') return <PageCard emoji="🏷️" title="할인 관리" onBack={goBack}><DiscountSection products={products} onRefresh={fetchData} /></PageCard>;
+  if (activeTab === 'qr')       return <PageCard emoji="📱" title="QR 코드"  onBack={goBack}><QRSection marketInfo={shopInfo} onReissue={triggerRefresh} /></PageCard>;
+  if (activeTab === 'discount') return <PageCard emoji="🏷️" title="할인 관리" onBack={goBack}><DiscountSection products={products} onRefresh={triggerRefresh} /></PageCard>;
 
   return (
     <div style={{ position: "relative" }}>
@@ -263,7 +313,7 @@ export default function MarketMyPage() {
               <div className="mmp-modal-desc">{shopName} 계정에서<br />로그아웃됩니다.</div>
               <div className="mmp-modal-btns">
                 <button className="mmp-modal-cancel" onClick={() => setLogoutOpen(false)}>취소</button>
-                <button className="mmp-modal-confirm" style={{ background: MG, color: MT, boxShadow: `0 3px 0 ${MGD}` }}
+                <button className="mmp-modal-confirm" style={{ background: MG, color: MT }}
                   onClick={() => { localStorage.clear(); navigate('/'); }}>
                   로그아웃
                 </button>
