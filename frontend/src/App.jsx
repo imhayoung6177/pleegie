@@ -96,6 +96,7 @@ const App = () => {
         <Route path="/user/register" element={<RegisterPage role="USER" />} />
         <Route path="/user/fridge" element={<FridgePage />} />
         <Route path="/user/mypage" element={<MyPage />} />
+        <Route path="/user/stamp/scan/:marketId" element={<QrScanPage />} />
 
         {/* ✅ 마이페이지 확장 메뉴 라우트 */}
         <Route path="/user/stamp" element={<StampPage />} />
