@@ -13,8 +13,6 @@ public class ReportResponse {
     private Long id;
     private Long writerId;
     private String writerName;
-    private String targetType;  // USER / MARKET
-    private Long targetId;
     private String title;
     private String content;
     private String status;      // PENDING / IN_PROGRESS / RESOLVED
@@ -26,8 +24,6 @@ public class ReportResponse {
         res.id = report.getId();
         res.writerId = report.getWriter().getId();
         res.writerName = report.getWriter().getName();
-        res.targetType = report.getTargetType();
-        res.targetId = report.getTargetId();
         res.title = report.getTitle();
         res.content = report.getContent();
         res.status = report.getStatus();

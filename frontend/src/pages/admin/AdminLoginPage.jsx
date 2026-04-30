@@ -23,10 +23,10 @@ const AdminLoginPage = () => {
     e.preventDefault();
     try {
       // 1. 서버에 로그인 요청을 보냅니다.
-      const response = await axios.post("http://localhost:8080/api/admin/login", {
-        loginId: loginId,
-        password: password,
-      });
+      const response = await axios.post("/admin/login", {
+      loginId,
+      password,
+    });
 
       // 🚀 [가장 중요] 백엔드가 ApiResponse 구조를 쓰므로 .data.data 에서 꺼내야 합니다!
       // response.data는 {success, message, data} 상자이고,
@@ -37,6 +37,8 @@ const AdminLoginPage = () => {
         // 🔐 금고(LocalStorage)에 정확하게 저장합니다.
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userRole",     "ADMIN");
+        localStorage.setItem("userName",     "관리자");
 
         alert("관리자 로그인 성공!");
 

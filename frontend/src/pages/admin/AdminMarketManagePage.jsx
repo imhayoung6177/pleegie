@@ -13,7 +13,7 @@ const AdminMarketManagePage = () => {
     const fetchMarkets = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        const response = await axios.get("http://localhost:8080/api/admin/markets", {
+        const response = await axios.get("/admin/markets", {
           headers: { Authorization: `Bearer ${token}` },
         });
         // 백엔드 AdminService.java의 getAllMarkets() 데이터 저장
@@ -39,7 +39,7 @@ const AdminMarketManagePage = () => {
     try {
       // 백엔드 AdminService의 approveMarket 또는 rejectMarket 호출
       await axios.put(
-        `http://localhost:8080/api/admin/markets/${marketId}/${actionType}`,
+        `/admin/markets/${marketId}/${actionType}`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

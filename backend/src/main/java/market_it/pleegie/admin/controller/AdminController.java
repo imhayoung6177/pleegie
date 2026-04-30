@@ -1,10 +1,12 @@
 package market_it.pleegie.admin.controller;
 
+import ch.qos.logback.classic.encoder.JsonEncoder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.admin.dto.AdminLoginRequest;
 import market_it.pleegie.admin.service.AdminService;
 import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.common.security.CustomAdminDetails;
 import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.notice.dto.NoticeCreateRequest;
 import market_it.pleegie.notice.dto.NoticeResponse;
@@ -13,6 +15,7 @@ import market_it.pleegie.user.dto.UserLoginResponse;
 import market_it.pleegie.user.dto.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,21 +23,22 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api") // [준호 추가] 클래스 상단에 이 한 줄을 추가하면 모든 메서드 주소 앞에 /api가 붙습니다!
+@RequestMapping("/admin") // [준호 추가] 클래스 상단에 이 한 줄을 추가하면 모든 메서드 주소 앞에 /api가 붙습니다!
 public class AdminController {
 
     private final AdminService adminService;
+    private final PasswordEncoder passwordEncoder;
 
     // ── 관리자 로그인 ─────────────────────────
 
-    @PostMapping("/admin/login")
+    @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserLoginResponse>>
     login(@Valid @RequestBody AdminLoginRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.login(request)));
     }
 
-    @GetMapping("/admin/dashboard") // [준호 추가]
+    @GetMapping("/dashboard") // [준호 추가]
     public ResponseEntity<ApiResponse<Map<String, String>>> getDashboardInfo() {
         Map<String, String> data = Map.of("name", "관리자");
 
@@ -43,14 +47,14 @@ public class AdminController {
 
     // ── 회원 관리 ─────────────────────────────
 
-    @GetMapping("/admin/users")
+    @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserResponse>>>
     getAllUsers() {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.getAllUsers()));
     }
 
-    @PutMapping("/admin/users/{userId}/status")
+    @PutMapping("/users/{userId}/status")
     public ResponseEntity<ApiResponse<UserResponse>>
     updateUserStatus(
             @PathVariable Long userId,
@@ -62,14 +66,14 @@ public class AdminController {
 
     // ── 사업자 관리 ───────────────────────────
 
-    @GetMapping("/admin/markets")
+    @GetMapping("/markets")
     public ResponseEntity<ApiResponse<List<UserResponse>>>
     getAllMarkets() {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.getAllMarkets()));
     }
 
-    @PutMapping("/admin/markets/{marketId}/approve")
+    @PutMapping("/markets/{marketId}/approve")
     public ResponseEntity<ApiResponse<UserResponse>>
     approveMarket(@PathVariable Long marketId) {
         return ResponseEntity.ok(
@@ -77,7 +81,7 @@ public class AdminController {
                         adminService.approveMarket(marketId)));
     }
 
-    @PutMapping("/admin/markets/{marketId}/reject")
+    @PutMapping("/markets/{marketId}/reject")
     public ResponseEntity<ApiResponse<UserResponse>>
     rejectMarket(@PathVariable Long marketId) {
         return ResponseEntity.ok(
@@ -87,7 +91,7 @@ public class AdminController {
 
     // ── 신고 관리 ─────────────────────────────
 
-    @GetMapping("/admin/reports")
+    @GetMapping("/reports")
     public ResponseEntity<ApiResponse<List<ReportResponse>>>
     getAllReports(
             @RequestParam(required = false) String status) {
@@ -97,7 +101,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok(reports));
     }
 
-    @PutMapping("/admin/reports/{reportId}/status")
+    @PutMapping("/reports/{reportId}/status")
     public ResponseEntity<ApiResponse<ReportResponse>>
     updateReportStatus(
             @PathVariable Long reportId,
@@ -109,25 +113,25 @@ public class AdminController {
 
     // ── 공지 관리 ─────────────────────────────
 
-    @GetMapping("/admin/notices")
+    @GetMapping("/notices")
     public ResponseEntity<ApiResponse<List<NoticeResponse>>>
     getAllNotices() {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.getAllNotices()));
     }
 
-    @PostMapping("/admin/notices")
+    @PostMapping("/notices")
     public ResponseEntity<ApiResponse<NoticeResponse>>
     createNotice(
             @AuthenticationPrincipal
-            CustomUserDetails userDetails,
+            CustomAdminDetails adminDetails,
             @Valid @RequestBody NoticeCreateRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService.createNotice(
-                        userDetails.getUserId(), request)));
+                        adminDetails.getAdminId(), request)));
     }
 
-    @PutMapping("/admin/notices/{noticeId}")
+    @PutMapping("/notices/{noticeId}")
     public ResponseEntity<ApiResponse<NoticeResponse>>
     updateNotice(
             @PathVariable Long noticeId,
@@ -137,7 +141,7 @@ public class AdminController {
                         noticeId, request)));
     }
 
-    @DeleteMapping("/admin/notices/{noticeId}")
+    @DeleteMapping("/notices/{noticeId}")
     public ResponseEntity<ApiResponse<Void>>
     deleteNotice(@PathVariable Long noticeId) {
         adminService.deleteNotice(noticeId);
@@ -147,7 +151,7 @@ public class AdminController {
 
     // ── 지역화폐 관리 ─────────────────────────
 
-    @GetMapping("/admin/local-currency")
+    @GetMapping("/local-currency")
     public ResponseEntity<ApiResponse<?>>
     getLocalCurrencyRequests() {
         return ResponseEntity.ok(
@@ -155,27 +159,32 @@ public class AdminController {
                         .getLocalCurrencyRequests()));
     }
 
-    @PutMapping("/admin/local-currency/{logId}/approve")
+    @PutMapping("/local-currency/{logId}/approve")
     public ResponseEntity<ApiResponse<Void>>
     approveLocalCurrency(
             @PathVariable Long logId,
             @AuthenticationPrincipal
-            CustomUserDetails userDetails) {
+            CustomAdminDetails adminDetails) {
         adminService.approveLocalCurrency(
-                logId, userDetails.getUserId());
+                logId, adminDetails.getAdminId());
         return ResponseEntity.ok(
                 ApiResponse.ok("지역화폐가 승인되었습니다", null));
     }
 
-    @PutMapping("/admin/local-currency/{logId}/reject")
+    @PutMapping("/local-currency/{logId}/reject")
     public ResponseEntity<ApiResponse<Void>>
     rejectLocalCurrency(
             @PathVariable Long logId,
             @AuthenticationPrincipal
-            CustomUserDetails userDetails) {
+            CustomAdminDetails adminDetails) {
         adminService.rejectLocalCurrency(
-                logId, userDetails.getUserId());
+                logId, adminDetails.getAdminId());
         return ResponseEntity.ok(
                 ApiResponse.ok("지역화폐가 반려되었습니다", null));
+    }
+
+    @GetMapping("/hash")
+    public ResponseEntity<String> hash() {
+        return ResponseEntity.ok(passwordEncoder.encode("admin"));
     }
 }
