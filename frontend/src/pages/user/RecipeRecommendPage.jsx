@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
-import '../../components/ui/KakaoMap';
+import KakaoMap from '../../components/ui/KakaoMap';
 
 /**
  * RecipeRecommendPage.jsx
@@ -344,8 +344,11 @@ export default function RecipeRecommendPage() {
                         </p>
                         <button
                             onClick={async()=>{
+                              console.log("버튼클릭됨");
+                              console.log("부족한 재료:", selectedRecipe.missing_ingredients);
                                         setMapLoading(true);
                                         setShowMap(true);
+                                        console.log("showMap:",true)
 
                                         const getLocation = () => new Promise((resolve)=>{
                                             navigator.geolocation.getCurrentPosition(
@@ -370,6 +373,10 @@ export default function RecipeRecommendPage() {
                                                 })
                                             });
                                             const json = await res.json();
+                                            console.log("시장 데이터:", json);
+setMapMarkets(json.data?.markets || []);
+console.log("mapMarkets:", json.data?.markets);
+                                            
                                             setMapMarkets(json.data?.markets || []);
                                         }catch(err){
                                             console.error('시장 검색 실패:',err);

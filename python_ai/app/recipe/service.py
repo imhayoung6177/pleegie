@@ -254,6 +254,18 @@ def parse_api_recipes(
             if not is_ingredient_available(ing, fridge_ingredients)
         ]
 
+        clean_missing = []
+        for ing in recalculated_missing:
+            clean = re.sub(
+                r"\s*\d+(\.\d+)?\s*(g|ml|kg|L|개|큰술|작은술|컵|줄기|알|장|마리|인분|조각).*",
+                "",
+                ing,
+            )
+            clean = re.sub(r"\s*[:：].*", "", clean)
+            clean = clean.strip()
+            if clean:
+                clean_missing.append(clean)
+
         ingredients_text = " ".join(recipe_ingredients)
         match_score = calculate_match_score(recipe_ingredients, fridge_ingredients)
         has_expiring = has_expiring_ingredient(ingredients_text, expiring_ingredients)
@@ -266,7 +278,7 @@ def parse_api_recipes(
                 title=title,
                 description="",
                 ingredients=recipe_ingredients,
-                missing_ingredients=recalculated_missing,
+                missing_ingredients=clean_missing,
                 match_score=match_score,
                 has_expiring=has_expiring,
                 cooking_steps=cooking_steps,
@@ -336,6 +348,18 @@ def parse_llm_recipes(
             if not is_ingredient_available(ing, fridge_ingredients)
         ]
 
+        clean_missing = []
+        for ing in recalculated_missing:
+            clean = re.sub(
+                r"\s*\d+(\.\d+)?\s*(g|ml|kg|L|개|큰술|작은술|컵|줄기|알|장|마리|인분|조각).*",
+                "",
+                ing,
+            )
+            clean = re.sub(r"\s*[:：].*", "", clean)
+            clean = clean.strip()
+            if clean:
+                clean_missing.append(clean)
+
         ingredients_text = " ".join(recipe_ingredients)
         match_score = calculate_match_score(recipe_ingredients, fridge_ingredients)
         has_expiring = has_expiring_ingredient(ingredients_text, expiring_ingredients)
@@ -345,7 +369,7 @@ def parse_llm_recipes(
                 title=f"[AI] {lines.get('제목', '')}",
                 description=lines.get("설명", ""),
                 ingredients=recipe_ingredients,
-                missing_ingredients=recalculated_missing,
+                missing_ingredients=clean_missing,
                 match_score=match_score,
                 has_expiring=has_expiring,
                 cooking_steps=cooking_steps,

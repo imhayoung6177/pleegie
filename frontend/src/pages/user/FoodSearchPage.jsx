@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { resolvePath, useLocation, useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
-import '../../components/ui/KakaoMap';
+import KakaoMap from '../../components/ui/KakaoMap';
 
 export default function FoodSearchPage() {
     const navigate = useNavigate();

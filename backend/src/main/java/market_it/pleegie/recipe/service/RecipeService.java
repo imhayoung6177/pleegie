@@ -115,8 +115,15 @@ public class RecipeService {
             List<MissingItemResponse.ItemInfo> itemInfos = new ArrayList<>();
 
             for (String ingredientName : request.getMissingIngredients()) {
+                // 재료명 정제 - 용량 제거
+                String cleanName = ingredientName
+                        .replaceAll("\\s*\\d+(\\.\\d+)?\\s*(g|ml|kg|L|개|큰술|작은술|컵|줄기|알|장|마리).*", "")
+                                .replaceAll("\\s*:.*","")
+                                        .trim();
                 // item_master에서 재료 찾기
-                itemMasterRepository.findByName(ingredientName).ifPresent(itemMaster -> {
+                itemMasterRepository.findByNameContaining(cleanName).stream()
+                                .findFirst()
+                        .ifPresent(itemMaster -> {
                     // 해당 시장에서 재료 판매 여부 확인
                     marketItemRepository.findByMarketIdsAndItemMasterId(marketIds, itemMaster.getId())
                             .stream()

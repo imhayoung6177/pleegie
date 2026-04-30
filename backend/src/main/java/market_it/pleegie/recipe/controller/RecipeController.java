@@ -39,7 +39,7 @@ public class RecipeController {
     }
 
     // 부족한 재료 시장 검색
-    @PostMapping("/recipe/missing-items")
+    @PostMapping("/market/missing-items")
     public  ResponseEntity<ApiResponse<MissingItemResponse>>
     findMissingItems(
             @RequestBody MissingItemRequest request){
