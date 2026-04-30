@@ -17,19 +17,60 @@ const HomePage = () => {
 
   // [추가] 로그인 상태 체크: 관리자라면 메인 페이지 접근 금지!
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const role = localStorage.getItem("userRole");
-    if (token) {
-      // 관리자 토큰이 있다면, 메인 페이지를 보여주지 않고 즉시 대시보드로 보냅니다.
-      // replace: true를 써서 브라우저 기록에 메인 페이지가 남지 않게 합니다.
-      if (role === "ADMIN") {
-            navigate("/admin/dashboard", { replace: true });
-        } else if (role === "MARKET") {
-            navigate("/market/main", { replace: true });
-        } else if (role === "USER") {
-            navigate("/user/fridge", { replace: true });
-        }
+  const token = localStorage.getItem("accessToken");
+  const role = localStorage.getItem("userRole");
+
+  if (!token) return;
+
+  // 토큰 만료 여부 확인
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const isExpired = payload.exp * 1000 < Date.now();
+
+    if (isExpired) {
+      // accessToken 만료시 refreshToken으로 재발급 시도
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken) {
+        localStorage.clear();
+        return;
+      }
+
+      // refreshToken으로 재발급
+      fetch('/user/reissue', {
+        method: 'POST',
+        headers: {
+          'Refresh-Token': refreshToken,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.setItem('accessToken', data.data.accessToken);
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+            // 재발급 성공시 역할에 맞게 이동
+            if (role === "ADMIN") navigate("/admin/dashboard", { replace: true });
+            else if (role === "MARKET") navigate("/market/main", { replace: true });
+            else if (role === "USER") navigate("/user/fridge", { replace: true });
+          } else {
+            // 재발급 실패시 로그아웃 처리
+            localStorage.clear();
+          }
+        })
+        .catch(() => localStorage.clear());
+
+      return;
     }
+
+    // 토큰 유효시 역할에 맞게 이동
+    if (role === "ADMIN") navigate("/admin/dashboard", { replace: true });
+    else if (role === "MARKET") navigate("/market/main", { replace: true });
+    else if (role === "USER") navigate("/user/fridge", { replace: true });
+
+  } catch {
+    // 토큰 파싱 실패시 로그아웃 처리
+    localStorage.clear();
+  }
 }, [navigate]);
 
   const handleLogin = (role) => {

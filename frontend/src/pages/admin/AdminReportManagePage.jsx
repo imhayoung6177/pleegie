@@ -1,27 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminCommon.css"; // 🎨 공통 디자인 설계도 연결
+import axios from "axios";
 
 const AdminReportManagePage = () => {
   const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
 
-  // 1. 신고 내역 (State)
-  const [reports, setReports] = useState([
-    { id: 1, date: "2026-04-24", reporter: "김철수", target: "불량판매자", reason: "허위 매물 등록", status: "접수" },
-    { id: 2, date: "2026-04-24", reporter: "이영희", target: "악성유저", reason: "채팅창 욕설", status: "처리 중" },
-  ]);
+  useEffect(() => {
+    const fetchReports = async () => {
+      const token = localStorage.getItem("accessToken");
+      try {
+        const response = await axios.get("/admin/reports", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setReports(response.data.data || []);
+      } catch (error) {
+        console.error("신고 목록 로딩 실패:", error);
+      }
+    };
+    fetchReports();
+  }, []);
 
   // 2. 신고 처리 함수
   // 관리자가 결정을 내리면 장부를 업데이트하고 신고자에게 알림을 보냅니다.
-  const handleReportAction = (id, reporter, action) => {
-    if (window.confirm(`${reporter}님의 신고에 대해 [${action}] 조치를 취하시겠습니까?`)) {
-      // 1) 장부 업데이트: 해당 신고 건의 상태를 '완료'로 변경
-      setReports(reports.map((r) => (r.id === id ? { ...r, status: action + " 완료" } : r)));
+ const handleReportAction = async (id, status) => {
+  const token = localStorage.getItem("accessToken");
+  if (!window.confirm(`처리하시겠습니까?`)) return;
 
-      // 2) 결과 통보: 실제 서비스에서는 알림톡이나 이메일 전송 API가 들어갈 자리입니다.
-      alert(`📢 신고자(${reporter}님)에게 [${action}] 처리 결과가 통보되었습니다.`);
-    }
-  };
+  try {
+    await axios.put(
+      `/admin/reports/${id}/status`,
+      { status },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setReports(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+    alert("✅ 처리 완료되었습니다.");
+  } catch (error) {
+    console.error("처리 실패:", error);
+    alert("처리 중 오류가 발생했습니다.");
+  }
+};
 
   return (
     // dashboard-mode 클래스로 통일된 배경 이미지를 적용합니다.
@@ -56,9 +75,9 @@ const AdminReportManagePage = () => {
             <thead>
               <tr>
                 <th>신고일</th>
-                <th>신고자</th>
-                <th>피신고자</th>
-                <th>사유</th>
+                <th>접수자</th>
+                <th>제목</th>
+                <th>내용</th>
                 <th>상태</th>
                 <th>관리 액션</th>
               </tr>
@@ -67,54 +86,42 @@ const AdminReportManagePage = () => {
               {reports.length > 0 ? (
                 reports.map((r) => (
                   <tr key={r.id}>
-                    <td>{r.date}</td>
-                    <td>{r.reporter}</td>
-                    <td style={{ fontWeight: "bold" }}>{r.target}</td>
-                    <td style={{ textAlign: "left" }}>{r.reason}</td>
+                    <td>{new Date(r.createdAt).toLocaleDateString('ko-KR')}</td>
+                    <td>{r.writerName || '-'}</td>
+                    <td style={{ fontWeight: "bold" }}>{r.title || '-'}</td>
+                    <td style={{ textAlign: "left" }}>{r.content}</td>
                     <td>
                       {/* 상태에 따른 배지 색상 구분 */}
                       <span
-                        className={`status-badge ${r.status.includes("완료") ? "status-normal" : "status-stopped"}`}
+                        className={`status-badge ${r.status === "RESOLVED" ? "status-normal" : "status-stopped"}`}
                       >
-                        {r.status}
+                        {r.status === "PENDING" ? "접수" : r.status === "IN_PROGRESS" ? "처리 중" : "완료"}
                       </span>
                     </td>
                     <td>
                       {/* 조건부 렌더링: 처리가 끝나지 않은 건만 버튼 노출 */}
-                      {r.status.includes("완료") ? (
-                        <span style={{ color: "#999", fontSize: "12px" }}>처리 완료</span>
-                      ) : (
-                        <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
-                          <button
-                            className="admin-action-btn"
-                            style={{ backgroundColor: "#faad14", color: "white" }}
-                            onClick={() => handleReportAction(r.id, r.reporter, "경고")}
-                          >
-                            경고
-                          </button>
-                          <button
-                            className="admin-action-btn"
-                            style={{ backgroundColor: "#ff4d4f", color: "white" }}
-                            onClick={() => handleReportAction(r.id, r.reporter, "정지")}
-                          >
-                            정지
-                          </button>
-                          <button
-                            className="admin-action-btn"
-                            style={{ backgroundColor: "#bfbfbf", color: "white" }}
-                            onClick={() => handleReportAction(r.id, r.reporter, "반려")}
-                          >
-                            반려
-                          </button>
-                        </div>
-                      )}
+                      {r.status === "RESOLVED" ? (
+                      <span style={{ color: "#999", fontSize: "12px" }}>처리 완료</span>
+                    ) : (
+                      <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
+                        <button className="admin-action-btn"
+                          style={{ backgroundColor: "#faad14", color: "white" }}
+                          onClick={() => handleReportAction(r.id, "IN_PROGRESS")}>처리중</button>
+                        <button className="admin-action-btn"
+                          style={{ backgroundColor: "#ff4d4f", color: "white" }}
+                          onClick={() => handleReportAction(r.id, "RESOLVED")}>완료</button>
+                        <button className="admin-action-btn"
+                          style={{ backgroundColor: "#bfbfbf", color: "white" }}
+                          onClick={() => handleReportAction(r.id, "REJECTED")}>반려</button>
+                      </div>
+                    )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td colSpan="6" style={{ padding: "40px", color: "#999" }}>
-                    접수된 신고 내역이 없습니다.
+                    접수된 불편사항이 없습니다.
                   </td>
                 </tr>
               )}

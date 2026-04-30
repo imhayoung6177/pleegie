@@ -52,13 +52,8 @@ public class SecurityConfig {
 
                 // URL별 접근 권한
                 .authorizeHttpRequests(auth -> auth
-
-                        // 관리자만 접근 가능[준호 추가]
-                        .requestMatchers("/api/admin/login").permitAll()
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
-
                         // 누구나 접근 가능
+                                .requestMatchers("/admin/login","/admin/hash").permitAll()
                         .requestMatchers(
                                 "/",
                                 "/intro",
@@ -66,8 +61,6 @@ public class SecurityConfig {
                                 "/user/signup",
                                 "/market/login",
                                 "/market/signup",
-                                "/admin/login",
-                                "/api/admin/login",
                                 "/recipe/missing-items"
 //                                "/swagger-ui/**", //swagger테스트 후 삭제할게요 (하영) build.gradle도 수정 필요
 //                                "/v3/api-docs/**"
@@ -79,6 +72,7 @@ public class SecurityConfig {
                                 "/oauth2/**"
                         ).permitAll()
 
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 사업자만 접근 가능
                         .requestMatchers(
                                 HttpMethod.POST, "/market/items/**")

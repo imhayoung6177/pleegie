@@ -29,12 +29,6 @@ public class ReportService {
     @Transactional
     public void createReport(Long writerId, ReportCreateRequest request) {
 
-        // 1. 중복 신고 확인 (같은 사람이 같은 대상을 또 신고하는지)
-        if (reportRepository.existsByWriterIdAndTargetTypeAndTargetId(
-                writerId, request.getTargetType(), request.getTargetId())) {
-            throw new CustomException(ErrorCode.DUPLICATE_REPORT);
-        }
-
         // 2. 작성자 정보 가져오기
         User writer = userRepository.findById(writerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

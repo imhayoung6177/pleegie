@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
-import market_it.pleegie.common.util.QrCodeUtil;
 import market_it.pleegie.coupon.entity.Coupon;
 import market_it.pleegie.coupon.repository.CouponRepository;
 import market_it.pleegie.item.entity.ItemMaster;
@@ -35,7 +34,6 @@ public class MarketService {
     private final UserRepository userRepository;
     private final ItemMasterRepository itemMasterRepository;
     private final CouponRepository couponRepository;
-    private final QrCodeUtil qrCodeUtil;
 
     // ── 시장 등록 ─────────────────────────────
 
@@ -58,9 +56,6 @@ public class MarketService {
         // QR 토큰 생성
         String qrToken = UUID.randomUUID().toString();
 
-        //QR 코드 이미지 생성
-        String qrCodeUrl = qrCodeUtil.generateQrCodeUrl(qrToken);
-
         Market market = Market.builder()
                 .user(user)
                 .name(request.getName())
@@ -70,7 +65,6 @@ public class MarketService {
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .qrToken(qrToken)
-                .qrCodeUrl(qrCodeUrl)
                 .build();
 
         marketRepository.save(market);
@@ -126,9 +120,8 @@ public class MarketService {
 
         // 새 QR 토큰 생성
         String newQrToken = UUID.randomUUID().toString();
-        String newQrCodeUrl = qrCodeUtil.generateQrCodeUrl(newQrToken);
 
-        market.updateQr(newQrToken, newQrCodeUrl);
+        market.updateQr(newQrToken, null);
 
         log.info("QR 재발급 완료 - marketId: {}", market.getId());
 

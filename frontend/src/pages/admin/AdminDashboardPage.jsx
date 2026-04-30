@@ -12,7 +12,7 @@ const AdminDashboardPage = () => {
       const token = localStorage.getItem("accessToken");
       try {
         // 서버 연결 확인 (실제 엔드포인트에 맞춰 조절)
-        await axios.get("http://localhost:8080/api/admin/users", {
+        await axios.get("/admin/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAdminName("관리자");
