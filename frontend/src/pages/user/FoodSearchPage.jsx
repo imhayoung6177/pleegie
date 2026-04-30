@@ -386,7 +386,7 @@ export default function FoodSearchPage() {
                         {selectedRecipe.missing_ingredients?.length > 0 && (
                             <div className="detail-section">
                                 <h3>🛒 부족한 재료</h3>
-                                <p className="missing-alert">
+                                <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
                                     ⚠️ {selectedRecipe.missing_ingredients
                                         .join(', ')}
                                 </p>
@@ -443,17 +443,30 @@ export default function FoodSearchPage() {
                                 </button>
                             </div>
                         )}
-                        <div className='detail-section'>
+                        {/* 🍳 요리법 */}
+                            <div className='detail-section'>
                             <h3>🍳 요리법</h3>
-                            <p style={{
-                                color: '#5a4a32',
-                                lineHeight: 1.8,
-                                whiteSpace: 'pre-wrap'
-                            }}>
-                                {selectedRecipe.cooking_steps}
-                            </p>
-                      </div>
+                            <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
+                                {Array.isArray(selectedRecipe.cooking_steps)
+                                ? selectedRecipe.cooking_steps.map((step, i) => (
+                                    <li key={i}>{step}</li>
+                                    ))
+                                : <li>{selectedRecipe.cooking_steps}</li>  // 혹시 string으로 올 경우 대비
+                                }
+                            </ol>
+                            </div>
 
+                            {/* 소스/양념 만드는 법 (있을 경우만 표시) */}
+                            {selectedRecipe.sauce_steps?.length > 0 && (
+                            <div className='detail-section'>
+                                <h3>🥣 소스/양념 만드는 법</h3>
+                                <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
+                                {selectedRecipe.sauce_steps.map((step, i) => (
+                                    <li key={i}>{step}</li>
+                                ))}
+                                </ol>
+                            </div>
+                            )}
                         {/* 레시피북 저장 */}
                         <div className="detail-section">
                             <button

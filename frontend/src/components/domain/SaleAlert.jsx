@@ -87,20 +87,17 @@ export const SaleAlertButton = ({ item, onClick }) => {
       background: 'rgba(255,255,255,0.8)',
       color: '#2a1f0e',
       border: '1.5px solid rgba(0,0,0,0.1)',
-      boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
     },
     soon: {
       background: 'rgba(253,213,55,0.3)',
       color: '#D94F1E',
       border: '1.5px solid rgba(253,213,55,0.8)',
-      boxShadow: '0 2px 10px rgba(253,213,55,0.3)',
       animation: 'soonPulse 1.8s ease-in-out infinite',
     },
     active: {
       background: '#E53535',
       color: 'white',
       border: '1.5px solid #C82020',
-      boxShadow: '0 3px 0 #A01010, 0 5px 16px rgba(229,53,53,0.35)',
     },
   };
 
@@ -108,8 +105,8 @@ export const SaleAlertButton = ({ item, onClick }) => {
     <>
       <style>{`
         @keyframes soonPulse {
-          0%,100% { box-shadow: 0 2px 10px rgba(253,213,55,0.3); }
-          50%      { box-shadow: 0 2px 18px rgba(253,213,55,0.6); }
+          0%,100% { border-color: rgba(253,213,55,0.4); }
+          50%      { border-color: rgba(253,213,55,1); }
         }
         .sale-alert-btn:hover { transform: translateY(-2px); }
         .sale-alert-btn:active { transform: translateY(0); }

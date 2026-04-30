@@ -17,8 +17,7 @@ import ChatbotPage from "./pages/user/ChatbotPage";
 import StampPage from "./pages/user/StampPage";
 import ReportPage from "./pages/user/ReportPage";
 // import CouponPage from "./pages/user/CouponPage"; // 파일 생성 시 주석 해제
-import CurrencyPage from "./pages/user/LocalCurrencyPage.jsx"; // 파일 생성 시 주석 해제
-
+import LocalCurrencyPage from "./pages/user/LocalCurrencyPage.jsx"; 
 // 소상공인 관련
 import MarketLoginPage from "./pages/auth/MarketLoginPage";
 import MarketRegisterPage from "./pages/auth/MarketRegisterPage";
@@ -101,8 +100,7 @@ const App = () => {
         {/* ✅ 마이페이지 확장 메뉴 라우트 */}
         <Route path="/user/stamp" element={<StampPage />} />
         <Route path="/user/report" element={<ReportPage />} />
-        <Route path="/user/currency" element={<CurrencyPage />} />
-        {/* <Route path="/user/coupon" element={<CouponPage />} /> */}
+        <Route path="/user/local-currency" element={<LocalCurrencyPage />} />        {/* <Route path="/user/coupon" element={<CouponPage />} /> */}
 
         {/* AI 및 편의 기능 */}
         <Route path="/user/recipe-recommend" element={<RecipeRecommendPage />} />

@@ -89,11 +89,6 @@ export default function RecipeRecommendPage() {
         // Spring Boot API로 변경
         method: 'GET',
         headers: getAuthHeaders(),
-        // ✅ Python 서버는 JWT 토큰 불필요 (인증 없음)
-        // body: JSON.stringify({
-        //   ingredients,
-        //   expiring_ingredients: expiringIngredients,
-        // }),
       });
 
       if (!recipeRes.ok) {
@@ -198,7 +193,7 @@ export default function RecipeRecommendPage() {
                 onClick={() => navigate('/user/fridge')}
                 style={{
                   padding: '12px 24px', background: 'transparent',
-                  color: '#8a7a60', border: '1.5px solid #ddd',
+                  color: '#2a1f0e', border: '1.5px solid #ddd',fontWeight : 700,
                   borderRadius: '12px', cursor: 'pointer',
                 }}
               >
@@ -344,7 +339,7 @@ export default function RecipeRecommendPage() {
              {selectedRecipe.missing_ingredients?.length > 0 && (
                     <div className="detail-section">
                         <h3>🛒 부족한 재료</h3>
-                        <p className="missing-alert">
+                        <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
                             ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
                         </p>
                         <button
@@ -398,16 +393,30 @@ export default function RecipeRecommendPage() {
                         </button>
                     </div>
                 )}
+                {/* 🍳 요리법 */}
                 <div className='detail-section'>
                   <h3>🍳 요리법</h3>
-                  <p style={{
-                      color: '#5a4a32',
-                      lineHeight: 1.8,
-                      whiteSpace: 'pre-wrap'
-                  }}>
-                      {selectedRecipe.cooking_steps}
-                  </p>
+                  <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
+                    {Array.isArray(selectedRecipe.cooking_steps)
+                      ? selectedRecipe.cooking_steps.map((step, i) => (
+                          <li key={i}>{step}</li>
+                        ))
+                      : <li>{selectedRecipe.cooking_steps}</li>  // 혹시 string으로 올 경우 대비
+                    }
+                  </ol>
                 </div>
+
+                {/* 소스/양념 만드는 법 (있을 경우만 표시) */}
+                {selectedRecipe.sauce_steps?.length > 0 && (
+                  <div className='detail-section'>
+                    <h3>🥣 소스/양념 만드는 법</h3>
+                    <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
+                      {selectedRecipe.sauce_steps.map((step, i) => (
+                        <li key={i}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
             {/* 레시피북 저장 버튼 */}
             <div className="detail-section">
               <button

@@ -26,5 +26,8 @@ public class RecipeItemResult {
     private Boolean hasExpiring;
 
     @JsonProperty("cooking_steps")
-    private String cookingSteps;
+    private List<String> cookingSteps;
+
+    @JsonProperty("sauce_steps")
+    private List<String> sauceSteps;
 }

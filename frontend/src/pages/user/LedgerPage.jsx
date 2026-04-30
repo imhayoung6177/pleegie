@@ -92,7 +92,7 @@ const LedgerPage = () => {
         marginBottom: '16px',
         border: '1.5px solid rgba(0,0,0,0.08)',
       }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fdd537', marginBottom: '10px' }}>
+        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'black', marginBottom: '10px' }}>
           + 지출 직접 입력
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -120,7 +120,7 @@ const LedgerPage = () => {
       {/* 지출 목록 (백엔드 데이터 렌더링) */}
       <div style={{ background: 'rgba(255,255,255,0.7)', borderRadius: '16px', padding: '8px' }}>
         {items.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#aaa', padding: '24px 0' }}>아직 지출 내역이 없어요</p>
+          <p style={{ textAlign: 'center', color: '#2a1f0e', padding: '24px 0' }}>아직 지출 내역이 없어요</p>
         ) : items.map(item => (
           <div key={item.id} style={{ display: 'flex', alignItems: 'center', padding: '14px 10px', borderBottom: '1px dashed rgba(0,0,0,0.08)' }}>
             <div style={{ fontSize: '1.3rem', marginRight: '12px' }}>
@@ -134,7 +134,7 @@ const LedgerPage = () => {
                 {new Date(item.purchaseDate).toLocaleDateString('ko-KR')}
               </div>
             </div>
-            <div style={{ fontWeight: 800, color: '#fdd537', marginRight: '10px' }}>
+            <div style={{ fontWeight: 800, color: '#2a1f0e', marginRight: '10px' }}>
               -{item.total.toLocaleString()}원
             </div>
             <button

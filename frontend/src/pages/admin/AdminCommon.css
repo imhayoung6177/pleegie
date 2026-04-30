@@ -80,7 +80,6 @@
   font-weight: bold;
   cursor: pointer;
   margin-top: 15px;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
   transition: all 0.2s;
 }
 
@@ -167,7 +166,6 @@
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(255, 107, 53, 0.2);
   transition: all 0.2s ease;
   line-height: 1;
 }

@@ -116,7 +116,7 @@ const MarketLoginPage = () => {
             </div>
 
             <button type="submit" className="auth-submit-btn" disabled={isLoading}
-              style={{ background: MG, color: MT, boxShadow: `0 3px 0 ${MGD}` }}>
+              style={{ background: MG, color: MT }}>
               {isLoading ? "로그인 중..." : "상인 로그인"}
             </button>
           </form>

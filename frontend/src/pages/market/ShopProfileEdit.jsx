@@ -186,7 +186,7 @@ const ShopProfileEdit = ({ shopInfo, onBack, onSave }) => {
             <button
               type="submit"
               className="auth-submit-btn"
-              style={{ marginTop: '8px', width: '100%', background: MG, color: MT, boxShadow: `0 3px 0 ${MGD}` }}
+              style={{ marginTop: '8px', width: '100%', background: MG, color: MT }}
             >
               {saved ? '✅ 저장 완료!' : '수정 완료'}
             </button>
