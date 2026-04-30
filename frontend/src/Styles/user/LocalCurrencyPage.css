@@ -104,7 +104,7 @@
 .lc-item-amount.used { color: #2a1f0e; } /* 사용한 금액은 검은색 */
 
 .lc-badge {
-  font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 700;
+  font-size: 0.95rem; padding: 6px 12px; border-radius: 8px; font-weight: 700;
   white-space: nowrap;
 }
 .lc-badge.requested { background: #fff8e1; color: #fdd537; border: 1px solid #fdd537; }
