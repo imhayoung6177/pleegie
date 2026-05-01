@@ -35,7 +35,7 @@ const AdminDashboardPage = () => {
   const handleLogout = () => {
     localStorage.clear();
     alert("안전하게 로그아웃 되었습니다.");
-    navigate("/admin/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (
