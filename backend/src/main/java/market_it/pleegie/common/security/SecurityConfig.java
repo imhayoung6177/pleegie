@@ -79,7 +79,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/login").permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
-                        
+
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 사업자만 접근 가능
                         .requestMatchers(
