@@ -54,19 +54,20 @@ export default function MyPage() {
     'Content-Type': 'application/json',
   });
 
-  // ✅ 데이터 로딩 (유저 정보)
+  // ✅ 유저 정보 가져오기 함수 분리 (재사용 목적)
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch('/user/mypage', { headers: getAuthHeaders() });
+      const result = await response.json();
+      if (response.ok) setUserInfo(result.data);
+    } catch (err) {
+      console.error("회원 정보 로딩 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/user/mypage', { headers: getAuthHeaders() });
-        const result = await response.json();
-        if (response.ok) setUserInfo(result.data);
-      } catch (err) {
-        console.error("회원 정보 로딩 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUserData();
   }, []);
 
@@ -81,7 +82,10 @@ export default function MyPage() {
     }
   };
 
-  const goBackMain = () => setSearchParams({});
+  const goBackMain = () => {
+    setSearchParams({});
+    fetchUserData(); // 💡 정보 수정 후 메인으로 돌아올 때 최신 정보를 다시 불러옴
+  };
 
   const handleWithdraw = async () => {
     try {

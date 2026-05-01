@@ -493,6 +493,13 @@ export default function FridgePage() {
         </h1>
         <div className="header-actions">
           <button
+            className="header-report-btn"
+            style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: '#fdd537', color: '#2a1f0e', fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }}
+            onClick={() => navigate('/user/report')}
+          >
+            📢 신고하기
+          </button>
+          <button
             className="header-user-btn"
             style={{ display: 'flex', alignItems: 'center', height: '36px', boxSizing: 'border-box', background: '#fdd537', color: '#2a1f0e', fontWeight: 'bold', border: '2px solid #2a1f0e', borderRadius: '12px', padding: '0 14px', fontSize: '0.95rem', fontFamily: 'var(--font-title)', cursor: 'pointer' }}
             onClick={() => navigate('/user/mypage')}
