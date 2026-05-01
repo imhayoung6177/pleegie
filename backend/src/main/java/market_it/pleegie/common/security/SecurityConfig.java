@@ -74,13 +74,12 @@ public class SecurityConfig {
                                 "/oauth2/**"
                         ).permitAll()
 
-<<<<<<< HEAD
+
                         // 관리자만 접근 가능[준호 추가]
                         .requestMatchers("/api/admin/login").permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
-
-=======
+                        
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 사업자만 접근 가능
                         .requestMatchers(
