@@ -21,11 +21,11 @@ export default function OAuth2CallbackPage() {
   const [errMsg, setErrMsg] = useState('');
 
 useEffect(() => {
+  const init = async () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     const role = params.get('role');
 
-    // 디버깅용: 콘솔에 찍어서 데이터가 들어왔는지 꼭 확인하세요!
     console.log("전달받은 토큰:", token);
     console.log("전달받은 역할:", role);
 
@@ -36,22 +36,23 @@ useEffect(() => {
     }
 
     try {
-      // 데이터 저장
       localStorage.setItem('accessToken', token);
       localStorage.setItem('userRole', role || 'USER');
 
-      // 저장 확인 후 이동
       if (role && (role.includes('MARKET') || role.includes('SHOP'))) {
-  navigate('/market/main');
-} else {
-  navigate('/user/fridge');
-}
+        navigate('/market/main');
+      } else {
+        navigate('/user/fridge');
+      }
     } catch (error) {
       console.error("저장 중 오류 발생:", error);
       setErrMsg("데이터 저장 중 문제가 발생했습니다.");
       setStatus('error');
     }
-  }, [navigate]);
+  };
+
+  init();
+}, [navigate]);
 
   // ── 로딩 화면 ──
   if (status === 'loading') {

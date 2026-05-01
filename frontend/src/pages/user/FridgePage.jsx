@@ -143,18 +143,57 @@ const QtyModal = ({ item, onSave, onClose }) => {
 /* ══════════════════════════════════════════════════════════
    재료 추가 패널
 ══════════════════════════════════════════════════════════ */
-const AddPanel = ({ myIngredients, masterList, onAdd, onManualAdd, onRemove, onClose }) => {
+const AddPanel = ({ myIngredients, onAdd, onRemove, onClose }) => {
   const [search, setSearch] = useState('');
+  const [searchResult, setSearchResult] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const displayList = search.trim()
-    ? masterList.filter(i => i.name.includes(search.trim()))
-    : masterList;
+  const getAuthHeaders = () => ({
+    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+    'Content-Type': 'application/json',
+  });
 
   const isInFridge = (name) => myIngredients.some(i => i.name === name);
 
+  // 검색어 입력 시 API 호출 (디바운스 적용)
+  useEffect(() => {
+  if (!search.trim()) {
+    const clear = async () => {
+      setSearchResult([]);
+    };
+    clear();
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    const doSearch = async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(
+          `/item-master/search?name=${encodeURIComponent(search.trim())}`,
+          { headers: getAuthHeaders() }
+        );
+        const json = await res.json();
+        setSearchResult(json.data || []);
+      } catch (err) {
+        console.error('검색 실패:', err);
+        setSearchResult([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    doSearch();
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [search]);
+
+  // 직접 추가 버튼 표시 여부
+  // 검색어가 있고 검색결과에 정확히 일치하는 이름이 없을 때
   const showManualBtn =
     search.trim() !== '' &&
-    !masterList.some(i => i.name === search.trim());
+    !isSearching &&
+    !searchResult.some(i => i.name === search.trim());
 
   return (
     <div className="panel-overlay" onClick={onClose}>
@@ -178,34 +217,65 @@ const AddPanel = ({ myIngredients, masterList, onAdd, onManualAdd, onRemove, onC
         </div>
 
         <div className="ing-grid">
-          {displayList.length > 0 ? (
-            displayList.map(ing => (
-              <div
-                key={ing.id}
-                className={`ing-chip ${isInFridge(ing.name) ? 'selected' : ''}`}
-                onClick={() =>
-                  isInFridge(ing.name)
-                    ? onRemove(myIngredients.find(i => i.name === ing.name).id)
-                    : onAdd(ing)
-                }
-              >
-                <span className="chip-emoji">🍱</span>
-                <span className="chip-name">{ing.name}</span>
-              </div>
-            ))
-          ) : (
+          {/* 검색 중 */}
+          {isSearching && (
             <div style={{
               gridColumn: '1/-1', textAlign: 'center',
               padding: '20px', color: '#718096'
             }}>
-              {search.trim() ? '검색 결과가 없습니다.' : '재료를 검색해주세요'}
+              검색 중...
             </div>
           )}
 
+          {/* 검색 결과 */}
+          {!isSearching && searchResult.map(ing => (
+            <div
+              key={ing.id}
+              className={`ing-chip ${isInFridge(ing.name) ? 'selected' : ''}`}
+              onClick={() =>
+                isInFridge(ing.name)
+                  ? onRemove(myIngredients.find(i => i.name === ing.name).id)
+                  : onAdd(ing)
+              }
+            >
+              <span className="chip-emoji">🍱</span>
+              <span className="chip-name">{ing.name}</span>
+            </div>
+          ))}
+
+          {/* 검색 결과 없음 */}
+          {!isSearching && search.trim() && searchResult.length === 0 && !showManualBtn && (
+            <div style={{
+              gridColumn: '1/-1', textAlign: 'center',
+              padding: '20px', color: '#718096'
+            }}>
+              검색 결과가 없습니다.
+            </div>
+          )}
+
+          {/* 검색어 없을 때 안내 */}
+          {!search.trim() && (
+            <div style={{
+              gridColumn: '1/-1', textAlign: 'center',
+              padding: '20px', color: '#718096'
+            }}>
+              재료명을 입력하면 자동으로 검색됩니다
+            </div>
+          )}
+
+          {/* 직접 추가 버튼 */}
           {showManualBtn && (
             <div
               className="ing-chip manual-add-chip"
-              onClick={() => { onManualAdd(search.trim()); setSearch(''); }}
+              onClick={() => {
+                onAdd({
+                  id: null,
+                  name: search.trim(),
+                  category: 'etc',
+                  unit: '개'
+                });
+                setSearch('');
+              }}
             >
               <span className="chip-emoji">➕</span>
               <span className="chip-name">"{search}" 직접 추가</span>
@@ -323,6 +393,10 @@ export default function FridgePage() {
      응답: ApiResponse<FridgeItemResponse>
   ─────────────────────────────────────────────────── */
   const handleAdd = async (ing) => {
+    if (!ing.id) {
+      setAddError('목록에 없는 재료는 추가할 수 없습니다. 검색 결과에서 선택해주세요.');
+      return;
+    }
     try {
       console.log('📦 재료 추가 시도:', ing.name, '(id:', ing.id, ')');
 
@@ -633,9 +707,7 @@ export default function FridgePage() {
       {addOpen && (
         <AddPanel
           myIngredients={items}
-          masterList={masterList}
           onAdd={handleAdd}
-          onManualAdd={handleManualAdd}
           onRemove={handleRemove}
           onClose={() => { setAddOpen(false); setAddError(''); }}
         />
