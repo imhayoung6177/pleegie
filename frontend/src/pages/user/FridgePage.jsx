@@ -170,11 +170,11 @@ const AddPanel = ({ myIngredients, onAdd, onRemove, onClose }) => {
       setIsSearching(true);
       try {
         const res = await fetch(
-          `/item-master/search?name=${encodeURIComponent(search.trim())}`,
+          `/api/ingredients/search?name=${encodeURIComponent(search.trim())}`,
           { headers: getAuthHeaders() }
         );
         const json = await res.json();
-        setSearchResult(json.data || []);
+        setSearchResult(json.results || []);
       } catch (err) {
         console.error('검색 실패:', err);
         setSearchResult([]);
