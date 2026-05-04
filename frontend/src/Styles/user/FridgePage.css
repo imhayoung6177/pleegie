@@ -462,3 +462,51 @@
   .items-grid { grid-template-columns: repeat(3, 1fr); }
   .fridge-outer { width: calc(100% - 20px); border-radius: 15px; }
 }
+
+/* ══ 15. 유통기한 & 임박/만료 배지 ════════════════════ */
+.fridge-item.urgent {
+  border: 2px solid #FF6B35;
+  animation: pulse-border 1.5s infinite;
+}
+
+.fridge-item.expired {
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px solid #E53535;
+  opacity: 0.8;
+}
+
+.urgent-tag, .expired-tag {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.urgent-tag  { background: #FF6B35; }
+.expired-tag { background: #E53535; }
+
+@keyframes pulse-border {
+  0%   { box-shadow: 0 0 0 0 rgba(253, 213, 55, 0.8); }
+  70%  { box-shadow: 0 0 0 10px rgba(253, 213, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(253, 213, 55, 0); }
+}
+
+.date-input {
+  width: 100%;
+  padding: 10px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-family: var(--font-title);
+  font-size: 1rem;
+  margin-bottom: 15px;
+  outline: none;
+  background-color: #fff;
+}
+.date-input:focus {
+  border-color: #fdd537;
+}

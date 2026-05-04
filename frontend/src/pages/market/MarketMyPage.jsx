@@ -5,6 +5,7 @@ import ShopProfileEdit from './ShopProfileEdit';
 import { QRCodeCanvas } from 'qrcode.react';
 import { getMyMarket, getMarketItems, cancelSale, reissueQrCode } from '../../services/marketService';
 import pleegemarket from "../../assets/pleegemarket.png";
+import marketimg from "../../assets/pleege_shop.png";
 
 const MG  = "#B7CCAC";
 const MGD = "#8fa882";
@@ -267,7 +268,14 @@ export default function MarketMyPage() {
         </div>
 
         <div className="mmp-profile-card" style={{ background: 'rgba(255,255,255,0.92)' }}>
-          <div className="mmp-avatar">🏪</div>
+          {/* <div className="mmp-avatar">🏪</div> */}
+          <div className="mp-avatar-rect-wrap">
+              <img 
+                src={marketimg} 
+                alt="플리지 캐릭터들" 
+                className="mp-avatar-full-img" 
+              />
+            </div>
           <div className="mmp-profile-info">
             <div className="mmp-shop-name">{shopName}</div>
             <div className="mmp-role-row">

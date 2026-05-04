@@ -84,6 +84,16 @@ const AdminDashboardPage = () => {
             <span className="admin-menu-text">공지 관리</span>
           </div>
 
+{/* ✅ 지역화폐 관리 (종빈 추가) */}
+{/* 클릭 시 /admin/local-currency 페이지로 이동 */}
+          <div
+            className="admin-menu-card"
+            onClick={() => navigate("/admin/local-currency")}
+          >
+            <span style={{ fontSize: "45px" }}>💸</span>
+            <span className="admin-menu-text">지역화폐 관리</span>
+          </div>
+
           <div
             className="admin-menu-card"
             style={{ gridColumn: "span 2", flexDirection: "row", gap: "20px" }}

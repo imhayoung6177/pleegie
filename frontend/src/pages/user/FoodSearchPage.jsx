@@ -190,8 +190,8 @@ export default function FoodSearchPage() {
                                 onClick={handleSearch}
                                 disabled={loading}
                                 style={{
-                                    background: '#FF6B35',
-                                    color: '#fff',
+                                    background: '#FDD537',
+                                    color: '#000000',
                                     border: 'none',
                                     borderRadius: '12px',
                                     padding: '0 20px',
@@ -447,7 +447,7 @@ export default function FoodSearchPage() {
                                     style={{
                                         padding: '10px 20px',
                                         background: '#fdd537',
-                                        color: '#fff',
+                                        color: '#000000',
                                         border: 'none',
                                         borderRadius: '12px',
                                         fontWeight: 700,

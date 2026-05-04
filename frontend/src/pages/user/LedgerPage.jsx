@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const LedgerPage = () => {
+const LedgerPage = ({ onBack }) => {
   // ✅ 상태 관리
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -152,6 +152,11 @@ const LedgerPage = () => {
           </div>
         ))}
       </div>
+
+      {/* 뒤로가기 버튼 */}
+      <button className="auth-submit-btn" style={{ marginTop: '24px', width: '100%' }} onClick={onBack}>
+        뒤로 가기
+      </button>
     </div>
   );
 };

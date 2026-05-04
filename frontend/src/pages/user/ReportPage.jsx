@@ -5,25 +5,22 @@ import '../../Styles/user/LocalCurrencyPage.css';
 
 export default function ReportPage() {
   const navigate = useNavigate();
-  // 사용자가 선택하는 유형(type)은 로컬 상태로만 관리합니다.
   const [form, setForm] = useState({ type: '불친절/서비스 불만', title: '', content: '' });
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReport, setSelectedReport] = useState(null);
 
-  // 인증 헤더 설정
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     'Content-Type': 'application/json',
   });
 
-  // 내 신고 내역 불러오기 (GET /user/report) 
   const fetchReports = async () => {
     try {
       setLoading(true);
       const response = await fetch('/user/report', { headers: getAuthHeaders() });
       const result = await response.json();
       if (response.ok) {
-        // ApiResponse<List<ReportResponse>> 구조에 맞춰 data 추출
         setReports(result.data || []);
       }
     } catch (err) {
@@ -33,38 +30,28 @@ export default function ReportPage() {
     }
   };
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
+  useEffect(() => { fetchReports(); }, []);
 
-  // 신고 제출하기 (POST /user/report) 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.content.trim()) {
       alert("제목과 내용을 모두 입력해주세요.");
       return;
     }
-
-    /**
-     * 💡 자바 백엔드 DTO(ReportCreateRequest)에 맞게 데이터 가공
-     * 백엔드는 title과 content 필드만 인식하므로 type을 title에 합칩니다. 
-     */
     const requestBody = {
-      title: `[${form.type}] ${form.title}`, 
+      title: `[${form.type}] ${form.title}`,
       content: form.content
     };
-
     try {
       const response = await fetch('/user/report', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(requestBody)
       });
-
       if (response.ok) {
         alert("소중한 의견이 접수되었습니다.");
-        setForm({ type: '불친절/서비스 불만', title: '', content: '' }); // 폼 초기화
-        fetchReports(); // 목록 새로고침
+        setForm({ type: '불친절/서비스 불만', title: '', content: '' });
+        fetchReports();
       } else {
         const errData = await response.json();
         alert(errData.message || "신고 접수에 실패했습니다.");
@@ -75,7 +62,6 @@ export default function ReportPage() {
     }
   };
 
-  // 상태 배지 렌더링 (백엔드 상수는 PENDING, IN_PROGRESS, RESOLVED, REJECTED) 
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'PENDING':     return <span className="lc-badge requested">접수</span>;
@@ -95,11 +81,16 @@ export default function ReportPage() {
         <form onSubmit={handleSubmit}>
           <div className="auth-field">
             <label className="auth-label">신고 유형</label>
-            <select 
-              className="auth-input" 
-              value={form.type} 
-              onChange={e => setForm({...form, type: e.target.value})} 
-              style={{ width: '100%' }}
+            <select
+              className="auth-input"
+              value={form.type}
+              onChange={e => setForm({...form, type: e.target.value})}
+              style={{
+                width: '100%', padding: '16px',
+                border: '2px solid #fdd537', borderRadius: '16px',
+                backgroundColor: '#fffbfa', fontSize: '0.95rem',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
             >
               <option>불친절/서비스 불만</option>
               <option>위생 불량</option>
@@ -110,23 +101,35 @@ export default function ReportPage() {
 
           <div className="auth-field">
             <label className="auth-label">제목</label>
-            <input 
-              type="text" 
-              className="auth-input" 
-              placeholder="제목을 입력하세요" 
-              value={form.title} 
-              onChange={e => setForm({...form, title: e.target.value})} 
+            <input
+              type="text"
+              className="auth-input"
+              placeholder="제목을 입력하세요"
+              value={form.title}
+              onChange={e => setForm({...form, title: e.target.value})}
+              style={{
+                width: '100%', padding: '16px',
+                border: '2px solid #fdd537', borderRadius: '16px',
+                backgroundColor: '#fffbfa', fontSize: '0.95rem',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
             />
           </div>
 
           <div className="auth-field">
             <label className="auth-label">상세 내용</label>
-            <textarea 
-              className="auth-input" 
-              style={{ height: '150px', paddingTop: '12px' }} 
-              placeholder="내용을 구체적으로 적어주시면 큰 도움이 됩니다." 
-              value={form.content} 
-              onChange={e => setForm({...form, content: e.target.value})} 
+            <textarea
+              className="auth-input"
+              style={{
+                height: '200px', padding: '16px',
+                border: '2px solid #fdd537', borderRadius: '16px',
+                backgroundColor: '#fffbfa', fontSize: '0.95rem',
+                lineHeight: '1.6', resize: 'none',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
+              placeholder="내용을 구체적으로 적어주시면 큰 도움이 됩니다."
+              value={form.content}
+              onChange={e => setForm({...form, content: e.target.value})}
             />
           </div>
 
@@ -140,7 +143,6 @@ export default function ReportPage() {
           <h3 style={{ fontFamily: 'var(--font-title)', fontSize: '1.2rem', color: '#2a1f0e', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1.5px dashed rgba(0,0,0,0.1)' }}>
             나의 신고 내역
           </h3>
-          
           <div className="lc-list">
             {loading ? (
               <p style={{ textAlign: 'center', color: '#aaa', padding: '30px 0' }}>내역을 불러오는 중...</p>
@@ -148,12 +150,12 @@ export default function ReportPage() {
               <p style={{ textAlign: 'center', color: '#aaa', padding: '30px 0', fontSize: '0.9rem' }}>아직 신고 내역이 없어요.</p>
             ) : (
               reports.map(item => (
-                <div key={item.id} className="lc-item" style={{ display: 'block', padding: '16px' }}>
+                <div key={item.id} className="lc-item" style={{ display: 'block', padding: '16px', cursor: 'pointer' }} onClick={() => setSelectedReport(item)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</span>
+                    <span style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '70%' }}>{item.title}</span>
                     {renderStatusBadge(item.status)}
                   </div>
-                  <p style={{ fontSize: '0.9rem', color: '#5a4a32', margin: '0 0 10px', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                  <p style={{ fontSize: '0.9rem', color: '#5a4a32', margin: '0 0 10px', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.content}
                   </p>
                   <div style={{ fontSize: '0.8rem', color: '#8a7a60', textAlign: 'right' }}>
@@ -165,6 +167,112 @@ export default function ReportPage() {
           </div>
         </div>
       </div>
+
+      {/* ✅ 신고 상세 모달 - 개선 버전 */}
+      {selectedReport && (
+        <div
+          onClick={() => setSelectedReport(null)}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            padding: '20px',       // ✅ 좌우 여백 확보
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: '24px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '400px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+              boxSizing: 'border-box', // ✅ padding 포함한 너비 계산
+            }}
+          >
+            {/* 모달 헤더 */}
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              borderBottom: '1.5px dashed #eee',
+              paddingBottom: '16px', marginBottom: '16px',
+            }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#2a1f0e' }}>신고 상세 내역</h3>
+              <button
+                onClick={() => setSelectedReport(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#888' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 날짜 + 상태 뱃지 한 줄 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '0.85rem', color: '#8a7a60' }}>
+                {new Date(selectedReport.createdAt).toLocaleDateString('ko-KR')} 접수
+              </span>
+              {renderStatusBadge(selectedReport.status)}
+            </div>
+
+            {/* 제목 - ✅ 줄바꿈 허용으로 넘침 방지 */}
+            <div style={{
+              fontWeight: 700,
+              fontSize: '1.05rem',
+              color: '#2a1f0e',
+              marginBottom: '16px',
+              lineHeight: 1.5,
+              wordBreak: 'break-all',  // ✅ 긴 텍스트 강제 줄바꿈
+              overflowWrap: 'break-word',
+              padding: '12px 14px',
+              background: '#fafafa',
+              borderRadius: '10px',
+              border: '1px solid #f0ebe0',
+            }}>
+              {selectedReport.title}
+            </div>
+
+            {/* 구분선 */}
+            <div style={{ fontSize: '0.78rem', color: '#aaa', marginBottom: '8px' }}>상세 내용</div>
+
+            {/* 본문 - ✅ 줄바꿈 + 스크롤 처리 */}
+            <div style={{
+              backgroundColor: '#fdfcf0',
+              border: '1px solid #fce8a1',
+              padding: '16px',
+              borderRadius: '16px',
+              fontSize: '0.95rem',
+              color: '#3a2f1e',
+              lineHeight: 1.7,
+              whiteSpace: 'pre-wrap',   // ✅ 줄바꿈 유지
+              wordBreak: 'break-all',   // ✅ 긴 단어 강제 줄바꿈
+              overflowWrap: 'break-word',
+              minHeight: '100px',
+              maxHeight: '200px',       // ✅ 너무 길면 스크롤
+              overflowY: 'auto',
+            }}>
+              {selectedReport.content}
+            </div>
+
+            {/* 닫기 버튼 */}
+            <button
+              onClick={() => setSelectedReport(null)}
+              style={{
+                width: '100%', padding: '14px',
+                background: '#fdd537', color: '#2a1f0e',
+                border: 'none', borderRadius: '14px',
+                fontWeight: 700, marginTop: '20px',
+                cursor: 'pointer', fontSize: '1rem',
+                fontFamily: 'var(--font-title)',
+              }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

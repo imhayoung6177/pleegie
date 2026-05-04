@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../../Styles/user/MyPage.css';
 import '../../Styles/auth/AuthPage.css';
 import '../../Styles/auth/RegisterPage.css';
-
+import profileimg from "../../assets/pleegie_img.png";
 // ✅ 내부 탭으로 보일 컴포넌트들
 import ProfileEdit from './ProfileEdit';
 import LedgerPage  from './LedgerPage';
@@ -112,7 +112,14 @@ export default function MyPage() {
       </div>
 
       <div className="mp-profile-card">
-        <div className="mp-avatar">👤</div>
+        {/* <div className="mp-avatar">👤</div> */}
+        <div className="mp-avatar-rect-wrap">
+    <img 
+      src={profileimg} 
+      alt="플리지 캐릭터들" 
+      className="mp-avatar-full-img" 
+    />
+  </div>
         <div className="mp-profile-info">
           <div className="mp-profile-name">{userInfo.name}님</div>
           <div className="mp-role-row">
