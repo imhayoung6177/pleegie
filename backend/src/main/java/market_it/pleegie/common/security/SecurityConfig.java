@@ -52,52 +52,48 @@ public class SecurityConfig {
 
                 // URL별 접근 권한
                 .authorizeHttpRequests(auth -> auth
-                        // 누구나 접근 가능
+                                // 누구나 접근 가능
                                 .requestMatchers("/admin/login","/admin/hash").permitAll()
-                        .requestMatchers(
-                                "/",
-                                "/intro",
-                                "/user/login",
-                                "/user/signup",
-                                "/market/login",
-                                "/market/signup",
-
-                                "/admin/login",
-                                "/api/admin/login",
-                                "/recipe/missing-items",
-                                "/market/missing-items"
+                                .requestMatchers(
+                                        "/",
+                                        "/intro",
+                                        "/user/login",
+                                        "/user/signup",
+                                        "/market/login",
+                                        "/market/signup",
+                                        "/recipe/missing-items",
+                                        "/item-master",
+                                        "/item-master/**"
 //                                "/swagger-ui/**", //swagger테스트 후 삭제할게요 (하영) build.gradle도 수정 필요
 //                                "/v3/api-docs/**"
-                        ).permitAll()
+                                ).permitAll()
 
-                        // OAuth2 콜백 허용
-                        .requestMatchers(
-                                "/login/oauth2/**",
-                                "/oauth2/**"
-                        ).permitAll()
+                                // OAuth2 콜백 허용
+                                .requestMatchers(
+                                        "/login/oauth2/**",
+                                        "/oauth2/**"
+                                ).permitAll()
 
 
-                        // 관리자만 접근 가능[준호 추가]
-                        .requestMatchers("/api/admin/login").permitAll()
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
-
+                                // 관리자만 접근 가능[준호 추가]
+                                .requestMatchers("/api/admin/login").permitAll()
+                                .requestMatchers("/api/admin/**")
+                                .hasRole("ADMIN")
 
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                                // 사업자만 접근 가능
+                                .requestMatchers(
+                                        HttpMethod.POST, "/market/items/**")
+                                .hasRole("MARKET")
+                                .requestMatchers(
+                                        HttpMethod.PUT, "/market/items/**")
+                                .hasRole("MARKET")
+                                .requestMatchers(
+                                        HttpMethod.DELETE, "/market/items/**")
+                                .hasRole("MARKET")
 
-                        // 사업자만 접근 가능
-                        .requestMatchers(
-                                HttpMethod.POST, "/market/items/**")
-                        .hasRole("MARKET")
-                        .requestMatchers(
-                                HttpMethod.PUT, "/market/items/**")
-                        .hasRole("MARKET")
-                        .requestMatchers(
-                                HttpMethod.DELETE, "/market/items/**")
-                        .hasRole("MARKET")
-
-                        // 나머지는 로그인 필요
-                        .anyRequest().authenticated()
+                                // 나머지는 로그인 필요
+                                .anyRequest().authenticated()
                 )
 
                 // OAuth2 로그인 설정
