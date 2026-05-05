@@ -729,3 +729,68 @@
   .mmp-item-desc  { font-size: 0.8rem; }
   .mmp-white-box  { padding: 24px 18px 32px; }
 }
+
+
+/* ══════════════════════════════════════════════════════════
+   ✅ 마이페이지 프로필: 중앙 정렬 + 아담한 네모 프레임
+══════════════════════════════════════════════════════════ */
+
+/* 1. 프로필 카드 전체: 세로 정렬 및 중앙 정렬 */
+.mp-profile-card {
+  display: flex;
+  flex-direction: column;    /* ✅ 가로가 아닌 세로로 배치 */
+  align-items: center;       /* ✅ 모든 자식 요소를 가로 중앙 정렬 */
+  justify-content: center;
+  padding: 25px 20px;
+  background: white;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  text-align: center;        /* ✅ 텍스트도 중앙 정렬 */
+}
+
+/* 2. 네모난 프레임: 크기를 더 줄이고 비율 조정 */
+.mp-avatar-rect-wrap {
+  width: 100px;              /* ✅ 크기를 더 줄임 (이전 130px) */
+  height: 80px;              /* ✅ 높이도 줄임 */
+  background-color: #f8fafc; /* 아주 연한 회색 배경 */
+  border-radius: 12px;       /* 둥근 네모 */
+  border: 2px solid rgba(46,196,182,0.2) !important; /* 포인트 테두리 */
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;       /* ✅ 사진 아래 이름과의 간격 */
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* 3. 프레임 안의 사진: 잘리지 않게 안으로 쏙 넣기 */
+.mp-avatar-full-img {
+  width: 90%;                /* 프레임 안에서 약간의 여백 생성 */
+  height: 90%;
+  object-fit: contain;       /* ✅ 전체 사진이 프레임 안에 다 들어오도록 설정 */
+  object-position: center;
+}
+
+/* 4. 이름 및 상세 정보 정렬 */
+.mp-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;       /* ✅ 텍스트 정보들도 중앙 정렬 */
+  gap: 8px;
+}
+
+.mp-profile-name {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #2a1f0e;
+  margin-bottom: 5px;
+}
+
+.mp-profile-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;       /* 상세 주소 등도 중앙 정렬 */
+  font-size: 0.9rem;
+  color: #666;
+}

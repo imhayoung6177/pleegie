@@ -485,6 +485,13 @@ const parseDescription = (desc) => {
         )}
       </div>
 
+      {/* 뒤로가기 버튼 */}
+      <button
+        className="auth-submit-btn"
+        style={{ marginTop: '24px', width: '100%' }}
+        onClick={onBack}
+      >뒤로 가기</button>
+
     </div>
   );
 };

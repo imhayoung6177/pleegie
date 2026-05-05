@@ -93,8 +93,13 @@ const apiLoad = async () => {
   const seen = new Set();
   return items
     .filter(item => { if (!item.name || seen.has(item.name)) return false; seen.add(item.name); return true; })
-    .map(item => ({ dbId: item.id, name: item.name, emoji: findEmoji(item.name) }));
-};
+.map(item => ({ 
+  dbId: item.id, 
+  name: item.name, 
+  emoji: findEmoji(item.name),
+  status: item.status, // 백엔드의 NEAR_EXPIRY 등을 받아옴
+  exp: item.exp        // 날짜 정보도 함께 관리하면 좋음
+}));};
 
 const apiAdd = async ({ name, itemMasterId, category, unit }) => {
   const catId = Object.keys(INGREDIENTS_BY_CAT).find(k => INGREDIENTS_BY_CAT[k].some(i => i.name === name));

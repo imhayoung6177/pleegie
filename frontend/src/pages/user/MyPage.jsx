@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import '../../Styles/user/MyPage.css';
 import '../../Styles/auth/AuthPage.css';
 import '../../Styles/auth/RegisterPage.css';
-
+import profileimg from "../../assets/pleegie_img.png";
 // ✅ 내부 탭으로 보일 컴포넌트들
 import ProfileEdit from './ProfileEdit';
 import LedgerPage  from './LedgerPage';
@@ -54,19 +54,20 @@ export default function MyPage() {
     'Content-Type': 'application/json',
   });
 
-  // ✅ 데이터 로딩 (유저 정보)
+  // ✅ 유저 정보 가져오기 함수 분리 (재사용 목적)
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch('/user/mypage', { headers: getAuthHeaders() });
+      const result = await response.json();
+      if (response.ok) setUserInfo(result.data);
+    } catch (err) {
+      console.error("회원 정보 로딩 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/user/mypage', { headers: getAuthHeaders() });
-        const result = await response.json();
-        if (response.ok) setUserInfo(result.data);
-      } catch (err) {
-        console.error("회원 정보 로딩 실패:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUserData();
   }, []);
 
@@ -81,7 +82,10 @@ export default function MyPage() {
     }
   };
 
-  const goBackMain = () => setSearchParams({});
+  const goBackMain = () => {
+    setSearchParams({});
+    fetchUserData(); // 💡 정보 수정 후 메인으로 돌아올 때 최신 정보를 다시 불러옴
+  };
 
   const handleWithdraw = async () => {
     try {
@@ -108,7 +112,14 @@ export default function MyPage() {
       </div>
 
       <div className="mp-profile-card">
-        <div className="mp-avatar">👤</div>
+        {/* <div className="mp-avatar">👤</div> */}
+        <div className="mp-avatar-rect-wrap">
+    <img 
+      src={profileimg} 
+      alt="플리지 캐릭터들" 
+      className="mp-avatar-full-img" 
+    />
+  </div>
         <div className="mp-profile-info">
           <div className="mp-profile-name">{userInfo.name}님</div>
           <div className="mp-role-row">

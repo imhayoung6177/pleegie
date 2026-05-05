@@ -36,6 +36,8 @@ import AdminReportManagePage from "./pages/admin/AdminReportManagePage";
 import AdminNoticeManagePage from "./pages/admin/AdminNoticeManagePage";
 import AdminStatisticsPage from "./pages/admin/AdminStatisticsPage";
 import ProtectedRoute from "./pages/admin/ProtectedRoute";
+import AdminLocalCurrencyPage from "./pages/admin/AdminLocalCurrencyPage"; // 관리자 지역화폐 관리 페이지 ( 종빈 추가 )
+
 
 const App = () => {
   return (
@@ -96,6 +98,7 @@ const App = () => {
         <Route path="/user/register" element={<RegisterPage role="USER" />} />
         <Route path="/user/fridge" element={<FridgePage />} />
         <Route path="/user/mypage" element={<MyPage />} />
+        <Route path="/user/stamp/scan/:marketId" element={<QrScanPage />} />
 
         {/* ✅ 마이페이지 확장 메뉴 라우트 */}
         <Route path="/user/stamp" element={<StampPage />} />
@@ -169,7 +172,14 @@ const App = () => {
 
         {/* 잘못된 주소로 들어오면 홈으로 */}
         <Route path="/*" element={<Homepage />} />
+
+        {/* 관리자 지역화폐 페이지 라우트 추가 종빈  */}
+      <Route path="/admin/local-currency" element={
+  <ProtectedRoute><AdminLocalCurrencyPage /></ProtectedRoute>
+} />
       </Routes>
+
+      
     </>
   );
 };
