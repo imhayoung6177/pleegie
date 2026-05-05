@@ -6,46 +6,43 @@ import KakaoMap from '../../components/ui/KakaoMap';
 /**
  * RecipeRecommendPage.jsx
  *
- * ✅ 데이터 흐름:
- * 1단계: GET /recipe/recommend
- *   → Spring RecipeController → Python AI 서버 → 레시피 추천 결과
- *   → RecipeItem { title, description, ingredients[], missing_ingredients[],
- *                  match_score(0~1), has_expiring(bool), cooking_steps[], sauce_steps[] }
+ * ✅ 최종 올바른 흐름:
  *
- * 2단계: POST /user/recipebook
- *   → Spring RecipeController.saveToRecipeBook()
- *   → RecipeBookSaveRequest { title, description, ingredients[] }
- *   → 백엔드 내부에서 Recipe 자동 생성 후 RecipeBook 저장
+ * 1단계: GET /user/fridge/items
+ *   → Spring FridgeController → DB에서 냉장고 재료 조회
+ *   → FridgeItemResponse[] { id, name, status, ... }
+ *
+ * 2단계: POST /recipe/recommend (Python 서버 직접 호출)
+ *   → Vite proxy 통해서 Python 포트 8000으로 전달
+ *   → RecipeRecommendRequest { ingredients, expiring_ingredients }
+ *   → RecipeResponse { recipes: RecipeItem[] }
+ *
+ * Python RecipeItem 구조:
+ *   { title, description, ingredients[], missing_ingredients[],
+ *     match_score(0~1), has_expiring(bool) }
+ *
+ * ✅ 왜 Spring /chatbot 을 안 쓰나?
+ *   → Spring ChatService는 LLM 의도 파악 후 재료 조회를 합쳐서 처리
+ *   → 불필요한 단계 (detectIntent) 가 추가됨
+ *   → Python /recipe/recommend 를 직접 호출하면 더 빠르고 정확함
  */
 
 export default function RecipeRecommendPage() {
   const navigate = useNavigate();
+  const [recipes,        setRecipes]        = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [errorMsg,       setErrorMsg]       = useState('');
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-  // ── 상태 관리 ──────────────────────────────────────────────
-  const [recipes,        setRecipes]        = useState([]); // AI 추천 레시피 목록
-  const [loading,        setLoading]        = useState(true); // 로딩 상태
-  const [errorMsg,       setErrorMsg]       = useState(''); // 에러 메시지
-  const [selectedRecipe, setSelectedRecipe] = useState(null); // 선택된 레시피 (상세 보기용)
-
-  // 시장 지도 관련 상태 (근처 시장에서 구매하기 버튼 클릭 시 사용)
-  const [showMap,    setShowMap]    = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [mapMarkets, setMapMarkets] = useState([]);
   const [mapLoading, setMapLoading] = useState(false);
 
-  // ── JWT 인증 헤더 ───────────────────────────────────────────
-  // Spring Security에서 토큰 검증에 사용
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
     'Content-Type': 'application/json',
   });
 
-  // ── 레시피 추천 요청 ────────────────────────────────────────
-  /**
-   * [자바 연동] GET /recipe/recommend
-   * → RecipeController.recommend(@AuthUser Long userId)
-   * → RecipeService.recommendByFridge(userId)
-   *   → 냉장고 재료 조회 → Python AI 서버 호출 → 결과 반환
-   */
   const fetchRecommend = async () => {
     setLoading(true);
     setErrorMsg('');
