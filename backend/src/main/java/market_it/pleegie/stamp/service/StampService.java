@@ -3,10 +3,13 @@ package market_it.pleegie.stamp.service;
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
+import market_it.pleegie.coupon.entity.Coupon;
 import market_it.pleegie.coupon.entity.UserCoupon;
+import market_it.pleegie.coupon.repository.CouponRepository;
 import market_it.pleegie.coupon.repository.UserCouponRepository;
 import market_it.pleegie.market.entity.Market;
 import market_it.pleegie.market.repository.MarketRepository;
+import market_it.pleegie.stamp.dto.StampResponse;
 import market_it.pleegie.stamp.entity.Stamp;
 import market_it.pleegie.stamp.repository.StampRepository;
 import market_it.pleegie.user.entity.User;
@@ -17,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +32,7 @@ public class StampService {
     private final UserCouponRepository userCouponRepository;
     private final UserRepository userRepository;
     private final MarketRepository marketRepository;
+    private final CouponRepository couponRepository;
 
     /**
      * 방문 스탬프 생성 로직
@@ -50,7 +56,21 @@ public class StampService {
         // [Step 2] 이 유저가 이 시장에서 현재 모으고 있는 도장판(UserCoupon)을 찾습니다.
         // 만약 없다면, 새로운 도장판을 하나 만들어줘야 합니다. (Optional 활용)
         UserCoupon userCoupon = userCouponRepository.findByUserIdAndMarketId(userId, marketId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COUPON_NOT_FOUND));
+                .orElseGet(() -> {
+                    // 해당 시장의 쿠폰 찾기
+                    Coupon coupon = couponRepository
+                            .findByMarketId(marketId)
+                            .orElseThrow(() -> new CustomException(
+                                    ErrorCode.COUPON_NOT_FOUND));
+
+                    // UserCoupon 자동 생성
+                    return userCouponRepository.save(
+                            UserCoupon.builder()
+                                    .user(user)
+                                    .coupon(coupon)
+                                    .build()
+                    );
+                });
 
 
         Stamp stamp = Stamp.builder()
@@ -63,5 +83,13 @@ public class StampService {
 
         // stampCount 증가 + 목표 달성 시 isCompleted = true
         userCoupon.addStamp();
+    }
+
+    @Transactional(readOnly = true)
+    public List<StampResponse> getStampHistory(Long userId) {
+        return stampRepository.findAllByUserId(userId)
+                .stream()
+                .map(StampResponse::from)
+                .collect(Collectors.toList());
     }
 }
