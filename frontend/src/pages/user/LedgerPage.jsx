@@ -67,10 +67,19 @@ const LedgerPage = ({ onBack }) => {
   };
 
   // ✅ 3. 삭제 기능 (프론트 우선 처리)
-  const handleDelete = (id) => {
-    if(window.confirm("기록을 삭제하시겠습니까?")) {
-        // 백엔드 DELETE 연동 전까지는 프론트에서 필터링
+  const handleDelete = async (id) => {
+    if (!window.confirm("기록을 삭제하시겠습니까?")) return;
+    try {
+      const response = await fetch(`/user/money-log/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      const result = await response.json();
+      if (result.success) {
         setItems(prev => prev.filter(i => i.id !== id));
+      }
+    } catch (err) {
+      console.error("삭제 실패:", err);
     }
   };
 

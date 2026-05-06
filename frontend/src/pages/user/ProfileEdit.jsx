@@ -12,11 +12,14 @@ const ProfileEdit = ({ onBack }) => {
     phone: '',
     email: '',
     address: '',
+    latitude: '',
+    longitude: '',
   });
 
   const [loading, setLoading] = useState(true);
   const [showPw, setShowPw] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showPostcode, setShowPostcode] = useState(false);
 
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -38,9 +41,12 @@ const ProfileEdit = ({ onBack }) => {
             loginId: user.loginId || '',
             name: user.name || '',
             password: '',
+            currentPassword: '',
             phone: user.phone || '',
             email: user.email || '',
             address: user.address || '',
+            latitude: user.latitude || '',
+            longitude: user.longitude || '',
           });
         }
       } catch (err) {
@@ -57,39 +63,55 @@ const ProfileEdit = ({ onBack }) => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAddressSearch = () => {
+    setShowPostcode(true);
+    setTimeout(() => {
+      new window.daum.Postcode({
+        oncomplete: async (data) => {
+          const address = data.roadAddress || data.jibunAddress;
+          
+          try {
+            const res = await fetch(
+              `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
+              { headers: { Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}` } }
+            );
+            const geoData = await res.json();
+
+            if (geoData.documents?.length > 0) {
+              setForm(prev => ({
+                ...prev,
+                address,
+                latitude: geoData.documents[0].y,
+                longitude: geoData.documents[0].x
+              }));
+            } else {
+              setForm(prev => ({ ...prev, address }));
+            }
+          } catch (err) {
+            console.error('좌표 변환 실패:', err);
+            setForm(prev => ({ ...prev, address }));
+          }
+          setShowPostcode(false);
+        },
+        width: '100%',
+        height: '100%',
+      }).embed(document.getElementById('daum-postcode-container'));
+    }, 100);
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      let latitude = null;
-      let longitude = null;
-
-      // 주소가 입력된 경우 카카오맵 API로 좌표 변환
-      if (form.address.trim()) {
-        const kakaoKey = import.meta.env.VITE_KAKAO_REST_API_KEY;
-        const geoRes = await fetch(
-          `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(form.address)}`,
-          { headers: { Authorization: `KakaoAK ${kakaoKey}` } }
-        );
-        const geoData = await geoRes.json();
-
-        if (geoData.documents?.length > 0) {
-          latitude = parseFloat(geoData.documents[0].y);
-          longitude = parseFloat(geoData.documents[0].x);
-        } else {
-          alert("주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.");
-          return;
-        }
-      }
-
-      // ✅ [수정] 백엔드 컨트롤러의 @PutMapping("/user/mypage")와 일치시킴
+      // 1. 기본 정보 수정 (이미 handleAddressSearch에서 latitude, longitude가 세팅됨)
       const response = await fetch('/user/mypage', {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({
           name: form.name,
           phone: form.phone,
-          latitude,
-          longitude,
+          address: form.address, // 주소 문자열도 함께 보내야 함
+          latitude: parseFloat(form.latitude),
+          longitude: parseFloat(form.longitude),
         })
       });
 
@@ -200,8 +222,24 @@ const ProfileEdit = ({ onBack }) => {
               <label className="auth-label">
                 집 주소 <span className="reg-addr-badge">가까운 시장 추천에 사용됩니다</span>
               </label>
-              <div className="auth-input-wrap editable">
-                <input type="text" name="address" className="auth-input" value={form.address} onChange={handleChange} />
+              <div className="reg-addr-row">
+                <div className="auth-input-wrap reg-addr-input editable">
+                  <input 
+                    type="text" 
+                    name="address" 
+                    className="auth-input" 
+                    value={form.address} 
+                    readOnly 
+                    placeholder="주소 검색을 이용해주세요"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="reg-addr-btn"
+                  onClick={handleAddressSearch}
+                >
+                  주소 검색
+                </button>
               </div>
             </div>
 
@@ -212,6 +250,34 @@ const ProfileEdit = ({ onBack }) => {
           </form>
         </div>
       </div>
+
+      {/* ✅ 주소 검색 모달 창 추가 */}
+      {showPostcode && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0,
+          width: '100%', height: '100%',
+          zIndex: 99999,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            width: '400px', height: '500px',
+            backgroundColor: 'white',
+            borderRadius: '12px', overflow: 'hidden',
+            position: 'relative'
+          }}>
+            <button
+              onClick={() => setShowPostcode(false)}
+              style={{
+                position: 'absolute', top: '10px', right: '10px',
+                zIndex: 1, background: 'none', border: 'none',
+                fontSize: '1.2rem', cursor: 'pointer', color: 'black'
+              }}
+            >✕</button>
+            <div id="daum-postcode-container" style={{ width: '100%', height: '100%' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -39,4 +39,13 @@ public class MoneyLogController {
         return ResponseEntity.ok(
                 ApiResponse.ok("가계부에 기록되었습니다", null));
     }
+
+    @DeleteMapping("/{logId}")
+    public ResponseEntity<ApiResponse<Void>> deleteLog(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long logId) {
+        moneyLogService.deleteLog(userDetails.getUserId(), logId);
+        return ResponseEntity.ok(
+                ApiResponse.ok("삭제되었습니다", null));
+    }
 }

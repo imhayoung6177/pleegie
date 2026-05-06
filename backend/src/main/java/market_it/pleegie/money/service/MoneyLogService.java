@@ -54,6 +54,18 @@ public class MoneyLogService {
         moneyLogRepository.save(log);
     }
 
+    @Transactional
+    public void deleteLog(Long userId, Long logId) {
+        MoneyLog log = moneyLogRepository.findById(logId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+
+        if (!log.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        moneyLogRepository.delete(log);
+    }
+
     /**
      * 특정 사용자의 가계부 목록을 전체 조회합니다.
      */
