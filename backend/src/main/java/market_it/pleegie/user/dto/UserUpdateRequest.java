@@ -10,6 +10,7 @@ public class UserUpdateRequest {
     private String name;
     private String phone;
     private String email;
+    private String address;
     private Double latitude;
     private Double longitude;
 }

@@ -26,6 +26,11 @@ const RecipeBook = ({ onBack }) => {
   const [isLoading,    setIsLoading]    = useState(true); // 로딩 상태
   const [error,        setError]        = useState(''); // 에러 메시지
 
+  // 지도 관련 상태 추가
+  const [showMap, setShowMap] = useState(false);
+  const [mapMarkets, setMapMarkets] = useState([]);
+  const [mapLoading, setMapLoading] = useState(false);
+
   // JWT 인증 헤더 (Spring Security 토큰 검증용)
   const getAuthHeaders = () => ({
     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -64,6 +69,38 @@ const RecipeBook = ({ onBack }) => {
     };
     fetchSaved();
   }, []);
+
+  // ── 장바구니 담기 (백엔드 marketName 스펙 준수) ────────────────
+  const handleAddToCart = async (item, marketNameFromParam) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const finalMarketName = marketNameFromParam || item.marketName || "우리동네 마켓";
+
+      const response = await fetch('/user/cart', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          customItemName: item.name,
+          price: item.onSale ? item.discountPrice : item.originalPrice,
+          marketName: finalMarketName,
+          quantity: 1
+        })
+      });
+
+      if (response.ok) {
+        alert(`🛒 [${finalMarketName}] ${item.name}을(를) 장바구니에 담았습니다!`);
+      } else {
+        const result = await response.json();
+        alert(result.message || "장바구니 담기에 실패했습니다.");
+      }
+    } catch (err) {
+      alert("통신 중 오류가 발생했습니다.");
+    }
+  };
 
   // ── 검색 로직 ───────────────────────────────────────────────
   // 백엔드 DTO 필드명 title 기준으로 필터링
@@ -190,6 +227,48 @@ const parseDescription = (desc) => {
       <div style={{ textAlign: 'center', padding: '40px', color: '#8a7a60' }}>
         <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📖</div>
         <p>레시피북을 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  // ── 📍 렌더링 파트 1: 주변 시장 지도 화면 ──────────────────────
+  if (showMap) {
+    return (
+      <div className="rrp-page" style={{ position: 'relative', height: '100vh', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ width: '95%', maxWidth: '600px', height: '90vh', backgroundColor: '#fff', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 100 }}>
+          <div style={{ padding: '18px 25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid #f8f8f8', background: '#fff' }}>
+            <button onClick={() => setShowMap(false)} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#333' }}>←</button>
+            <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#2a1f0e' }}>레시피 북 - 주변 시장 결과</span>
+            <div style={{ width: '28px' }} />
+          </div>
+
+          <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+            {mapLoading ? <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa' }}>분석 중...</div> : <KakaoMap markets={mapMarkets} />}
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 25px', background: '#fcfaf7' }}>
+            {mapMarkets.length === 0 && !mapLoading ? (
+              <div style={{ textAlign: 'center', marginTop: '50px' }}>📍 근처 시장에 재료가 없어요</div>
+            ) : (
+              mapMarkets.map((market, idx) => (
+                <div key={idx} style={{ background: '#fff', borderRadius: '18px', padding: '20px', marginBottom: '15px', border: '1px solid #f0ede8' }}>
+                  <strong style={{ fontSize: '1.05rem', color: '#2a1f0e', display: 'block', marginBottom: '12px' }}>{market.marketName}</strong>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {market.items?.map((item, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: '1px solid #f9f9f9' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#333' }}>{item.onSale && <span style={{ color: '#FF6B35' }}>[특가] </span>}{item.name}</span>
+                          <span style={{ fontSize: '0.85rem', color: item.onSale ? '#FF6B35' : '#4CAF50', fontWeight: 600 }}>{item.onSale ? item.discountPrice?.toLocaleString() : item.originalPrice?.toLocaleString()}원</span>
+                        </div>
+                        <button onClick={() => handleAddToCart(item, market.marketName)} style={{ padding: '8px 18px', background: '#fdd537', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer' }}>담기</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     );
   }
