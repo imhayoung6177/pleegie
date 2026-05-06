@@ -232,7 +232,7 @@ if (showMap) {
         </div>
 
         {/* ── 📍 상단 지도 영역 ── */}
-        <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+        <div style={{ width: '100%', height: '100%', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
           {mapLoading ? (
             <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
           ) : (
@@ -495,7 +495,6 @@ if (showMap) {
                 <button
                   onClick={async () => {
                     setMapLoading(true);
-                    setShowMap(true);
 
                     // 현재 위치 가져오기 (실패 시 서울 시청 좌표로 대체)
                     const getLocation = () => new Promise((resolve) => {
@@ -523,6 +522,7 @@ if (showMap) {
                       console.error('시장 검색 실패:', err);
                     } finally {
                       setMapLoading(false);
+                      setShowMap(true);
                     }
                   }}
                   style={{
