@@ -40,6 +40,8 @@ const MarketRegisterPage = () => {
   // → 메인 submit 버튼과 인증 버튼의 로딩을 각각 관리
   const [isBizLoading, setIsBizLoading] = useState(false);
 
+  const [showPostcode, setShowPostcode] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -66,29 +68,6 @@ const handleVerifyBiz = async () => {
     return;
   }
 
-const handleAddressSearch=()=>{
-  new window.daum.Postcode({
-    oncomplete:(data) => {
-      const address = data.roadAddress || data.jibunAddress;
-
-      const geocoder = new window.kakao.maps.services.Geocoder();
-      geocoder.addressSearch(address, (result,status)=>{
-        if (status===window.kakao.maps.services.Status.OK){
-          setForm(prev=>({
-            ...prev,
-            address,
-            latitude: result[0].y,
-            longitude: result[0].x
-          }));
-        }else{
-          setForm(prev => ({...prev, address}));
-          alert('좌표 변환에 실패했어요. 다시 시도해주세요.');
-        }
-      });
-    }
-  }).open();
-};
-
   // ✅ 임시: API 호출 없이 바로 인증 성공 처리
   // 🔴 나중에 실제 API 연동할 때 이 블록을 제거하고
   //    아래 주석처리된 try/catch 블록을 살려야 함
@@ -112,6 +91,42 @@ const handleAddressSearch=()=>{
   // } finally {
   //   setIsBizLoading(false);
   // }
+};
+
+const handleAddressSearch = () => {
+  setShowPostcode(true);
+  setTimeout(() => {
+    new window.daum.Postcode({
+      oncomplete: async (data) => {
+        const address = data.roadAddress || data.jibunAddress;
+        
+        try {
+          const res = await fetch(
+            `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
+            { headers: { Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}` } }
+          );
+          const geoData = await res.json();
+
+          if (geoData.documents?.length > 0) {
+            setForm(prev => ({
+              ...prev,
+              address,
+              latitude: geoData.documents[0].y,
+              longitude: geoData.documents[0].x
+            }));
+          } else {
+            setForm(prev => ({ ...prev, address }));
+          }
+        } catch (err) {
+          console.error('좌표 변환 실패:', err);
+          setForm(prev => ({ ...prev, address }));
+        }
+        setShowPostcode(false);
+      },
+      width: '100%',
+      height: '100%',
+    }).embed(document.getElementById('daum-postcode-container'));
+  }, 100);
 };
 
   const validate = () => {
@@ -447,6 +462,32 @@ const handleAddressSearch=()=>{
         </Link>
 
       </div>
+      {showPostcode && (
+    <div style={{
+        position: 'fixed', top: 0, left: 0,
+        width: '100%', height: '100%',
+        zIndex: 99999,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+    }}>
+        <div style={{
+            width: '400px', height: '500px',
+            backgroundColor: 'white',
+            borderRadius: '12px', overflow: 'hidden',
+            position: 'relative'
+        }}>
+            <button
+                onClick={() => setShowPostcode(false)}
+                style={{
+                    position: 'absolute', top: '10px', right: '10px',
+                    zIndex: 1, background: 'none', border: 'none',
+                    fontSize: '1.2rem', cursor: 'pointer'
+                }}
+            >✕</button>
+            <div id="daum-postcode-container" style={{ width: '100%', height: '100%' }} />
+        </div>
+    </div>
+)}
     </div>
   );
 };

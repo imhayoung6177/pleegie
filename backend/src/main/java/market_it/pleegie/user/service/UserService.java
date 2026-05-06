@@ -42,7 +42,7 @@ public class UserService {
     // ── 회원가입 ──────────────────────────────
 
     @Transactional
-    public UserResponse signup(UserCreateRequest request) {
+    public UserLoginResponse signup(UserCreateRequest request) {
 
         // 아이디 중복 체크
         if (userRepository.existsByLoginId(request.getLoginId())) {
@@ -54,7 +54,17 @@ public class UserService {
                 passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        return UserResponse.from(user);
+        String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+
+        refreshTokenRepository.save(
+                new RefreshToken(
+                        String.valueOf(user.getId()),
+                        refreshToken)
+                );
+
+        return new UserLoginResponse(accessToken,refreshToken,UserResponse.from(user));
+
     }
 
     // ── 로그인 ────────────────────────────────
