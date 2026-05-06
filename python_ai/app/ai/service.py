@@ -3,6 +3,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from app.core.config import settings
 from app.ai.schema import AiRequest, AiResponse
+from app.ai.schema import AiRequest, AiResponse, MarketGuideResponse
 
 llm = ChatGroq(model="llama-3.1-8b-instant", api_key=settings.groq_api_key)
 
@@ -33,3 +34,22 @@ async def detect_intent(request: AiRequest) -> AiResponse:
         intent = "CHATBOT"
 
     return AiResponse(intent=intent, message=request.message)
+
+
+MARKET_GUIDE_PROMPT = PromptTemplate(
+    input_variables=["message"],
+    template="""
+너는 한국 전통시장 전문 안내원이야. 반드시 한국어로만 답변해.
+
+사용자 질문: {message}
+
+시장 관련 정보, 재료 구매처, 전통시장 이용 방법 등을 친절하게 안내해줘.
+답변은 3-4문장으로 간결하게 해줘.
+""",
+)
+
+
+async def market_guide(request: AiRequest) -> MarketGuideResponse:
+    chain = MARKET_GUIDE_PROMPT | llm | StrOutputParser()
+    result = await chain.ainvoke({"message": request.message})
+    return MarketGuideResponse(message=result.strip())

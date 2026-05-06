@@ -64,8 +64,8 @@ const ChatbotPage = () => {
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        "http://localhost:8080/chatbot",  // ✅ 주소를 명확하게 8080으로 수정
-        // "/chatbot",  // Spring Boot: POST /chatbot
+        // "http://localhost:8080/chatbot",  // ✅ 주소를 명확하게 8080으로 수정
+        "/chatbot",  // Spring Boot: POST /chatbot
         {
           message: currentInput,
           sessionId: sessionId,  // FastAPI 세션 관리용

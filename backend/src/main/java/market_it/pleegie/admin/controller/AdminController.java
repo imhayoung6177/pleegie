@@ -194,8 +194,4 @@ public class AdminController {
                 ApiResponse.ok("지역화폐가 반려되었습니다", null));
     }
 
-    @GetMapping("/hash")
-    public ResponseEntity<String> hash() {
-        return ResponseEntity.ok(passwordEncoder.encode("admin"));
-    }
 }
