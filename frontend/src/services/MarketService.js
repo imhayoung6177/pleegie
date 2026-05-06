@@ -64,6 +64,8 @@ export const registerMarket = async (payload) => {
       name:     payload.ceoName,
       phone:    payload.phone,
       role:     'MARKET',
+      latitude:  payload.latitude,
+      longitude: payload.longitude,
     }),
   });
 
