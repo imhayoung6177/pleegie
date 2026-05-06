@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import market_it.pleegie.admin.dto.AdminLoginRequest;
 import market_it.pleegie.admin.dto.AdminResponse;
+import market_it.pleegie.admin.dto.AdminStatisticsResponse;
 import market_it.pleegie.admin.entity.Admin;
 import market_it.pleegie.admin.repository.AdminRepository;
 import market_it.pleegie.common.exception.CustomException;
@@ -27,6 +28,12 @@ import market_it.pleegie.market.repository.MarketRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import market_it.pleegie.recipe.repository.RecipeRepository; // [준호 추가] 경로 확인 필요
+import market_it.pleegie.market.repository.MarketItemRepository; // [준호 추가]
+import market_it.pleegie.coupon.repository.CouponRepository; // [준호 추가]
+import market_it.pleegie.market.entity.MarketItem; // [준호 추가]
+import java.time.LocalDateTime; // [준호 추가]
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +51,10 @@ public class AdminService {
     private final NoticeRepository noticeRepository;
     private final LocalCurrencyLogRepository
             localCurrencyLogRepository;
+    // ── [준호 추가] 통계 조회를 위해 필요한 장부들 ──
+    private final RecipeRepository recipeRepository; //[준호 추가]
+    private final MarketItemRepository marketItemRepository; //[준호 추가]
+    private final CouponRepository couponRepository; // [준호 추가]
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -126,7 +137,11 @@ public class AdminService {
 
         market.approve();
 
-        return UserResponse.from(market.getUser());
+        // PENDING(인증 대기) -> APPROVED(영업중)로 변경하는 핵심 로직입니다
+        User user = market.getUser(); // [준호 추가]
+        user.updateStatus("ACTIVE"); // [준호 추가]
+
+        return UserResponse.from(user); // [준호 수정]
     }
 
     // 사업자 반려
@@ -276,5 +291,35 @@ public class AdminService {
                         ErrorCode.USER_NOT_FOUND));
 
         log.reject(admin);
+    }
+
+    // ── 통계 관리 ───────────────────────── [준호 추가]
+
+    /**
+     * [서비스 통계 조회]
+     * 실제 DB 데이터를 집계하여 통계 DTO를 생성합니다.
+     */
+    public AdminStatisticsResponse getStatistics() {
+        // 1. 주간 신규 가입자 (최근 7일)
+        long newUsers = userRepository.countByCreatedAtAfter(LocalDateTime.now().minusDays(7));
+
+        // 2. 인기 품목 (조회수 1위)
+        MarketItem topItem = marketItemRepository.findFirstByOrderByViewCountDesc().orElse(null);
+
+        // 3. 저장된 레시피 총합
+        long totalRecipes = recipeRepository.count();
+
+        // 4. 쿠폰 사용률
+        long totalCoupons = couponRepository.count();
+        long usedCoupons = couponRepository.countByIsUsedTrue();
+        double usageRate = totalCoupons > 0 ? (double) usedCoupons / totalCoupons * 100 : 0;
+
+        return AdminStatisticsResponse.builder()
+                .newUsersCount(newUsers)
+                .topItemName(topItem != null ? topItem.getName() : "데이터 없음")
+                .topItemCount(topItem != null ? topItem.getViewCount() : 0)
+                .totalSavedRecipes(totalRecipes)
+                .couponUsageRate(Math.round(usageRate * 10) / 10.0)
+                .build();
     }
 }

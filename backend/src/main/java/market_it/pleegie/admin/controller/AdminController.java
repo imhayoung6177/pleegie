@@ -4,6 +4,8 @@ import ch.qos.logback.classic.encoder.JsonEncoder;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.admin.dto.AdminLoginRequest;
+import market_it.pleegie.admin.dto.AdminResponse;
+import market_it.pleegie.admin.dto.AdminStatisticsResponse;
 import market_it.pleegie.admin.service.AdminService;
 import market_it.pleegie.common.response.ApiResponse;
 import market_it.pleegie.common.security.CustomAdminDetails;
@@ -164,7 +166,7 @@ public class AdminController {
 
     @GetMapping("/local-currency")
     public ResponseEntity<ApiResponse<?>>
-    getLocalCurrencyRequests() {
+    getLocalCurrencyRequests(@RequestParam(required = false) String status) { // [준호 추가]
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService
                         .getLocalCurrencyRequests()));
@@ -197,5 +199,20 @@ public class AdminController {
     @GetMapping("/hash")
     public ResponseEntity<String> hash() {
         return ResponseEntity.ok(passwordEncoder.encode("admin"));
+    }
+
+
+// ── 통계 관리 ───────────────────────── [준호 추가]
+
+/**
+ * [서비스 통계 조회]
+ * 대시보드에 표시할 가입자 수, 인기 품목, 레시피 수 등을 반환합니다.
+ * GET /admin/statistics
+ */
+    @GetMapping("/statistics")
+    public ResponseEntity<ApiResponse<AdminStatisticsResponse>> getStatistics() {
+        // AdminService에서 계산된 통계 꾸러미를 가져와서 응답합니다.
+        return ResponseEntity.ok(
+                ApiResponse.ok("서비스 통계 조회 성공", adminService.getStatistics()));
     }
 }

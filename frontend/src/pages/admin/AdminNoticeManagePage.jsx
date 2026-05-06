@@ -32,10 +32,19 @@ const AdminNoticeManagePage = () => {
   };
 
   useEffect(() => {
-    const load = async () => {
-      await fetchNotices();
+    // 함수를 안으로 들여옵니다.
+    const loadNotices = async () => {
+      try {
+        const response = await axios.get("/admin/notices", { headers: getHeaders() });
+        const rawData = response.data.data || [];
+        const sortedData = rawData.sort((a, b) => a.id - b.id);
+        setNotices(sortedData);
+      } catch (error) {
+        console.error("공지 목록 로딩 실패:", error);
+      }
     };
-    load();
+
+    loadNotices();
   }, []);
 
   // 공지 저장/수정

@@ -10,8 +10,12 @@ const AdminDashboardPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("accessToken");
+      if (!token) {
+        navigate("/admin/login", { replace: true });
+        return;
+      }
+
       try {
-        // 서버 연결 확인 (실제 엔드포인트에 맞춰 조절)
         await axios.get("/admin/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -22,6 +26,7 @@ const AdminDashboardPage = () => {
         navigate("/admin/login", { replace: true });
       }
     };
+
     fetchData();
 
     window.history.pushState(null, null, window.location.href);
@@ -84,23 +89,16 @@ const AdminDashboardPage = () => {
             <span className="admin-menu-text">공지 관리</span>
           </div>
 
-{/* ✅ 지역화폐 관리 (종빈 추가) */}
-{/* 클릭 시 /admin/local-currency 페이지로 이동 */}
-          <div
-            className="admin-menu-card"
-            onClick={() => navigate("/admin/local-currency")}
-          >
+          {/* ✅ 지역화폐 관리 (종빈 추가) */}
+          {/* 클릭 시 /admin/local-currency 페이지로 이동 */}
+          <div className="admin-menu-card" onClick={() => navigate("/admin/local-currency")}>
             <span style={{ fontSize: "45px" }}>💸</span>
             <span className="admin-menu-text">지역화폐 관리</span>
           </div>
 
-          <div
-            className="admin-menu-card"
-            style={{ gridColumn: "span 2", flexDirection: "row", gap: "20px" }}
-            onClick={() => navigate("/admin/statistics")}
-          >
-            <span style={{ fontSize: "35px" }}>📈</span>
-            <span className="admin-menu-text">통계 조회 (Statistics)</span>
+          <div className="admin-menu-card" onClick={() => navigate("/admin/statistics")}>
+            <span style={{ fontSize: "45px" }}>📈</span>
+            <span className="admin-menu-text">통계 조회</span>
           </div>
         </div>
       </div>
