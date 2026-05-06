@@ -66,19 +66,6 @@ public class UserService {
                 );
 
         return new UserLoginResponse(accessToken,refreshToken,UserResponse.from(user));
-
-        // [준호 추가]
-        if ("MARKET".equals(user.getRole())) {
-            market_it.pleegie.market.entity.Market market = market_it.pleegie.market.entity.Market.builder()
-                    .user(user)
-                    .name(user.getName())
-                    .status("PENDING")
-                    .build();
-
-            marketRepository.save(market);
-        }
-
-        return UserResponse.from(user);
     }
 
     // ── 로그인 ────────────────────────────────
