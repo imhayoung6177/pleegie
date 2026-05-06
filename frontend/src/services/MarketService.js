@@ -71,10 +71,16 @@ export const registerMarket = async (payload) => {
   try {
       signupJson = await signupRes.json();
       console.log("signupJson:", signupJson);
+
+      if(!signupRes.ok){
+        throw new Error(signupJson.message || `회원가입 실패 (${signupRes.status})`);
+      }
   } catch (e) {
       console.log("json 파싱 오류:", e);
+      throw e;
   }
   const accessToken = signupJson.data?.accessToken ?? signupJson.accessToken;
+  console.log("accessToken:", accessToken);
 
   if (accessToken) localStorage.setItem('accessToken', accessToken);
 
