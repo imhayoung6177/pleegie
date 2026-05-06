@@ -37,6 +37,47 @@ export default function RecipeRecommendPage() {
   const [showMap, setShowMap] = useState(false);
   const [mapMarkets, setMapMarkets] = useState([]);
   const [mapLoading, setMapLoading] = useState(false);
+// ==================================================================
+//장바구니 연동 함수 (시장에서 구매 가능한 제품을 담기 버튼을 누르면 , 장바구니에 저장이 되도록 구현))
+// ==================================================================
+  const handleAddToCart = async (item, marketName) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      
+      if (!accessToken) {
+        alert("로그인이 필요한 서비스입니다. 😊");
+        navigate('/user/login');
+        return;
+      }
+
+      // [자바 연동] POST /user/cart 호출
+      const response = await fetch('/user/cart', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          name: item.name,
+          price: item.onSale ? item.discountPrice : item.originalPrice,
+          marketName: marketName,
+          quantity: 1
+        })
+      });
+
+      if (response.ok) {
+        alert(`🛒 [${marketName}] ${item.name}을(를) 장바구니에 담았습니다!`);
+      } else {
+        const result = await response.json();
+        alert(result.message || "장바구니 담기에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error('장바구니 연동 에러:', err);
+      alert("통신 중 오류가 발생했습니다.");
+    }
+  };
+  //============================================================
 
   const getAuthHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -145,6 +186,112 @@ const saveRecipe = async (recipe) => {
     };
     init();
   }, []);
+
+  
+
+// ── 렌더링 파트 ────────────────────────────────────────────────────
+// 아까는 모달이어서 , 랜더링을 하여서 , 하나의 페이지 같은 느낌을 줄 수 있도록 설정을 하였습니다. 
+
+if (showMap) {
+  return (
+    <div className="rrp-page" style={{ 
+      position: 'relative', 
+      height: '100vh', 
+      overflow: 'hidden',
+      display: 'flex',
+      justifyContent: 'center', 
+      alignItems: 'center'      
+    }}>
+      
+      {/* ✅ 하얀색 컨테이너: 왼쪽 레시피 상세와 1:1로 동일한 너비(600px) 적용 */}
+      <div style={{
+        width: '95%',               
+        maxWidth: '600px',          /* 👈 800px에서 600px로 줄여 왼쪽과 크기를 맞춤 */
+        height: '90vh',             
+        backgroundColor: '#fff',
+        borderRadius: '24px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        zIndex: 100
+      }}>
+        
+        {/* ── 헤더 ── */}
+        <div style={{
+          padding: '18px 25px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1.5px solid #f8f8f8',
+          background: '#fff'
+        }}>
+          <button onClick={() => setShowMap(false)} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#333' }}>←</button>
+          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#2a1f0e' }}>주변 시장 검색 결과</span>
+          <div style={{ width: '28px' }} />
+        </div>
+
+        {/* ── 📍 상단 지도 영역 ── */}
+        <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+          {mapLoading ? (
+            <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
+          ) : (
+            <KakaoMap markets={mapMarkets} />
+          )}
+        </div>
+
+        {/* ── 🛒 하단 시장 리스트 영역 ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 25px', background: '#fcfaf7' }}>
+          {mapMarkets.length === 0 && !mapLoading ? (
+            <div style={{ textAlign: 'center', marginTop: '50px' }}>
+              <p style={{ fontSize: '2.5rem', margin: 0 }}>📍</p>
+              <p style={{ color: '#999', fontSize: '0.95rem' }}>근처 시장에 재료가 없어요</p>
+            </div>
+          ) : (
+            mapMarkets.map((market, idx) => (
+              <div key={idx} style={{
+                background: '#fff', borderRadius: '18px', padding: '20px', marginBottom: '15px',
+                border: '1px solid #f0ede8', boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
+              }}>
+                <strong style={{ fontSize: '1.05rem', color: '#2a1f0e', display: 'block', marginBottom: '12px' }}>
+                   {market.marketName}
+                </strong>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {market.items?.map((item, i) => (
+                    <div key={i} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '12px 0', borderTop: '1px solid #f9f9f9'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#333' }}>
+                          {item.onSale && <span style={{ color: '#FF6B35' }}>[특가] </span>}{item.name}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', color: item.onSale ? '#FF6B35' : '#4CAF50', fontWeight: 600, marginTop: '2px' }}>
+                          {item.onSale ? item.discountPrice?.toLocaleString() : item.originalPrice?.toLocaleString()}원
+                        </span>
+                      </div>
+                      
+                      <button 
+                        onClick={() => handleAddToCart(item, market.marketName)}
+                        style={{
+                          padding: '8px 18px', background: '#fdd537', color: '#2a1f0e',
+                          border: 'none', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer'
+                        }}
+                      >
+                        담기
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
   // ── 렌더링 ────────────────────────────────────────────────────
   return (
@@ -332,21 +479,6 @@ const saveRecipe = async (recipe) => {
               </div>
             </div>
 
-<<<<<<< HEAD
-            {/* ✅ 부족한 재료 강조 */}
-             {selectedRecipe.missing_ingredients?.length > 0 && (
-                    <div className="detail-section">
-                        <h3>🛒 부족한 재료</h3>
-                        <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
-                            ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
-                        </p>
-                        <button
-                            onClick={async()=>{
-                              console.log("부족한 재료:", selectedRecipe.missing_ingredients);
-                                        setMapLoading(true);
-                                        setShowMap(true);
-                                        console.log("showMap:",true)
-=======
             {/* 부족한 재료 강조 + 근처 시장에서 구매하기 버튼 */}
             {selectedRecipe.missing_ingredients?.length > 0 && (
               <div className="detail-section">
@@ -364,7 +496,6 @@ const saveRecipe = async (recipe) => {
                   onClick={async () => {
                     setMapLoading(true);
                     setShowMap(true);
->>>>>>> 79de760bd002b91817b4c728c34141a496424577
 
                     // 현재 위치 가져오기 (실패 시 서울 시청 좌표로 대체)
                     const getLocation = () => new Promise((resolve) => {
@@ -376,53 +507,6 @@ const saveRecipe = async (recipe) => {
 
                     const location = await getLocation();
 
-<<<<<<< HEAD
-                                        try{
-                                            const res = await fetch('/market/missing-items',{
-                                                method: 'POST',
-                                                headers: getAuthHeaders(),
-                                                body: JSON.stringify({
-                                                    missingIngredients: selectedRecipe.missing_ingredients,
-                                                    latitude: location.latitude,
-                                                    longitude: location.longitude
-                                                })
-                                            });
-                                            const json = await res.json();
-                                            setMapMarkets(json.data?.markets || []);
-                                            
-                                            setMapMarkets(json.data?.markets || []);
-                                        }catch(err){
-                                            console.error('시장 검색 실패:',err);
-                                        }finally{
-                                            setMapLoading(false);
-                                        }
-                                        }
-                                    }
-                            style={{
-                                padding: '10px 20px',
-                              background: '#fdd537',
-                              color: '#2a1f0e',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                marginTop: '8px'
-                            }}
-                        >
-                            🏪 근처 시장에서 구매하기
-                        </button>
-                    </div>
-                )}
-                {/* 🍳 요리법 */}
-                <div className='detail-section'>
-                  <h3>🍳 요리법</h3>
-                  <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
-                    {Array.isArray(selectedRecipe.cooking_steps)
-                      ? selectedRecipe.cooking_steps.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))
-                      : <li>{selectedRecipe.cooking_steps}</li>  // 혹시 string으로 올 경우 대비
-=======
                     try {
                       const res = await fetch('/market/missing-items', {
                         method: 'POST',
@@ -439,7 +523,6 @@ const saveRecipe = async (recipe) => {
                       console.error('시장 검색 실패:', err);
                     } finally {
                       setMapLoading(false);
->>>>>>> 79de760bd002b91817b4c728c34141a496424577
                     }
                   }}
                   style={{
@@ -507,98 +590,8 @@ const saveRecipe = async (recipe) => {
         )}
 
       </div>
-      {/* 카카오 맵 모달*/}
-      {showMap && (
-    <div style={{
-        position: 'fixed', top: 0, left: 0,
-        width: '100%', height: '100%',
-        background: 'rgba(0,0,0,0.5)',
-        zIndex: 1000,
-        display: 'flex', flexDirection: 'column'
-    }}>
-        <div style={{
-            background: '#fff',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column'
-        }}>
-            <div style={{
-                padding: '16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid #eee'
-            }}>
-                <span style={{ fontWeight: 700, fontSize: '1rem' }}>
-                    🏪 근처 시장 찾기
-                </span>
-                <button onClick={() => setShowMap(false)}
-                    style={{ background: 'none', border: 'none',
-                        fontSize: '1.2rem', cursor: 'pointer' }}>
-                    ✕
-                </button>
-            </div>
 
-            {mapLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px' }}>
-                    <p>시장을 검색 중입니다...</p>
-                </div>
-            ) : (
-                <>
-                    <KakaoMap markets={mapMarkets} />
-                    <div style={{
-                        overflowY: 'auto',
-                        padding: '16px',
-                        flex: 1
-                    }}>
-                        {mapMarkets.length === 0 ? (
-                            <p style={{ textAlign: 'center', color: '#888' }}>
-                                근처 시장에 해당 재료가 없어요
-                            </p>
-                        ) : (
-                            mapMarkets.map((market, idx) => (
-                                <div key={idx} style={{
-                                    background: '#f8f5f0',
-                                    borderRadius: '12px',
-                                    padding: '12px 16px',
-                                    marginBottom: '10px'
-                                }}>
-                                    <strong>🏪 {market.marketName}</strong>
-                                    <div style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: '6px',
-                                        marginTop: '8px'
-                                    }}>
-                                        {market.items?.map((item, i) => (
-                                            <span key={i} style={{
-                                                padding: '4px 10px',
-                                                borderRadius: '20px',
-                                                fontSize: '0.8rem',
-                                                background: item.onSale
-                                                    ? '#fff3e0' : '#e8f5e9',
-                                                color: item.onSale
-                                                    ? '#FF6B35' : '#4CAF50',
-                                                border: `1px solid ${
-                                                    item.onSale
-                                                        ? '#FF6B35' : '#4CAF50'}`
-                                            }}>
-                                                {item.onSale ? '🔴 ' : ''}
-                                                {item.name} {item.onSale
-                                                    ? `${item.discountPrice?.toLocaleString()}원`
-                                                    : `${item.originalPrice?.toLocaleString()}원`}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </>
-            )}
-        </div>
-    </div>
-)}
+
     </div>
   );
 }

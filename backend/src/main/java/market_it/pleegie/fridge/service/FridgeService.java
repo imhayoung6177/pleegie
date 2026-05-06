@@ -16,6 +16,7 @@ import market_it.pleegie.item.repository.ItemMasterRepository;
 import market_it.pleegie.user.entity.User;
 import market_it.pleegie.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -35,7 +36,7 @@ public class FridgeService {
 
     // ── 냉장고 조회 (없으면 자동 생성) ──────────
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Fridge getOrCreateFridge(Long userId) {
         return fridgeRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -48,7 +49,7 @@ public class FridgeService {
     }
 
     // ── 재료 전체 조회 (유통기한 임박 순) ────────
-
+    @Transactional(readOnly = false)
     public List<FridgeItemResponse> getFridgeItems(Long userId) {
         Fridge fridge = getOrCreateFridge(userId);
         return fridgeItemRepository

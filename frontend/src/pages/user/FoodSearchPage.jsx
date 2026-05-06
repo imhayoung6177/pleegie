@@ -22,6 +22,49 @@ export default function FoodSearchPage() {
     const [mapMarkets, setMapMarkets] = useState([]);
     const [mapLoading, setMapLoading] = useState(false);
 
+    // ==================================================================
+// 장바구니 연동 함수 (시장연동시 담기 버튼을 누르면 , 저장 구현))
+// ==================================================================
+  const handleAddToCart = async (item, marketName) => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      
+      if (!accessToken) {
+        alert("로그인이 필요한 서비스입니다. 😊");
+        navigate('/user/login');
+        return;
+      }
+
+      // [자바 연동] POST /user/cart 호출
+      const response = await fetch('/user/cart', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+  itemId: item.id,            // marketItem 연결용
+  customItemName: item.name,  // 👈 이 부분을 추가해서 상품명을 같이 보내주세요!
+  price: item.onSale ? item.discountPrice : item.originalPrice,
+  marketName: marketName,
+  quantity: 1
+})
+      });
+
+      if (response.ok) {
+        alert(`🛒 [${marketName}] ${item.name}을(를) 장바구니에 담았습니다!`);
+      } else {
+        const result = await response.json();
+        alert(result.message || "장바구니 담기에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error('장바구니 연동 에러:', err);
+      alert("통신 중 오류가 발생했습니다.");
+    }
+  };
+  //===============================================================================
+
+
     const getAuthHeaders = () => ({
         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         'Content-Type': 'application/json',
@@ -131,6 +174,110 @@ export default function FoodSearchPage() {
         alert('저장 중 오류가 발생했어요.');
     }
 };
+
+// ── 렌더링 파트 ────────────────────────────────────────────────────
+// 아까는 모달이어서 , 랜더링을 하여서 , 하나의 페이지 같은 느낌을 줄 수 있도록 설정을 하였습니다. 
+
+if (showMap) {
+  return (
+    <div className="rrp-page" style={{ 
+      position: 'relative', 
+      height: '100vh', 
+      overflow: 'hidden',
+      display: 'flex',
+      justifyContent: 'center', 
+      alignItems: 'center'      
+    }}>
+      
+      {/* ✅ 하얀색 컨테이너: 왼쪽 레시피 상세와 1:1로 동일한 너비(600px) 적용 */}
+      <div style={{
+        width: '95%',               
+        maxWidth: '600px',          /* 👈 800px에서 600px로 줄여 왼쪽과 크기를 맞춤 */
+        height: '90vh',             
+        backgroundColor: '#fff',
+        borderRadius: '24px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        zIndex: 100
+      }}>
+        
+        {/* ── 헤더 ── */}
+        <div style={{
+          padding: '18px 25px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderBottom: '1.5px solid #f8f8f8',
+          background: '#fff'
+        }}>
+          <button onClick={() => setShowMap(false)} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#333' }}>←</button>
+          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#2a1f0e' }}>주변 시장 검색 결과</span>
+          <div style={{ width: '28px' }} />
+        </div>
+
+        {/* ── 📍 상단 지도 영역 ── */}
+        <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+          {mapLoading ? (
+            <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
+          ) : (
+            <KakaoMap markets={mapMarkets} />
+          )}
+        </div>
+
+        {/* ── 🛒 하단 시장 리스트 영역 ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 25px', background: '#fcfaf7' }}>
+          {mapMarkets.length === 0 && !mapLoading ? (
+            <div style={{ textAlign: 'center', marginTop: '50px' }}>
+              <p style={{ fontSize: '2.5rem', margin: 0 }}>📍</p>
+              <p style={{ color: '#999', fontSize: '0.95rem' }}>근처 시장에 재료가 없어요</p>
+            </div>
+          ) : (
+            mapMarkets.map((market, idx) => (
+              <div key={idx} style={{
+                background: '#fff', borderRadius: '18px', padding: '20px', marginBottom: '15px',
+                border: '1px solid #f0ede8', boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
+              }}>
+                <strong style={{ fontSize: '1.05rem', color: '#2a1f0e', display: 'block', marginBottom: '12px' }}>
+                   {market.marketName}
+                </strong>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {market.items?.map((item, i) => (
+                    <div key={i} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '12px 0', borderTop: '1px solid #f9f9f9'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#333' }}>
+                          {item.onSale && <span style={{ color: '#FF6B35' }}>[특가] </span>}{item.name}
+                        </span>
+                        <span style={{ fontSize: '0.85rem', color: item.onSale ? '#FF6B35' : '#4CAF50', fontWeight: 600, marginTop: '2px' }}>
+                          {item.onSale ? item.discountPrice?.toLocaleString() : item.originalPrice?.toLocaleString()}원
+                        </span>
+                      </div>
+                      
+                      <button 
+                        onClick={() => handleAddToCart(item, item.marketName)}
+                        style={{
+                          padding: '8px 18px', background: '#fdd537', color: '#2a1f0e',
+                          border: 'none', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer'
+                        }}
+                      >
+                        담기
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
     return (
         <div className="rrp-page">
@@ -506,7 +653,7 @@ export default function FoodSearchPage() {
                 )}
             </div>
             {/* 카카오맵 모달*/}
-            {showMap && (
+            {/* {showMap && (
     <div style={{
         position: 'fixed', top: 0, left: 0,
         width: '100%', height: '100%',
@@ -642,7 +789,7 @@ export default function FoodSearchPage() {
             )}
         </div>
     </div>
-)}
+)} */}
         </div>
     );
 }
