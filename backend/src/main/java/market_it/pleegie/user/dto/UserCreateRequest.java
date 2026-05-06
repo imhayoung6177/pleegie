@@ -24,6 +24,7 @@ public class UserCreateRequest {
 
     private String phone;
     private String email;
+    private String address;
     private Double latitude;
     private Double longitude;
 
@@ -37,6 +38,7 @@ public class UserCreateRequest {
                 .name(this.name)
                 .phone(this.phone)
                 .email(this.email)
+                .address(this.address)
                 .latitude(this.latitude)
                 .longitude(this.longitude)
                 .role(this.role)

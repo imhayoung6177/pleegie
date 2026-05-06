@@ -167,6 +167,7 @@ public class UserService {
                 request.getName(),
                 request.getPhone(),
                 request.getEmail(),
+                request.getAddress(),
                 request.getLatitude(),
                 request.getLongitude());
 

@@ -30,6 +30,7 @@ public class User extends BaseEntity {
 
     private String phone;
     private String email;
+    private String address;
     private Double latitude;
     private Double longitude;
 
@@ -67,11 +68,12 @@ public class User extends BaseEntity {
     }
 
     public void updateInfo(String name, String phone,
-                           String email, Double latitude,
-                           Double longitude) {
+                           String email, String address,
+                           Double latitude, Double longitude) {
         if (name != null) this.name = name;
         if (phone != null) this.phone = phone;
         if (email != null) this.email = email;
+        if (address != null) this.address = address;
         if (latitude != null) this.latitude = latitude;
         if (longitude != null) this.longitude = longitude;
     }
