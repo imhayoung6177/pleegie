@@ -43,7 +43,7 @@ export default function RecipeRecommendPage() {
   const handleAddToCart = async (item, marketName) => {
     try {
       const accessToken = localStorage.getItem('accessToken');
-      
+
       if (!accessToken) {
         alert("로그인이 필요한 서비스입니다. 😊");
         navigate('/user/login');
@@ -187,27 +187,27 @@ const saveRecipe = async (recipe) => {
     init();
   }, []);
 
-  
+
 
 // ── 렌더링 파트 ────────────────────────────────────────────────────
-// 아까는 모달이어서 , 랜더링을 하여서 , 하나의 페이지 같은 느낌을 줄 수 있도록 설정을 하였습니다. 
+// 아까는 모달이어서 , 랜더링을 하여서 , 하나의 페이지 같은 느낌을 줄 수 있도록 설정을 하였습니다.
 
 if (showMap) {
   return (
-    <div className="rrp-page" style={{ 
-      position: 'relative', 
-      height: '100vh', 
+    <div className="rrp-page" style={{
+      position: 'relative',
+      height: '100vh',
       overflow: 'hidden',
       display: 'flex',
-      justifyContent: 'center', 
-      alignItems: 'center'      
+      justifyContent: 'center',
+      alignItems: 'center'
     }}>
-      
+
       {/* ✅ 하얀색 컨테이너: 왼쪽 레시피 상세와 1:1로 동일한 너비(600px) 적용 */}
       <div style={{
-        width: '95%',               
+        width: '95%',
         maxWidth: '600px',          /* 👈 800px에서 600px로 줄여 왼쪽과 크기를 맞춤 */
-        height: '90vh',             
+        height: '90vh',
         backgroundColor: '#fff',
         borderRadius: '24px',
         boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
@@ -216,7 +216,7 @@ if (showMap) {
         overflow: 'hidden',
         zIndex: 100
       }}>
-        
+
         {/* ── 헤더 ── */}
         <div style={{
           padding: '18px 25px',
@@ -256,7 +256,7 @@ if (showMap) {
                 <strong style={{ fontSize: '1.05rem', color: '#2a1f0e', display: 'block', marginBottom: '12px' }}>
                    {market.marketName}
                 </strong>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {market.items?.map((item, i) => (
                     <div key={i} style={{
@@ -271,8 +271,8 @@ if (showMap) {
                           {item.onSale ? item.discountPrice?.toLocaleString() : item.originalPrice?.toLocaleString()}원
                         </span>
                       </div>
-                      
-                      <button 
+
+                      <button
                         onClick={() => handleAddToCart(item, market.marketName)}
                         style={{
                           padding: '8px 18px', background: '#fdd537', color: '#2a1f0e',

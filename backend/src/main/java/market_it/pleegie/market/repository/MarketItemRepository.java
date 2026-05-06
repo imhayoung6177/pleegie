@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MarketItemRepository extends JpaRepository<MarketItem, Long> {
 
@@ -19,6 +20,9 @@ public interface MarketItemRepository extends JpaRepository<MarketItem, Long> {
 
     // 할인 중인 품목 조회
     List<MarketItem> findAllByMarketIdAndOnSaleTrue(Long marketId);
+
+    // 인기 품목 1위 찾기용 [준호 추가]
+    Optional<MarketItem> findFirstByOrderByViewCountDesc();
 
     // 냉장고에 없는 재료와 매칭되는 품목 조회 (기획 #8)
     // item_master_id가 일치하는 시장 품목 찾기
