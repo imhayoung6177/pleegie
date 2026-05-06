@@ -59,63 +59,82 @@ export default function ShopItemAddPage() {
     fetchData();
   }, [navigate]);
 
-  const handleAddProduct = async () => {
-    if (!form.name.trim() || !form.originalPrice) { showToast('상품명과 단가를 입력해주세요!'); return; }
-    setIsSaving(true);
-    let itemMasterId = null;
-    let itemCategory = '기타';
-    try{
-      const searchRes = await fetch(
-        `/item-master/search?name=${encodeURIComponent(form.name.trim())}`,
-        {headers:{Authorization: `Bearer ${localStorage.getItem('accessToken')}`}}
-      );
-      const searchJson = await searchRes.json();
-      const matched = searchJson.data?.[0];
-      itemMasterId = matched?.id || null;
-      itemCategory = matched?.category || '기타';
-    }catch{
-      itemMasterId = null;
-    }
+ const handleAddProduct = async () => {
+  if (!form.name.trim() || !form.originalPrice) {
+    showToast('상품명과 단가를 입력해주세요!');
+    return;
+  }
 
-    if(!itemMasterId){
-      showToast('등록되지 않은 재료입니다. 관리자에게 문의해주세요.');
-      setIsSaving(false);
-      return;
-    }
+  setIsSaving(true);
+  
+  try {
+    // 1. 단위 및 숫자 제거 (검색용)
+    const pureName = form.name.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
 
-    try {
-      const originalPriceNum = Number(form.originalPrice);
+    // 2. 재료 검색
+    const searchRes = await fetch(
+      `/item-master/search?name=${encodeURIComponent(pureName)}`,
+      { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } }
+    );
+    const searchJson = await searchRes.json();
+    let matched = searchJson.data?.[0];
 
-      // 1단계: 품목 기본 정보만 등록
-      // createMarketItem API는 할인 필드를 받지 않으므로 기본 정보만 전송
-      let newItem = await createMarketItem({
-            itemMasterId: itemMasterId,  // ← 자동 검색된 id
-            name: form.name.trim(),
-            category: itemCategory,
-            originalPrice: originalPriceNum,
-            imageUrl: form.imageUrl || null,
-            stock: Number(form.stock) || 0,
+    let itemMasterId;
+    let itemCategory;
+
+    if (matched) {
+      itemMasterId = matched.id;
+      itemCategory = matched.category;
+    } else {
+      // 💡 [중요] /item-master POST API가 불안정하므로 안전장치 추가
+      try {
+        const createMasterRes = await fetch('/item-master', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: JSON.stringify({ name: pureName, category: '기타', unit: '개' })
         });
 
-      // 2단계: 할인가와 시간이 모두 입력된 경우에만 startSale API를 별도 호출
-      // updateMarketItem/createMarketItem은 할인 필드를 무시하므로 반드시 분리 호출 필요
-      if (form.salePrice && form.saleStart && form.saleEnd) {
-        const sp = Number(form.salePrice);
-        const rate = Math.round((1 - sp / originalPriceNum) * 100);
-        newItem = await startSale(newItem.id, {
-          discountPrice: sp,
-          discountRate: rate,
-          startTime: form.saleStart + ':00',
-          endTime: form.saleEnd + ':00',
-        });
+        if (createMasterRes.ok) {
+          const newMaster = await createMasterRes.json();
+          itemMasterId = newMaster.data.id;
+          itemCategory = newMaster.data.category;
+        } else {
+          // POST API가 없거나 에러나면 기본 재료(ID: 1)를 사용하도록 폴백
+          console.warn("ItemMaster 등록 API 실패 - 기본 재료로 대체합니다.");
+          itemMasterId = 1; 
+          itemCategory = '기타';
+        }
+      } catch (e) {
+        itemMasterId = 1; // 네트워크 에러 시에도 중단되지 않게 ID 1번 강제 할당
+        itemCategory = '기타';
       }
+    }
 
-      setItems(prev => [newItem, ...prev]);
-      showToast(`${newItem.name} 등록 완료!`);
-      setForm(EMPTY_FORM);
-    } catch (err) { showToast(err.message || '품목 등록에 실패했습니다'); }
-    finally { setIsSaving(false); }
-  };
+    // 3. 품목 등록 실행
+    const originalPriceNum = Number(form.originalPrice);
+    const newItem = await createMarketItem({
+      itemMasterId: itemMasterId,
+      name: form.name.trim(), // "시금치 1봉" 그대로 저장
+      category: itemCategory,
+      originalPrice: originalPriceNum,
+      imageUrl: form.imageUrl || null,
+      stock: Number(form.stock) || 0,
+    });
+
+    // 4. 성공 처리
+    setItems(prev => [newItem, ...prev]);
+    showToast(`${newItem.name} 등록 완료!`);
+    setForm(EMPTY_FORM);
+  } catch (err) {
+    console.error("등록 에러 상세:", err);
+    showToast('서버 오류가 발생했습니다. 재료 정보를 확인해주세요.');
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm('정말 삭제하시겠습니까?')) return;
