@@ -170,7 +170,7 @@ public class RecipeService {
                 .existsByUserIdAndTitle(userId, request.getTitle());
 
         if (exists) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
+            throw new CustomException(ErrorCode.DUPLICATE_RECIPE);
         }
 
         RecipeBook recipeBook = RecipeBook.builder()

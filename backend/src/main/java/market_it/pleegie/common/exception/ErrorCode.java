@@ -30,6 +30,7 @@ public enum ErrorCode {
 
     // Recipe
     RECIPE_NOT_FOUND(HttpStatus.NOT_FOUND, "레시피를 찾을 수 없습니다"),
+    DUPLICATE_RECIPE(HttpStatus.CONFLICT, "이미 저장된 레시피입니다"),
 
     // Cart
     CART_NOT_FOUND(HttpStatus.NOT_FOUND, "장바구니 항목을 찾을 수 없습니다"),
