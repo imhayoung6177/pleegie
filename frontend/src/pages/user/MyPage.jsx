@@ -123,7 +123,7 @@ export default function MyPage() {
         <div className="mp-profile-info">
           <div className="mp-profile-name">{userInfo.name}님</div>
           <div className="mp-role-row">
-            <div className="mp-profile-role">{userInfo.role === 'SHOP' ? '소상공인' : '일반 회원'}</div>
+            <div className="mp-profile-role">{userInfo.role === 'MARKET' ? '소상공인' : '일반 회원'}</div>
             <button className="mp-withdraw-btn" onClick={() => setWithdrawOpen(true)}>회원 탈퇴</button>
           </div>
           <div className="mp-profile-details">

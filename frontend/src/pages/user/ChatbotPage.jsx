@@ -7,7 +7,9 @@ const ChatbotPage = () => {
   const navigate = useNavigate();
 
   // ✅ 로그인한 사용자 ID로 sessionId 생성 (localStorage에서 꺼냄)
-  const userId = localStorage.getItem("userId") || "guest";
+  const userId = localStorage.getItem("userId") || 
+                          localStorage.getItem("userName") || 
+                          "guest";
   const sessionId = `user_${userId}`;
 
   const [messages, setMessages] = useState([
@@ -37,7 +39,16 @@ const ChatbotPage = () => {
     if (typeof data === "string") return data;
 
     // AiRouterResponse 객체인 경우 { intent, message, data }
-    if (data.message) return data.message;
+    if (data.message && typeof data.message === "string") return data.message;
+
+    // RecipeRecommendResponse가 레시피에 대한 리스트인 경우
+    if (data.recipes && Array.isArray(data.recipes)) {
+      const recipeList = data.recipes
+      .slice(0,3) // 상위 3개만
+      .map((r, i) => `${i+1}. ${r.title} (재료 ${Math.round(r.match_score*100)}% 보유)`)
+      .join("\n");
+      return `냉장고 재료로 만들 수 있는 레시피입니다! 🍳\n\n${recipeList}\n\n레시피 추천 페이지에서 자세히 확인해보세요!`;
+    }
 
     // RecipeRecommendResponse 등 리스트인 경우
     if (Array.isArray(data)) {
@@ -64,8 +75,8 @@ const ChatbotPage = () => {
       const token = localStorage.getItem("accessToken");
 
       const response = await axios.post(
-        "http://localhost:8080/chatbot",  // ✅ 주소를 명확하게 8080으로 수정
-        // "/chatbot",  // Spring Boot: POST /chatbot
+        // "http://localhost:8080/chatbot",  // ✅ 주소를 명확하게 8080으로 수정
+        "/chatbot",  // Spring Boot: POST /chatbot
         {
           message: currentInput,
           sessionId: sessionId,  // FastAPI 세션 관리용
