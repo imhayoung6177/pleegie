@@ -8,6 +8,7 @@ const ProfileEdit = ({ onBack }) => {
     loginId: '', 
     name: '',
     password: '',
+    currentPassword: '',
     phone: '',
     email: '',
     address: '',
@@ -59,20 +60,64 @@ const ProfileEdit = ({ onBack }) => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
+      let latitude = null;
+      let longitude = null;
+
+      // 주소가 입력된 경우 카카오맵 API로 좌표 변환
+      if (form.address.trim()) {
+        const kakaoKey = import.meta.env.VITE_KAKAO_REST_API_KEY;
+        const geoRes = await fetch(
+          `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(form.address)}`,
+          { headers: { Authorization: `KakaoAK ${kakaoKey}` } }
+        );
+        const geoData = await geoRes.json();
+
+        if (geoData.documents?.length > 0) {
+          latitude = parseFloat(geoData.documents[0].y);
+          longitude = parseFloat(geoData.documents[0].x);
+        } else {
+          alert("주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.");
+          return;
+        }
+      }
+
       // ✅ [수정] 백엔드 컨트롤러의 @PutMapping("/user/mypage")와 일치시킴
       const response = await fetch('/user/mypage', {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          latitude,
+          longitude,
+        })
       });
 
-      if (response.ok) {
-        setSaved(true);
-        localStorage.setItem('userName', form.name);
-        setTimeout(() => { setSaved(false); onBack(); }, 1500);
-      } else {
-        alert("수정에 실패했습니다. 백엔드 규격을 확인해주세요.");
+      if (!response.ok) {
+        alert("수정에 실패했습니다.");
+        return;
       }
+
+      // 2. 비밀번호 변경 (입력한 경우만)
+      if (form.password.trim()) {
+        const pwResponse = await fetch('/user/password', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            currentPassword: form.currentPassword,
+            newPassword: form.password,
+          })
+        });
+
+        if (!pwResponse.ok) {
+          alert("비밀번호 변경에 실패했습니다. 현재 비밀번호를 확인해주세요.");
+          return;
+        }
+      }
+
+      setSaved(true);
+      localStorage.setItem('userName', form.name);
+      setTimeout(() => { setSaved(false); onBack(); }, 1500);
     } catch (err) {
       console.error("수정 API 호출 에러:", err);
     }
@@ -109,6 +154,21 @@ const ProfileEdit = ({ onBack }) => {
               <label className="auth-label">이름</label>
               <div className="auth-input-wrap editable">
                 <input type="text" name="name" className="auth-input" value={form.name} onChange={handleChange} maxLength={10} />
+              </div>
+            </div>
+
+            {/* 현재 비밀번호 */}
+            <div className="auth-field">
+              <label className="auth-label">현재 비밀번호 (비밀번호 변경 시 필요)</label>
+              <div className="auth-input-wrap editable">
+                <input
+                  type="password"
+                  name="currentPassword"
+                  placeholder="현재 비밀번호"
+                  className="auth-input"
+                  value={form.currentPassword || ''}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
