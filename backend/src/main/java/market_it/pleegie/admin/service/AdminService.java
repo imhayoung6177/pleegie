@@ -277,4 +277,12 @@ public class AdminService {
 
         log.reject(admin);
     }
+
+    // 신고 삭제 기능을 위한 메서드 추가 << 5.6 종빈 추가 >>
+    @Transactional
+    public void deleteReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+        reportRepository.delete(report);
+    }
 }

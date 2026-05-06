@@ -305,8 +305,8 @@ export default function ShopItemAddPage() {
           <div className="auth-divider" style={{ margin: '24px 0 16px' }}><span>취소하시겠어요?</span></div>
           <button className="auth-link-btn"
             style={{ color: MG, borderColor: MG, background: 'rgba(183,204,172,0.06)', display: 'block', width: '100%', padding: '13px', borderRadius: '14px', textAlign: 'center', cursor: 'pointer', fontFamily: 'var(--font-title)', fontSize: '0.92rem', border: `2px solid ${MG}` }}
-            onClick={() => navigate('/market/main')}>
-            상인 대시보드로 돌아가기
+            onClick={() => navigate('/market/mypage')}>
+            마이페이지로 돌아가기
           </button>
         </div>
       </div>

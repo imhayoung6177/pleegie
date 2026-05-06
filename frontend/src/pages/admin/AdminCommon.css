@@ -12,12 +12,12 @@
   overflow-x: hidden;
   font-family: "Jua", sans-serif;
 
-  /* 🚨 기본값은 다시 '정중앙'으로 설정 (로그인창이 사라지지 않게!) */
+  /* 기본값은 정중앙 정렬 (로그인창) */
   justify-content: center;
   align-items: center;
 }
 
-/* 🚀 대시보드일 때만 위에서부터 정렬 (상단 바를 위해) */
+/* 대시보드일 때만 위에서부터 정렬 */
 .admin-login-container.dashboard-mode {
   justify-content: flex-start;
 }
@@ -49,30 +49,30 @@
   margin-left: 5px;
 }
 
-/* 핵심: 일반 페이지와 동일한 '둥근 입력창' */
+/* 둥근 입력창 */
 .admin-input {
   width: 100%;
   padding: 16px;
-  background-color: #fffbf4; /* 아주 연한 아이보리 */
+  background-color: #fffbf4;
   border: 1.5px solid #e5d9cc;
-  border-radius: 12px; /* 둥근 입력창 */
+  border-radius: 12px;
   font-family: inherit;
   font-size: 14px;
-  box-sizing: border-box; /* 패딩이 너비를 침범하지 않게 함 */
+  box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .admin-input:focus {
-  border-color: #ff6b35; /* 클릭 시 포인트 주황색으로 변경 */
+  border-color: #fdd537; /* ✅ 포커스 색상도 노란색으로 변경 */
 }
 
-/* 핵심: 일반 페이지와 동일한 '주황색 로그인 버튼' */
+/* ✅ 주황색 → 노란색(#fdd537)으로 변경된 메인 버튼 */
 .admin-btn-main {
   width: 100%;
   height: 52px;
-  background-color: #ff6b35; /* 쨍한 오렌지색 */
-  color: #ffffff;
+  background-color: #fdd537; /* ✅ 변경: 주황 → 노란색 */
+  color: #1a1a1a;             /* ✅ 변경: 글자색 검정 */
   border: none;
   border-radius: 12px;
   font-family: "Jua", sans-serif;
@@ -88,7 +88,7 @@
   transform: translateY(-1px);
 }
 
-/* 🚀 9. 관리자용 상단 바 (투명 스타일) */
+/* 관리자용 상단 바 (투명 스타일) */
 .admin-topnav {
   width: 100%;
   height: 80px;
@@ -101,7 +101,6 @@
   z-index: 100;
 }
 
-/* 상단 바 오른쪽 정렬 및 여백 (Spacing) */
 .admin-topnav-right {
   display: flex;
   align-items: center;
@@ -114,15 +113,14 @@
   font-weight: 500;
 }
 
-/* 이하 admin-logo, admin-title, admin-menu-grid 등 기존 스타일은 그대로 유지하시면 됩니다. */
 .admin-logo {
   font-size: 28px;
-  color: #ff6b35;
+  color: #1a1a1a;
   margin-bottom: 8px;
 }
 .admin-title {
   font-size: 22px;
-  color: #d94f1e;
+  color: #1a1a1a;
   margin-bottom: 30px;
 }
 .admin-board {
@@ -156,12 +154,14 @@
   align-items: center;
   gap: 15px;
 }
+
+/* ✅ 뒤로가기/로그아웃 버튼 → 노란색으로 변경 */
 .admin-btn-logout {
   padding: 10px 18px;
-  background-color: #ff6b35; /* 포인트 오렌지 */
-  color: #ffffff;
+  background-color: #fdd537; /* ✅ 변경: 주황 → 노란색 */
+  color: #1a1a1a;             /* ✅ 변경: 글자색 검정 */
   border: none;
-  border-radius: 30px; /* 아주 둥근 모서리로 변경 */
+  border-radius: 30px;
   font-family: "Jua", sans-serif;
   font-size: 14px;
   font-weight: bold;
@@ -169,22 +169,28 @@
   transition: all 0.2s ease;
   line-height: 1;
 }
-/* 관리자용 테이블 (Table) 스타일 */
+
+.admin-btn-logout:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+/* 관리자용 테이블 스타일 */
 .admin-table-container {
   width: 100%;
-  overflow-x: auto; /* 화면이 작아지면 가로 스크롤 생성 */
+  overflow-x: auto;
   margin-top: 20px;
 }
 
 .admin-table {
   width: 100%;
-  border-collapse: collapse; /* 테두리 사이 간격 제거 */
+  border-collapse: collapse;
   background-color: transparent;
 }
 
 .admin-table th {
-  background-color: #fffbf4; /* 연한 아이보리 헤더 */
-  color: #ff6b35;
+  background-color: #fffbf4;
+  color: #1a1a1a;
   padding: 15px;
   border-bottom: 2px solid #efefef;
   font-size: 15px;
@@ -195,10 +201,10 @@
   text-align: center;
   border-bottom: 1px solid #f9f9f9;
   font-size: 14px;
-  color: #4a4a6a;
+  color: #1a1a1a;
 }
 
-/* 상태 표시 배지(Badge) */
+/* 상태 배지(Badge) */
 .status-badge {
   padding: 4px 10px;
   border-radius: 20px;
@@ -206,14 +212,9 @@
   font-size: 12px;
 }
 
-.status-normal {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-} /* 정상 */
-.status-stopped {
-  background-color: #ffebee;
-  color: #c62828;
-} /* 정지 */
+.status-normal  { background-color: #e8f5e9; color: #2e7d32; } /* 정상 */
+.status-stopped { background-color: #ffebee; color: #c62828; } /* 정지 */
+.status-warning { background-color: #fff8e1; color: #fdd537; } /* 대기 */
 
 /* 관리 버튼들 */
 .admin-action-btn {
@@ -226,34 +227,32 @@
   transition: opacity 0.2s;
 }
 
-/* 모달 뒷배경: 화면 전체를 어둡게 덮음 */
+/* 모달 뒷배경 */
 .admin-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* 50% 반투명 검정색 */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* 모든 요소보다 가장 위에 오도록 설정 */
+  z-index: 9999;
 }
 
-/* 모달 상자: 실제 내용이 들어가는 하얀 박스 */
+/* 모달 박스 */
 .admin-modal-content {
   background-color: #ffffff;
   padding: 40px;
-  border-radius: 30px; /* pleegie 특유의 둥근 모서리 */
+  border-radius: 30px;
   width: 450px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
   text-align: center;
   border: 1px solid #efefef;
-  /* 애니메이션 효과: 뿅 하고 나타나는 느낌 */
   animation: modalFadeIn 0.3s ease-out;
 }
 
-/* 모달 내부 입력창 여백 조절 */
 .admin-modal-content .admin-input {
   margin-top: 10px;
   margin-bottom: 20px;
@@ -261,33 +260,66 @@
 
 /* 팝업 등장 애니메이션 */
 @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 모달 내부 버튼 전용 스타일 (등록, 수정완료, 취소 버튼용) */
+/* 모달 내부 버튼 */
 .admin-modal-content .admin-action-btn {
-  height: 50px !important; /* 👈 버튼 높이를 50px로 큼직하게 설정 */
-  font-size: 17px !important; /* 👈 글자 크기도 시원하게 키움 */
+  height: 50px !important;
+  font-size: 17px !important;
   font-weight: bold;
   border-radius: 12px;
-  margin: 15px 5px 0 5px; /* 위쪽 여백을 주어 입력창과 간격 확보 */
+  margin: 15px 5px 0 5px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  font-family: "Jua", sans-serif; /* 폰트 통일 */
+  font-family: "Jua", sans-serif;
 }
 
-/* 버튼에 마우스 올렸을 때 효과 */
 .admin-modal-content .admin-action-btn:hover {
   filter: brightness(0.9);
-  transform: scale(1.02); /* 살짝 커지는 효과로 클릭감 상승 */
+  transform: scale(1.02);
+}
+
+/* ✅ 신고 상세보기 모달 전용 스타일 */
+.report-detail-modal {
+  width: 560px;
+  text-align: left;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* 신고 상세보기 내용 박스 */
+.report-detail-content {
+  background-color: #fffbf4;
+  border: 1.5px solid #e5d9cc;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 120px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-size: 14px;
+  color: #333;
+  margin-top: 8px;
+}
+
+/* 신고 상세보기 메타 정보 (작성자, 날짜 등) */
+.report-detail-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #888;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 16px;
+}
+
+.report-detail-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

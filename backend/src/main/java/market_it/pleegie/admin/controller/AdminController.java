@@ -198,4 +198,12 @@ public class AdminController {
     public ResponseEntity<String> hash() {
         return ResponseEntity.ok(passwordEncoder.encode("admin"));
     }
+
+    // 신고 삭제 기능을 위한 메서드 추가 << 5.6 종빈 추가 >>
+    @DeleteMapping("/reports/{reportId}")
+    public ResponseEntity<ApiResponse<Void>> deleteReport(
+            @PathVariable Long reportId) {
+        adminService.deleteReport(reportId);
+        return ResponseEntity.ok(ApiResponse.ok("신고가 삭제되었습니다.", null));
+    }
 }
