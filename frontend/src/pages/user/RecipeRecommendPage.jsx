@@ -332,21 +332,6 @@ const saveRecipe = async (recipe) => {
               </div>
             </div>
 
-<<<<<<< HEAD
-            {/* ✅ 부족한 재료 강조 */}
-             {selectedRecipe.missing_ingredients?.length > 0 && (
-                    <div className="detail-section">
-                        <h3>🛒 부족한 재료</h3>
-                        <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
-                            ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
-                        </p>
-                        <button
-                            onClick={async()=>{
-                              console.log("부족한 재료:", selectedRecipe.missing_ingredients);
-                                        setMapLoading(true);
-                                        setShowMap(true);
-                                        console.log("showMap:",true)
-=======
             {/* 부족한 재료 강조 + 근처 시장에서 구매하기 버튼 */}
             {selectedRecipe.missing_ingredients?.length > 0 && (
               <div className="detail-section">
@@ -364,7 +349,6 @@ const saveRecipe = async (recipe) => {
                   onClick={async () => {
                     setMapLoading(true);
                     setShowMap(true);
->>>>>>> 79de760bd002b91817b4c728c34141a496424577
 
                     // 현재 위치 가져오기 (실패 시 서울 시청 좌표로 대체)
                     const getLocation = () => new Promise((resolve) => {
@@ -376,53 +360,6 @@ const saveRecipe = async (recipe) => {
 
                     const location = await getLocation();
 
-<<<<<<< HEAD
-                                        try{
-                                            const res = await fetch('/market/missing-items',{
-                                                method: 'POST',
-                                                headers: getAuthHeaders(),
-                                                body: JSON.stringify({
-                                                    missingIngredients: selectedRecipe.missing_ingredients,
-                                                    latitude: location.latitude,
-                                                    longitude: location.longitude
-                                                })
-                                            });
-                                            const json = await res.json();
-                                            setMapMarkets(json.data?.markets || []);
-                                            
-                                            setMapMarkets(json.data?.markets || []);
-                                        }catch(err){
-                                            console.error('시장 검색 실패:',err);
-                                        }finally{
-                                            setMapLoading(false);
-                                        }
-                                        }
-                                    }
-                            style={{
-                                padding: '10px 20px',
-                              background: '#fdd537',
-                              color: '#2a1f0e',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                marginTop: '8px'
-                            }}
-                        >
-                            🏪 근처 시장에서 구매하기
-                        </button>
-                    </div>
-                )}
-                {/* 🍳 요리법 */}
-                <div className='detail-section'>
-                  <h3>🍳 요리법</h3>
-                  <ol style={{ paddingLeft: '20px', color: '#5a4a32', lineHeight: 2 }}>
-                    {Array.isArray(selectedRecipe.cooking_steps)
-                      ? selectedRecipe.cooking_steps.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))
-                      : <li>{selectedRecipe.cooking_steps}</li>  // 혹시 string으로 올 경우 대비
-=======
                     try {
                       const res = await fetch('/market/missing-items', {
                         method: 'POST',
@@ -439,7 +376,6 @@ const saveRecipe = async (recipe) => {
                       console.error('시장 검색 실패:', err);
                     } finally {
                       setMapLoading(false);
->>>>>>> 79de760bd002b91817b4c728c34141a496424577
                     }
                   }}
                   style={{
