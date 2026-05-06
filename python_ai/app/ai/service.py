@@ -13,8 +13,8 @@ INTENT_PROMPT = PromptTemplate(
 너는 사용자의 메시지를 분석해서 의도를 파악하는 AI야.
 아래 4가지 intent 중 하나만 반환해.
 
-- RECIPE_RECOMMEND : 냉장고 재료 기반으로 레시피를 추천해달라는 의도
-- RECIPE_SEARCH : 특정 음식이나 요리를 검색하려는 의도
+- RECIPE_RECOMMEND : 냉장고 재료 기반으로 레시피를 추천해달라는 의도 (예: "레시피 추천해줘", "뭐 만들어 먹지")
+- RECIPE_SEARCH : 특정 음식이나 요리를 검색하려는 의도 (예: "김치찌개 레시피", "파스타 만드는 법")
 - MARKET_GUIDE : 근처 시장 안내, 재료 구매처 문의 등 시장 관련 의도
 - CHATBOT : 신고, 문의, 일반 대화 등 나머지 모든 의도
 
