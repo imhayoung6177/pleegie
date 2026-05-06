@@ -211,4 +211,12 @@ public class AdminController {
         return ResponseEntity.ok(
                 ApiResponse.ok("서비스 통계 조회 성공", adminService.getStatistics()));
     }
+
+    // 신고 삭제 기능을 위한 메서드 추가 << 5.6 종빈 추가 >>
+    @DeleteMapping("/reports/{reportId}")
+    public ResponseEntity<ApiResponse<Void>> deleteReport(
+            @PathVariable Long reportId) {
+        adminService.deleteReport(reportId);
+        return ResponseEntity.ok(ApiResponse.ok("신고가 삭제되었습니다.", null));
+    }
 }

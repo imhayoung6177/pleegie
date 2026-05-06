@@ -607,7 +607,7 @@ export default function FridgePage() {
       <div className="fridge-outer">
 
         <div className="fridge-top-panel">
-          <span className="fridge-brand">{userName}님의 Smart Fridge</span>
+          <span className="fridge-brand">"{userName}"님의 냉장고</span>
         </div>
 
         <div className="fridge-ai-bar">

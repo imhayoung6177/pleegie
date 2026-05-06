@@ -5,20 +5,19 @@ import "./AdminCommon.css";
 
 const AdminMarketManagePage = () => {
   const navigate = useNavigate();
-  const [markets, setMarkets] = useState([]); // 사업자 목록 바구니
+  const [markets, setMarkets] = useState([]); // [비유: 실제 사업자 등록 명부]
   const [loading, setLoading] = useState(true);
 
-  // ── 1. 데이터 로드 (컴포넌트가 처음 나타날 때 한 번만 실행) ──
+  //  [해결 포인트] fetchMarkets 함수를 useEffect 안으로 옮겼습니다!
   useEffect(() => {
     const fetchMarkets = async () => {
       const token = localStorage.getItem("accessToken");
       try {
-        setLoading(true);
-        // 백엔드 AdminService의 getAllMarkets() 호출
         const response = await axios.get("/admin/markets", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // 응답 데이터 저장 (DTO에 status 필드가 포함되어 있어야 함)
+        // 백엔드 AdminService.java의 getAllMarkets() 데이터 저장
+
         setMarkets(response.data.data || []);
       } catch (error) {
         console.error("사업자 목록 로딩 실패:", error);
@@ -27,48 +26,35 @@ const AdminMarketManagePage = () => {
       }
     };
 
-    fetchMarkets();
-  }, []); // 빈 배열: 마운트 시 1회 실행
+    fetchMarkets(); // 화면이 나타나자마자 실행!
+  }, []); // [] : 처음 한 번만 실행해서 'Cascading renders' 에러를 방지합니다.
 
-  // ── 2. 공통 새로고침 함수 (액션 처리 후 목록 갱신용) ──
-  const refreshMarkets = async () => {
-    const token = localStorage.getItem("accessToken");
-    try {
-      const response = await axios.get("/admin/markets", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMarkets(response.data.data || []);
-    } catch (error) {
-      console.error("목록 갱신 실패:", error);
-    }
-  };
-
-  // ── 3. 사업자 액션 처리 (승인 / 반려 / 정지) ──
+  // ✏️ 2. 사업자 승인/반려/정지 처리 함수
   const handleMarketAction = async (marketId, actionType, marketName) => {
     const token = localStorage.getItem("accessToken");
 
-    // 한국어 문구 변환 (UI용)
-    let actionKorean = "";
-    if (actionType === "approve") actionKorean = "승인";
-    else if (actionType === "reject") actionKorean = "반려";
-    else actionKorean = "정지";
-
+    let actionKorean = actionType === "approve" ? "승인" : "반려/정지";
     if (!window.confirm(`${marketName} 사업자를 ${actionKorean} 하시겠습니까?`)) return;
 
     try {
-      // 백엔드 AdminController의 @PutMapping 엔드포인트 호출
+      // 백엔드 AdminService의 approveMarket 또는 rejectMarket 호출
       await axios.put(
         `/admin/markets/${marketId}/${actionType}`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
       );
 
       alert(`✅ ${marketName} 사업자가 ${actionKorean} 처리되었습니다.`);
 
-      // 💡 처리 성공 후 목록을 다시 불러와 화면을 동기화합니다.
-      await refreshMarkets();
+      // ✅ 처리 후 목록을 다시 불러와서 화면을 최신 상태로 바꿉니다.
+      const response = await axios.get("http://localhost:8080/api/admin/markets", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMarkets(response.data.data || []);
     } catch (error) {
-      console.error(`${actionKorean} 처리 실패:`, error);
+      console.error("처리 실패:", error);
       alert("처리 중 오류가 발생했습니다.");
     }
   };
@@ -119,53 +105,34 @@ const AdminMarketManagePage = () => {
                     <td>{market.loginId}</td>
                     <td style={{ fontWeight: "bold" }}>{market.name}</td>
                     <td>{market.email}</td>
-
-                    {/* ✅ 1. 상태 텍스트 분기 처리 (Wording) */}
                     <td>
                       <span
-                        className={`status-badge ${market.status === "ACTIVE" ? "status-normal" : "status-warning"}`}
+                        className={`status-badge ${market.status === "ACTIVE" ? "status-normal" : "status-stopped"}`}
                       >
-                        {market.status === "PENDING"
-                          ? "⏳ 인증 대기"
-                          : market.status === "ACTIVE"
-                            ? "✅ 영업중"
-                            : "🚫 정지/반려"}
+                        {market.status === "ACTIVE" ? "영업중" : "정지/대기"}
                       </span>
                     </td>
-
-                    {/* ✅ 2. 관리 버튼 분기 처리 (Condition) */}
                     <td>
                       <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
-                        {/* [상태가 PENDING일 때만] 승인 및 반려 버튼 노출 */}
-                        {market.status === "PENDING" && (
-                          <>
-                            <button
-                              className="admin-action-btn"
-                              style={{ backgroundColor: "#4caf50", color: "white" }}
-                              onClick={() => handleMarketAction(market.id, "approve", market.name)}
-                            >
-                              승인
-                            </button>
-                            <button
-                              className="admin-action-btn"
-                              style={{ backgroundColor: "#ff4d4f", color: "white" }}
-                              onClick={() => handleMarketAction(market.id, "reject", market.name)}
-                            >
-                              반려
-                            </button>
-                          </>
-                        )}
-
-                        {/* [상태가 ACTIVE(영업중)일 때만] 정지 버튼 노출 */}
-                        {market.status === "ACTIVE" && (
+                        {market.status !== "ACTIVE" && (
                           <button
                             className="admin-action-btn"
-                            style={{ backgroundColor: "#ff9800", color: "white" }}
-                            onClick={() => handleMarketAction(market.id, "reject", market.name)}
+                            style={{ backgroundColor: "#fdd537", color: "#1a1a1a" }}
+                            onClick={() => handleMarketAction(market.id, "approve", market.name)}
                           >
-                            영업 정지
+                            승인
                           </button>
                         )}
+                        <button
+                          className="admin-action-btn"
+                          style={{
+                            backgroundColor: market.status === "ACTIVE" ? "#1890ff" : "#ff4d4f",
+                            color: "white",
+                          }}
+                          onClick={() => handleMarketAction(market.id, "reject", market.name)}
+                        >
+                          {market.status === "ACTIVE" ? "영업 정지" : "반려"}
+                        </button>
                       </div>
                     </td>
                   </tr>
