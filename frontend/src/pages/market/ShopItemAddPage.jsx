@@ -115,7 +115,7 @@ export default function ShopItemAddPage() {
 
     // 3. 품목 등록 실행
     const originalPriceNum = Number(form.originalPrice);
-    const newItem = await createMarketItem({
+    let newItem = await createMarketItem({
       itemMasterId: itemMasterId,
       name: form.name.trim(), // "시금치 1봉" 그대로 저장
       category: itemCategory,
@@ -123,6 +123,18 @@ export default function ShopItemAddPage() {
       imageUrl: form.imageUrl || null,
       stock: Number(form.stock) || 0,
     });
+
+    // 할인 정보가 있으면 startSale 호출
+    if (form.salePrice && form.saleStart && form.saleEnd) {
+      const sp = Number(form.salePrice);
+      const rate = Math.round((1 - sp / originalPriceNum) * 100);
+      newItem = await startSale(newItem.id, {
+        discountPrice: sp,
+        discountRate: rate,
+        startTime: form.saleStart + ':00',
+        endTime: form.saleEnd + ':00',
+      });
+    }
 
     // 4. 성공 처리
     setItems(prev => [newItem, ...prev]);
