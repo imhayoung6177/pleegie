@@ -151,6 +151,7 @@ export default function ShopItemAddPage() {
             const top = json.results?.[0];
             if (top && top.similarity >= 0.7) {
               ragMatched = top;
+              showToast(`"${top.name}"와(과) 유사한 재료로 등록됩니다.`);
             }
         }
       } catch (e) {
