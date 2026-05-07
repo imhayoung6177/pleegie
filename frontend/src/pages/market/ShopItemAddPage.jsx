@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════
 // ShopItemAddPage.jsx
 // ══════════════════════════════════════════════════════════
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Styles/market/ShopPage.css';
 import '../../Styles/market/MarketMyPage.css';
@@ -41,6 +41,10 @@ export default function ShopItemAddPage() {
   const [form,      setForm]      = useState(EMPTY_FORM);
   const [editTarget, setEditTarget] = useState(null);
   const [editForm,   setEditForm]   = useState({});
+  const [suggestions,    setSuggestions]    = useState([]);
+  const [selectedMaster, setSelectedMaster] = useState(null);
+  const [isSearching,    setIsSearching]    = useState(false);
+  const debounceTimer = useRef(null);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
 
@@ -59,6 +63,60 @@ export default function ShopItemAddPage() {
     fetchData();
   }, [navigate]);
 
+
+  const searchIngredients = useCallback(async (keyword) => {
+      const trimmed = keyword.trim();
+  
+      // 빈 값이거나 2자 미만이면 드롭다운 초기화
+      if (!trimmed || trimmed.length < 2) {
+        setSuggestions([]);
+        setSelectedMaster(null);
+        return;
+      }
+  
+      // 숫자·단위 제거 후 검색 (ex. "시금치 1봉" → "시금치")
+      const pureName = trimmed.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
+      if (!pureName) return;
+  
+      setIsSearching(true);
+      try {
+        const res = await fetch(
+          `/api/ingredients/search?name=${encodeURIComponent(pureName)}&top_k=5`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } }
+        );
+        if (!res.ok) throw new Error('검색 실패');
+        const json = await res.json();
+  
+        // Python RAG 응답: { results: [{ id, name, category, similarity }, ...] }
+        setSuggestions(json.results || []);
+      } catch (e) {
+        console.warn('[RAG 검색 실패]', e.message);
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, []);
+  
+    // 수정: 상품명 입력 핸들러 - RAG 검색 트리거
+    const handleNameChange = (e) => {
+      const value = e.target.value;
+      setForm({ ...form, name: value });
+      setSelectedMaster(null); // 입력이 바뀌면 이전 선택 초기화
+  
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        searchIngredients(value);
+      }, 300);
+    };
+  
+    // 수정: 드롭다운에서 재료 선택 시 처리
+    const handleSelectSuggestion = (item) => {
+      setSelectedMaster(item);          // 선택한 item_master 저장
+      setSuggestions([]);               // 드롭다운 닫기
+      // 상품명은 사용자가 직접 입력한 값 유지 (ex. "시금치 1봉" 그대로)
+    };
+
+
  const handleAddProduct = async () => {
   if (!form.name.trim() || !form.originalPrice) {
     showToast('상품명과 단가를 입력해주세요!');
@@ -68,49 +126,69 @@ export default function ShopItemAddPage() {
   setIsSaving(true);
   
   try {
-    // 1. 단위 및 숫자 제거 (검색용)
-    const pureName = form.name.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
-
-    // 2. 재료 검색
-    const searchRes = await fetch(
-      `/item-master/search?name=${encodeURIComponent(pureName)}`,
-      { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } }
-    );
-    const searchJson = await searchRes.json();
-    let matched = searchJson.data?.[0];
-
     let itemMasterId;
-    let itemCategory;
+      let itemCategory;
 
-    if (matched) {
-      itemMasterId = matched.id;
-      itemCategory = matched.category;
-    } else {
-      // 💡 [중요] /item-master POST API가 불안정하므로 안전장치 추가
-      try {
-        const createMasterRes = await fetch('/item-master', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-          body: JSON.stringify({ name: pureName, category: '기타', unit: '개' })
-        });
+      if (selectedMaster) {
+        // 사용자가 드롭다운에서 직접 선택한 경우
+        itemMasterId = selectedMaster.id;
+        itemCategory = selectedMaster.category;
 
-        if (createMasterRes.ok) {
-          const newMaster = await createMasterRes.json();
-          itemMasterId = newMaster.data.id;
-          itemCategory = newMaster.data.category;
-        } else {
-          // POST API가 없거나 에러나면 기본 재료(ID: 1)를 사용하도록 폴백
-          console.warn("ItemMaster 등록 API 실패 - 기본 재료로 대체합니다.");
-          itemMasterId = 1; 
-          itemCategory = '기타';
+      } else {
+        // 드롭다운 미선택 → RAG로 한번 더 검색 시도
+        const pureName = form.name.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
+        let ragMatched = null;
+
+        try {
+          const res = await fetch(
+            `/api/ingredients/search?name=${encodeURIComponent(pureName)}&top_k=1`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } }
+          );
+          if (res.ok) {
+            const json = await res.json();
+            // 유사도 0.7 이상인 경우만 자동 매칭 (너무 낮으면 엉뚱한 재료 매칭 방지)
+            const top = json.results?.[0];
+            if (top && top.similarity >= 0.7) {
+              ragMatched = top;
+            }
         }
       } catch (e) {
-        itemMasterId = 1; // 네트워크 에러 시에도 중단되지 않게 ID 1번 강제 할당
-        itemCategory = '기타';
+        console.warn('[RAG 재검색 실패]', e.message);
       }
+
+      if (ragMatched) {
+          // RAG 재검색에서 유사도 높은 결과 발견
+          itemMasterId = ragMatched.id;
+          itemCategory = ragMatched.category;
+
+        } else {
+          // RAG에도 없으면 item_master 신규 생성
+          try {
+            const createRes = await fetch('/item-master', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+              body: JSON.stringify({ name: pureName, category: '기타', unit: '개' }),
+            });
+
+            if (createRes.ok) {
+              const newMaster = await createRes.json();
+              itemMasterId = newMaster.data.id;
+              itemCategory = newMaster.data.category || '기타';
+            } else {
+              // 수정: ID 1번 폴백 제거 → 사용자에게 명확한 안내
+              showToast('재료 정보를 찾을 수 없습니다. 드롭다운에서 재료를 선택해주세요.');
+              setIsSaving(false);
+              return;
+            }
+          } catch (e) {
+            showToast('재료 정보를 찾을 수 없습니다. 드롭다운에서 재료를 선택해주세요.');
+            setIsSaving(false);
+            return;
+          }
+        }
     }
 
     // 3. 품목 등록 실행
@@ -140,6 +218,8 @@ export default function ShopItemAddPage() {
     setItems(prev => [newItem, ...prev]);
     showToast(`${newItem.name} 등록 완료!`);
     setForm(EMPTY_FORM);
+    setSelectedMaster(null); // 등록 후 선택값 초기화
+    setSuggestions([]); // 드롭다운 초기화
   } catch (err) {
     console.error("등록 에러 상세:", err);
     showToast('서버 오류가 발생했습니다. 재료 정보를 확인해주세요.');
@@ -243,10 +323,99 @@ export default function ShopItemAddPage() {
           <div className="item-add-card" style={{ border: 'none', padding: 0, boxShadow: 'none', margin: 0, width: '100%', maxWidth: '100%' }}>
 
             <div className="item-form-grid">
-              <div className="item-form-field">
-                <label className="item-form-label">상품명</label>
-                <input className="item-form-inp" type="text" placeholder="예) 국내산 시금치 1봉" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+
+              {/* 상품명 필드 - RAG 자동완성 드롭다운 추가 */}
+              <div className="item-form-field" style={{ position: 'relative' }}>
+                <label className="item-form-label">
+                  상품명
+                  {/* 재료 선택 완료 시 뱃지 표시 */}
+                  {selectedMaster && (
+                    <span style={{
+                      marginLeft: 8,
+                      fontSize: '0.72rem',
+                      background: MG,
+                      color: MT,
+                      borderRadius: 8,
+                      padding: '2px 8px',
+                      fontWeight: 600,
+                    }}>
+                      ✓ {selectedMaster.name} 연결됨
+                    </span>
+                  )}
+                </label>
+
+                {/* onChange를 handleNameChange로 교체 (RAG 검색 트리거) */}
+                <input
+                  className="item-form-inp"
+                  type="text"
+                  placeholder="예) 국내산 시금치 1봉"
+                  value={form.name}
+                  onChange={handleNameChange}   // 수정
+                  autoComplete="off"
+                />
+
+                {/*  RAG 검색 중 표시 */}
+                {isSearching && (
+                  <div style={{
+                    position: 'absolute', right: 12, top: 38,
+                    fontSize: '0.75rem', color: '#8a7a60',
+                  }}>
+                    검색 중...
+                  </div>
+                )}
+
+                {/* 자동완성 드롭다운 */}
+                {suggestions.length > 0 && (
+                  <ul style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0, right: 0,
+                    zIndex: 100,
+                    background: '#fff',
+                    border: `1.5px solid ${MG}`,
+                    borderRadius: 10,
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+                    margin: '4px 0 0',
+                    padding: 0,
+                    listStyle: 'none',
+                    maxHeight: 200,
+                    overflowY: 'auto',
+                  }}>
+                    {suggestions.map((item, idx) => (
+                      <li
+                        key={item.id ?? idx}
+                        onClick={() => handleSelectSuggestion(item)}
+                        style={{
+                          padding: '10px 14px',
+                          cursor: 'pointer',
+                          borderBottom: idx < suggestions.length - 1 ? `1px solid rgba(183,204,172,0.3)` : 'none',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          fontSize: '0.9rem',
+                          color: MT,
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(183,204,172,0.18)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <span style={{ fontWeight: 500 }}>{item.name}</span>
+                        <span style={{
+                          fontSize: '0.72rem',
+                          color: '#8a7a60',
+                          background: 'rgba(183,204,172,0.25)',
+                          borderRadius: 6,
+                          padding: '2px 7px',
+                        }}>
+                          {item.category} · {Math.round((item.similarity ?? 1) * 100)}%
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+
               <div className="item-form-field">
                 <label className="item-form-label">단가 (원)</label>
                 <input className="item-form-inp" type="number" placeholder="예) 3000" value={form.originalPrice} onChange={e => setForm({ ...form, originalPrice: e.target.value })} />
