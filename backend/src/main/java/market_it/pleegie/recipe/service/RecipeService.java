@@ -120,6 +120,9 @@ public class RecipeService {
                         .replaceAll("\\s*\\d+(\\.\\d+)?\\s*(g|ml|kg|L|개|큰술|작은술|컵|줄기|알|장|마리).*", "")
                                 .replaceAll("\\s*:.*","")
                                         .trim();
+
+                cleanName = normalizeIngredientName(cleanName);
+
                 // item_master에서 재료 찾기
                 itemMasterRepository.findByNameContaining(cleanName).stream()
                                 .findFirst()
@@ -154,6 +157,15 @@ public class RecipeService {
             }
         }
         return new MissingItemResponse(marketItemInfos);
+    }
+
+    // 유사어 매핑
+    private String normalizeIngredientName(String name) {
+        if (name.contains("달걀") || name.contains("계란")) return "계란";
+        if (name.contains("파") && name.length() <= 2) return "대파";
+        if (name.contains("고춧가루") || name.contains("고추가루")) return "고춧가루";
+        if (name.contains("다진 마늘") || name.contains("마늘")) return "마늘";
+        return name;
     }
 
     // ── 레시피북 저장 ─────────────────────────
