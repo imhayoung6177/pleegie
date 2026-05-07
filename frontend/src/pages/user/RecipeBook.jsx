@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import KakaoMap from '../../components/ui/KakaoMap'; // ← 이 한 줄만 추가!
+
 
 /**
  * RecipeBook.jsx
@@ -36,6 +38,60 @@ const RecipeBook = ({ onBack }) => {
     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
     'Content-Type': 'application/json',
   });
+
+  const handleFindMarkets = async (missingIngredients) => {
+  // Step 1: 지도 화면으로 즉시 전환 + 로딩 시작
+  setShowMap(true);       // ← 이게 핵심! 화면 전환
+  setMapLoading(true);    // ← 지도 화면에서 "분석 중..." 표시
+  setMapMarkets([]);      // ← 이전 검색 결과 초기화
+
+  try {
+    // Step 2: 브라우저 GPS로 현재 위치 가져오기
+    // navigator.geolocation은 브라우저 내장 API
+    // 권한 거부 / 실패 시 서울 시청 좌표(37.5665, 126.9780)로 대체
+    const getLocation = () =>
+      new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve({
+            latitude:  pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
+          () => resolve({ latitude: 37.5665, longitude: 126.9780 })
+        );
+      });
+
+    const location = await getLocation();
+
+    // Step 3: 백엔드에 부족 재료 + 위치 전송
+    // [자바 연동] POST /market/missing-items
+    // → RecipeController → RecipeService.findMissingItemsInMarkets()
+    // → 가까운 시장 5개에서 부족 재료 판매 여부 확인
+    const res  = await fetch('/market/missing-items', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        missingIngredients: missingIngredients, // 부족한 재료 배열
+        latitude:           location.latitude,  // 위도
+        longitude:          location.longitude, // 경도
+      }),
+    });
+
+    const json = await res.json();
+
+    // Step 4: 응답 결과를 상태에 저장 → 지도 화면 UI가 자동으로 갱신됨
+    // json.data.markets: [{ marketName: "우리마트", items: [{name, onSale, ...}] }]
+    if (res.ok && json.success) {
+      setMapMarkets(json.data?.markets || []);
+    } else {
+      setMapMarkets([]); // 실패 시 빈 배열
+    }
+  } catch (err) {
+    console.error('시장 검색 중 오류:', err);
+    setMapMarkets([]);
+  } finally {
+    setMapLoading(false); // Step 5: 로딩 종료
+  }
+};
 
   // ── 레시피북 목록 조회 ──────────────────────────────────────
   /**
@@ -325,7 +381,7 @@ const parseDescription = (desc) => {
                   style={{
                     padding: '4px 12px',
                     borderRadius: '20px',
-                    fontSize: '0.82rem',
+                    fontSize: '0.88rem',
                     fontWeight: 600,
                     background: isMissing ? '#fff3e0' : '#e8f5e9',
                     color: '#000000',
@@ -353,49 +409,21 @@ const parseDescription = (desc) => {
             → 가까운 시장 5개에서 부족 재료 판매 여부 확인
           */}
           <button
-            onClick={async () => {
-              // 현재 위치 가져오기 (실패 시 서울 시청 좌표)
-              const getLocation = () => new Promise((resolve) => {
-                navigator.geolocation.getCurrentPosition(
-                  pos => resolve({
-                    latitude: pos.coords.latitude,
-                    longitude: pos.coords.longitude
-                  }),
-                  () => resolve({ latitude: 37.5665, longitude: 126.9780 })
-                );
-              });
-
-              const location = await getLocation();
-
-              try {
-                const res = await fetch('/market/missing-items', {
-                  method: 'POST',
-                  headers: getAuthHeaders(),
-                  body: JSON.stringify({
-                    missingIngredients: missingIngredients,
-                    latitude: location.latitude,
-                    longitude: location.longitude
-                  })
-                });
-                const json = await res.json();
-                console.log('시장 검색 결과:', json.data?.markets);
-              } catch (err) {
-                console.error('시장 검색 실패:', err);
-              }
-            }}
-            style={{
-              padding: '10px 20px',
-              background: '#fdd537',
-              color: '#2a1f0e',
-              border: 'none',
-              borderRadius: '12px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginTop: '8px'
-            }}
-          >
-            🏪 근처 시장에서 구매하기
-          </button>
+  onClick={() => handleFindMarkets(missingIngredients)}
+  style={{
+    padding: '10px 20px',
+    background: '#fdd537',
+    color: '#2a1f0e',
+    border: 'none',
+    borderRadius: '12px',
+    fontWeight: 450,
+    fontSize: '0.95rem',
+    cursor: 'pointer',
+    marginTop: '8px'
+  }}
+>
+  🏪 근처 시장에서 구매하기
+</button>
         </div>
       )}
 
@@ -444,7 +472,7 @@ const parseDescription = (desc) => {
             color: '#2a1f0e',
             border: 'none',
             borderRadius: '12px',
-            fontWeight: 700,
+            fontWeight: 450,
             fontSize: '1rem',
             cursor: 'pointer',
             marginTop: '16px',
@@ -457,6 +485,8 @@ const parseDescription = (desc) => {
     </div>
   );
 }
+
+
 
   // ── 목록 화면 ───────────────────────────────────────────────
   return (
@@ -528,12 +558,12 @@ const parseDescription = (desc) => {
 
               {/* 레시피 정보 */}
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '0.95rem' }}>
+                <div style={{ fontWeight: 700, color: '#2a1f0e', fontSize: '1.1rem' }}>
                   {getRecipeName(r)}
                 </div>
                 {/* 재료 미리보기 (처음 3개만 표시) */}
                 {getIngredientList(r.ingredients).length > 0 && (
-                  <div style={{ fontSize: '0.75rem', color: '#8a7a60', marginTop: '3px' }}>
+                  <div style={{ fontSize: '0.9rem', color: '#8a7a60', marginTop: '3px' }}>
                     {getIngredientList(r.ingredients).slice(0, 3).join(', ')}
                     {getIngredientList(r.ingredients).length > 3 && ` 외 ${getIngredientList(r.ingredients).length - 3}가지`}
                   </div>

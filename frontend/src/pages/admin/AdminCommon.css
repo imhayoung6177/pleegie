@@ -10,7 +10,7 @@
   background-size: cover;
   position: relative;
   overflow-x: hidden;
-  font-family: "Jua", sans-serif;
+  font-family: "PleegeFont", sans-serif;
 
   /* 기본값은 정중앙 정렬 (로그인창) */
   justify-content: center;
@@ -40,10 +40,11 @@
   margin-bottom: 18px;
 }
 
+/*신고 관리자 모달 글자 크기*/
 .admin-label {
   display: block;
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: border;
   color: #1a1a2e;
   margin-bottom: 8px;
   margin-left: 5px;
@@ -75,7 +76,7 @@
   color: #1a1a1a;             /* ✅ 변경: 글자색 검정 */
   border: none;
   border-radius: 12px;
-  font-family: "Jua", sans-serif;
+  font-family: "PleegeFont", sans-serif;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -162,7 +163,7 @@
   color: #1a1a1a;             /* ✅ 변경: 글자색 검정 */
   border: none;
   border-radius: 30px;
-  font-family: "Jua", sans-serif;
+  font-family: "PleegeFont", sans-serif;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;
@@ -200,7 +201,7 @@
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid #f9f9f9;
-  font-size: 14px;
+  font-size: 15px;
   color: #1a1a1a;
 }
 
@@ -209,7 +210,7 @@
   padding: 4px 10px;
   border-radius: 20px;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 15px;
 }
 
 .status-normal  { background-color: #e8f5e9; color: #2e7d32; } /* 정상 */
@@ -221,7 +222,7 @@
   padding: 6px 12px;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13.5px;
   cursor: pointer;
   margin: 0 3px;
   transition: opacity 0.2s;
@@ -276,7 +277,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  font-family: "Jua", sans-serif;
+  font-family: "PleegeFont", sans-serif;
 }
 
 .admin-modal-content .admin-action-btn:hover {

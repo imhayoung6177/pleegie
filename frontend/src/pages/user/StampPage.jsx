@@ -53,7 +53,7 @@ export default function StampPage() {
         <h2 style={{ fontFamily: 'var(--font-title)', color: '#2a1f0e' }}>🎫 나의 스탬프 현황</h2>
         
         <div className="stamp-board" style={{ margin: '30px 0', padding: '20px', background: '#fdfcf0', borderRadius: '15px' }}>
-          <div style={{ marginBottom: '15px', fontWeight: 700 }}>
+          <div style={{ marginBottom: '15px', fontWeight: 700 , fontSize: '1.2rem'}}>
             현재 적립: <span style={{ color: '#fdd537' }}>{currentCount} / 10</span>
           </div>
           <div className="stamp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>

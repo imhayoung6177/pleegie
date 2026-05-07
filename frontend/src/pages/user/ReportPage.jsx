@@ -140,9 +140,9 @@ export default function ReportPage() {
           pleegie
         </div>
         <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
-          📢 신고 및 불편사항 접수
+           신고 및 불편사항 접수
         </h2>
-        <p style={{ textAlign: 'center', marginBottom: '20px' , color: '#888', fontSize: '0.9rem'}}>신고 내역은 총 3일 동안 보관을 하며 7일 이후에는 자동으로 삭제됩니다</p>
+        <p style={{ textAlign: 'center', marginBottom: '20px' , color: '#888', fontSize: '1rem'}}>신고 내역은 총 3일 동안 보관을 하며 7일 이후에는 자동으로 삭제됩니다</p>
 
         {/* ════════════════════════════
             신고 접수 폼
@@ -150,8 +150,11 @@ export default function ReportPage() {
         <form onSubmit={handleSubmit}>
 
           {/* 신고 유형 선택 드롭다운 */}
-          <div className="auth-field">
-            <label className="auth-label">신고 유형</label>
+          <div className="auth-field" fontSize="16px">
+            <label  className="auth-label"
+            style={{fontSize: '1.1rem',color: '#2a1f0e'}}>
+              신고 유형
+              </label>
             <select
               className="auth-input"
               value={form.type}
@@ -172,7 +175,8 @@ export default function ReportPage() {
 
           {/* 제목 입력 */}
           <div className="auth-field">
-            <label className="auth-label">제목</label>
+            <label className="auth-label"
+            style={{fontSize: '1.1rem',color: '#2a1f0e'}}>제목</label>
             <input
               type="text"
               className="auth-input"
@@ -190,7 +194,8 @@ export default function ReportPage() {
 
           {/* 상세 내용 입력 */}
           <div className="auth-field">
-            <label className="auth-label">상세 내용</label>
+            <label className="auth-label"
+            style={{fontSize: '1.1rem',color: '#2a1f0e'}}>상세 내용</label>
             <textarea
               className="auth-input"
               style={{
@@ -268,7 +273,7 @@ export default function ReportPage() {
                     onClick={() => setSelectedReport(item)}
                   >
                     <span style={{
-                      fontWeight: 700, color: '#2a1f0e', fontSize: '1rem',
+                      fontWeight: 450, color: '#2a1f0e', fontSize: '1.1rem',
                       overflow: 'hidden', textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap', width: '70%'
                     }}>
@@ -385,7 +390,7 @@ export default function ReportPage() {
               display: 'flex', justifyContent: 'space-between',
               alignItems: 'center', marginBottom: '12px'
             }}>
-              <span style={{ fontSize: '0.9rem',fontWeight:"normal", color: '#2a1f0e' }}>
+              <span style={{ fontSize: '0.95rem',fontWeight:"normal", color: '#2a1f0e' }}>
                 {new Date(selectedReport.createdAt).toLocaleDateString('ko-KR')} 등록(접수)
               </span>
               {renderStatusBadge(selectedReport.status)}
@@ -406,7 +411,7 @@ export default function ReportPage() {
             </div>
 
             {/* 상세 내용 레이블 */}
-            <div style={{ fontSize: '0.9rem',fontWeight:"normal" ,color: '#2a1f0e', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.95rem',fontWeight:"normal" ,color: '#2a1f0e', marginBottom: '8px' }}>
               상세 내용
             </div>
 
@@ -463,14 +468,12 @@ export default function ReportPage() {
                 fontFamily: 'var(--font-title)',
               }}
             >
-              닫기 (지워주세요 !!!!)
+              닫기 
             </button>
           </div>
         </div>
       )}
-      <button>
-        버튼(수정)
-      </button>
+    
     </div>
   );
 }

@@ -300,8 +300,8 @@ if (showMap) {
                         borderRadius: '12px',
                         padding: '12px 16px',
                         marginBottom: '16px',
-                        fontSize: '0.85rem',
-                        color: '#FF6B35'
+                        fontSize: '0.9rem',
+                        color: '#000000'
                     }}>
                         ⚠️ 부족한 재료: {missingFromRecipe.join(', ')}
                     </div>
@@ -381,8 +381,8 @@ if (showMap) {
                                 onClick={() => setSelectedRecipe(r)}
                             >
                                 <div className="rrp-card-info">
-                                    <strong className="rrp-card-name">
-                                        {r.has_expiring ? '🔥 ' : '🥗 '}
+                                    <strong className="rrp-card-name" style={{fontSize:'1.2rem'}}>
+                                        {r.has_expiring ? '[유통기한 임박] ' : '🥗 '}
                                         {r.title}
                                     </strong>
                                     <p className="rrp-card-desc">
@@ -405,7 +405,7 @@ if (showMap) {
                                             }} />
                                         </div>
                                         <p style={{
-                                            fontSize: '0.75rem',
+                                            fontSize: '0.95rem',
                                             color: '#8a7a60',
                                             margin: '3px 0 0'
                                         }}>
@@ -415,8 +415,8 @@ if (showMap) {
                                     </div>
                                     {r.missing_ingredients?.length > 0 && (
                                         <p style={{
-                                            fontSize: '0.76rem',
-                                            color: '#FF6B35',
+                                            fontSize: '0.9rem',
+                                            color: '#000000',
                                             margin: '4px 0 0'
                                         }}>
                                             ⚠️ 부족: {r.missing_ingredients
@@ -467,8 +467,8 @@ if (showMap) {
                             marginBottom: '16px',
                         }}>
                             <div style={{
-                                fontSize: '0.82rem',
-                                color: '#8a7a60',
+                                fontSize: '1rem',
+                                color: '#000000',
                                 marginBottom: '6px'
                             }}>
                                 냉장고 재료 매칭률
@@ -600,7 +600,8 @@ if (showMap) {
                                         color: '#000000',
                                         border: 'none',
                                         borderRadius: '12px',
-                                        fontWeight: 700,
+                                        fontWeight: 450,
+                                        fontSize: '0.95rem',
                                         cursor: 'pointer',
                                         marginTop: '8px'
                                     }}
@@ -640,11 +641,12 @@ if (showMap) {
                                 style={{
                                     width: '100%',
                                     padding: '14px',
-                                    background: '#4CAF50',
-                                    color: '#fff',
+                                    background: '#fdd537',
+                                    color: '#2a1f0e',
                                     border: 'none',
                                     borderRadius: '12px',
-                                    fontWeight: 700,
+                                    fontWeight: 450,
+                                    fontSize: '1.1rem',
                                     cursor: 'pointer',
                                     marginTop: '16px'
                                 }}

@@ -2,12 +2,20 @@
    index.css — 냉장고 요리소 전역 리셋
    ============================================================ */
 
+
+   @font-face {
+  font-family: 'PleegeFont';
+  src: url('./assets/fonts/esamanru-medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* ── 전역 CSS 변수 ──────────────────────────────────────── */
 :root {
   /* 폰트 하나로 통일 */
-  --font-main: 'Jua', sans-serif; /* 대표/메인 폰트 */
-  --font-body: 'Jua', sans-serif; /* 본문용 폰트 */
-  --font-title: 'Jua', sans-serif;
+  --font-main: 'PleegeFont', sans-serif; /* 대표/메인 폰트 */
+  --font-body: 'PleegeFont', sans-serif; /* 본문용 폰트 */
+  --font-title: 'PleegeFont', sans-serif;
 
   /* 배경·크림 계열 */
   --bg-wall:    transparent;
@@ -55,6 +63,7 @@ html {
 }
 
 body {
+  font-family: var(--font-main);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

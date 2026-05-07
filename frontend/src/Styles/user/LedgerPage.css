@@ -5,7 +5,7 @@
 }
 
 .summary-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
-.summary-amount { font-size: 2rem; font-weight: 800; font-family: 'Jua', sans-serif; }
+.summary-amount { font-size: 2rem; font-weight: 800; font-family: 'PleegeFont', sans-serif; }
 
 .ledger-list { background: rgba(255,255,255,0.7); border-radius: 20px; padding: 10px; }
 

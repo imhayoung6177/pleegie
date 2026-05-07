@@ -127,7 +127,7 @@ const HomePage = () => {
               <img src={topLeftImg} alt="왼쪽 문" className="piece" />
               <div className="post-it post-it-left">
                 <div className="tape" />
-                <span className="post-it-text">일반회원</span>
+                <span className="post-it-text">일반<br/>회원</span>
               </div>
             </div>
             <div className="door-rear" />
@@ -149,7 +149,7 @@ const HomePage = () => {
               <img src={topRightImg} alt="오른쪽 문" className="piece" />
               <div className="post-it post-it-right">
                 <div className="tape" />
-                <span className="post-it-text">소상공인</span>
+                <span className="post-it-text">소상<br/>공인</span>
               </div>
             </div>
             <div className="door-rear" />

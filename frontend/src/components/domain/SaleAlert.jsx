@@ -75,7 +75,7 @@ export const SaleAlertButton = ({ item, onClick }) => {
     borderRadius: 12,
     border: 'none',
     cursor: 'pointer',
-    fontFamily: "'Jua', sans-serif",
+    fontFamily: "'PleegeFont', sans-serif",
     fontSize: '0.9rem',
     transition: 'all 0.2s',
     width: '100%',
@@ -165,7 +165,7 @@ export const SaleAlertList = ({ missingIngredients, marketItems }) => {
       flexDirection: 'column',
       gap: 10,
     }}>
-      <div style={{ fontFamily: "'Jua', sans-serif", fontSize: '0.92rem', color: '#5a4a32', marginBottom: 4 }}>
+      <div style={{ fontFamily: "'PleegeFont', sans-serif", fontSize: '0.92rem', color: '#5a4a32', marginBottom: 4 }}>
         🏪 가까운 시장에서 구매 가능
       </div>
       {matchedItems.map(item => (

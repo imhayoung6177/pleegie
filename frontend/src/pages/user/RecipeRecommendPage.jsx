@@ -356,9 +356,9 @@ if (showMap) {
                 onClick={() => setSelectedRecipe(r)}
               >
                 <div className="rrp-card-info">
-                  <strong className="rrp-card-name">
+                  <strong className="rrp-card-name" style={{ fontsize: '1.2rem' }}>
                     {/* has_expiring: 유통기한 임박 재료 포함 시 불 아이콘 */}
-                    {r.has_expiring ? '🔥 ' : '🥗 '}
+                    {r.has_expiring ? '[유통기한 임박] ' : '🥗 '}
                     {r.title}
                   </strong>
                   <p className="rrp-card-desc">{r.description}</p>
@@ -376,14 +376,14 @@ if (showMap) {
                         borderRadius: '4px',
                       }} />
                     </div>
-                    <p style={{ fontSize: '0.75rem', color: 'black', margin: '3px 0 0' }}>
+                    <p style={{ fontSize: '0.9rem', color: 'black', margin: '3px 0 0' }}>
                       재료 {Math.round(r.match_score * 100)}% 보유
                     </p>
                   </div>
 
                   {/* missing_ingredients: 부족한 재료 목록 표시 */}
                   {r.missing_ingredients?.length > 0 && (
-                    <p style={{ fontSize: '0.76rem', color: 'black', margin: '4px 0 0' }}>
+                    <p style={{ fontSize: '0.9rem', color: 'black', margin: '4px 0 0' }}>
                       ⚠️ 부족: {r.missing_ingredients.join(', ')}
                     </p>
                   )}
@@ -414,10 +414,10 @@ if (showMap) {
               <div style={{
                 display: 'inline-block', background: '#fff3e0',
                 color: '#000000', padding: '4px 12px',
-                borderRadius: '20px', fontSize: '0.82rem',
-                fontWeight: 700, marginBottom: '12px',
+                borderRadius: '20px', fontSize: '0.95rem',
+                 marginBottom: '12px',
               }}>
-                🔥 유통기한 임박 재료 활용 레시피
+                 [유통기한 임박 재료 활용 레시피]
               </div>
             )}
 
@@ -484,7 +484,7 @@ if (showMap) {
             {selectedRecipe.missing_ingredients?.length > 0 && (
               <div className="detail-section">
                 <h3>🛒 부족한 재료</h3>
-                <p className="missing-alert" style={{ color: '#5a4a32', lineHeight: 1.6 }}>
+                <p className="missing-alert" style={{ fontsize:'1rem',color: '#5a4a32', lineHeight: 1.6 }}>
                   ⚠️ {selectedRecipe.missing_ingredients.join(', ')}
                 </p>
                 {/* 
@@ -535,7 +535,8 @@ if (showMap) {
                     color: '#2a1f0e',
                     border: 'none',
                     borderRadius: '12px',
-                    fontWeight: 700,
+                    fontWeight: 450,
+                    fontSize: '0.95rem',
                     cursor: 'pointer',
                     marginTop: '8px'
                   }}
@@ -581,7 +582,8 @@ if (showMap) {
                   color: '#2a1f0e',
                   border: 'none',
                   borderRadius: '12px',
-                  fontWeight: 700,
+                  fontWeight: 450,
+                  fontSize: '1.1rem',
                   cursor: 'pointer',
                   marginTop: '16px'
                 }}

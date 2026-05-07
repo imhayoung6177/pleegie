@@ -204,7 +204,7 @@ export default function LocalCurrencyPage() {
           <h2 style={{ fontFamily: 'var(--font-title)', fontSize: '1.5rem', color: '#2a1f0e', margin: '0 0 4px' }}>
             💸 지역화폐 신청
           </h2>
-          <p style={{ fontSize: '0.85rem', color: '#8a7a60', margin: 0 }}>
+          <p style={{ fontSize: '0.95rem', color: '#8a7a60', margin: 0 }}>
             스탬프 10개로 5,000원 지역화폐를 받으세요!
           </p>
         </div>
@@ -231,22 +231,22 @@ export default function LocalCurrencyPage() {
           <>
             {/* 신청 현황 요약 카드 */}
             <div className="lc-summary" style={{ padding: '20px' }}>
-              <div className="lc-title" style={{ marginBottom: '16px', fontWeight: 'bold' }}>
+              <div className="lc-title" style={{ marginBottom: '16px', fontWeight: 'bold',fontSize: '1.2rem'}}>
                 나의 신청 현황
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#5a4a32' }}>승인 완료</span>
+                  <span style={{ fontSize: '0.95rem', color: '#5a4a32' }}>승인 완료</span>
                   <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#4CAF50' }}>{issuedCount}건</span>
                 </div>
                 <div style={{ width: '1px', height: '40px', background: 'rgba(0,0,0,0.1)' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#5a4a32' }}>승인 대기</span>
+                  <span style={{ fontSize: '0.95rem', color: '#5a4a32' }}>승인 대기</span>
                   <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#2a1f0e' }}>{requestedCount}건</span>
                 </div>
                 <div style={{ width: '1px', height: '40px', background: 'rgba(0,0,0,0.1)' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#5a4a32' }}>반려</span>
+                  <span style={{ fontSize: '0.95rem', color: '#5a4a32' }}>반려</span>
                   <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#E53535' }}>{rejectedCount}건</span>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function LocalCurrencyPage() {
                         <div style={{ fontSize: '1rem', color: '#2a1f0e', fontWeight: 600 }}>
                           {formatDate(item.requestedAt)}
                         </div>
-                        <div style={{ color: '#2a1f0e', fontWeight: 700, fontSize: '1.15rem' }}>
+                        <div style={{ color: '#2a1f0e', fontWeight: 700, fontSize: '1rem' }}>
                           {item.amount?.toLocaleString()}원
                         </div>
                       </div>
