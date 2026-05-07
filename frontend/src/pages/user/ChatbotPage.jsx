@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../Styles/user/ChatbotPage.css";
+import CommonHeader from '../../components/ui/CommonHeader';
+
 
 const ChatbotPage = () => {
   const navigate = useNavigate();
@@ -118,6 +120,8 @@ const ChatbotPage = () => {
 
   return (
     <div className="auth-bg">
+          <CommonHeader />
+
       <div className="chat-card anim-pop">
 
         {/* 상단 헤더 */}

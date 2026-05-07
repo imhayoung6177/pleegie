@@ -75,9 +75,9 @@ export default function StampPage() {
           <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/mypage')}>
             돌아가기
           </button>
-          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/coupons')}>
+          {/* <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/coupons')}>
             내 쿠폰함 바로가기
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
