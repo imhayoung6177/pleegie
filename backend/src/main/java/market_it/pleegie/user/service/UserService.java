@@ -6,6 +6,7 @@ import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.common.security.CustomUserDetails;
 import market_it.pleegie.common.security.JwtProvider;
+import market_it.pleegie.market.repository.MarketRepository;
 import market_it.pleegie.user.entity.RefreshToken;
 import market_it.pleegie.user.entity.User;
 import market_it.pleegie.user.dto.UserCreateRequest;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MarketRepository marketRepository; // [준호 추가]
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -64,7 +66,6 @@ public class UserService {
                 );
 
         return new UserLoginResponse(accessToken,refreshToken,UserResponse.from(user));
-
     }
 
     // ── 로그인 ────────────────────────────────

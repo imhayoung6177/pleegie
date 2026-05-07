@@ -42,4 +42,15 @@ public class ReportController {
     public ResponseEntity<ApiResponse<List<ReportResponse>>> getMyReports(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.ok(reportService.getMyReports(userDetails.getUserId())));
     }
+
+    // 신고 삭제 기능을 위한 메서드 추가 << 5.6 종빈 추가 >>
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteReport(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id) {
+
+        reportService.deleteReport(userDetails.getUserId(), id);
+
+        return ResponseEntity.ok(ApiResponse.ok("신고 취소가 완료되었습니다.", null));
+    }
 }

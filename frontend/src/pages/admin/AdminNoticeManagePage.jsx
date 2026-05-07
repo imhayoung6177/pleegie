@@ -32,10 +32,19 @@ const AdminNoticeManagePage = () => {
   };
 
   useEffect(() => {
-    const load = async () => {
-      await fetchNotices();
+    // 함수를 안으로 들여옵니다.
+    const loadNotices = async () => {
+      try {
+        const response = await axios.get("/admin/notices", { headers: getHeaders() });
+        const rawData = response.data.data || [];
+        const sortedData = rawData.sort((a, b) => a.id - b.id);
+        setNotices(sortedData);
+      } catch (error) {
+        console.error("공지 목록 로딩 실패:", error);
+      }
     };
-    load();
+
+    loadNotices();
   }, []);
 
   // 공지 저장/수정
@@ -129,7 +138,7 @@ const AdminNoticeManagePage = () => {
           </h2>
           <button
             className="admin-action-btn"
-            style={{ backgroundColor: "#28a745", color: "white", padding: "10px 20px" }}
+            style={{ backgroundColor: "#fdd537", color: "#1a1a1a", padding: "10px 20px" }}
             onClick={() => {
               setEditingId(null);
               setNewTitle("");
@@ -165,7 +174,7 @@ const AdminNoticeManagePage = () => {
                       </span>
                     </td>
                     <td
-                      style={{ textAlign: "left", fontWeight: "600", cursor: "pointer", color: "#1890ff" }}
+                      style={{ textAlign: "left", fontWeight: "600", cursor: "pointer", color: "#1a1a1a" }}
                       onClick={() => {
                         setSelectedNotice(n);
                         setViewModalOpen(true);
@@ -231,7 +240,7 @@ const AdminNoticeManagePage = () => {
             </div>
             <div style={{ textAlign: "left", marginBottom: "20px" }}>
               <label className="admin-label">공지 대상</label>
-              <select className="admin-input" value={newTarget} onChange={(e) => setNewTarget(e.target.value)}>
+              <select className="admin-input" value={newTarget} onChange={(e) => setNewTarget(e.targetz.value)}>
                 <option value="ALL">전체</option>
                 <option value="USER">일반</option>
                 <option value="MARKET">사업자</option>
@@ -265,7 +274,7 @@ const AdminNoticeManagePage = () => {
             style={{ width: "500px", textAlign: "left" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ color: "#ff6b35", marginBottom: "10px" }}>{selectedNotice.title}</h2>
+            <h2 style={{ color: "#1a1a1a", marginBottom: "10px" }}>{selectedNotice.title}</h2>
             <div
               style={{
                 fontSize: "14px",
@@ -283,7 +292,7 @@ const AdminNoticeManagePage = () => {
             </div>
             <button
               className="admin-action-btn"
-              style={{ backgroundColor: "#ff6b35", color: "white", width: "100%", marginTop: "20px", height: "45px" }}
+              style={{ backgroundColor: "#fdd537", color: "#1a1a1a", width: "100%", marginTop: "20px", height: "45px" }}
               onClick={() => setViewModalOpen(false)}
             >
               닫기

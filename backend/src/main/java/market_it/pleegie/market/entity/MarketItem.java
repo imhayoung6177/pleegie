@@ -37,6 +37,10 @@ public class MarketItem extends BaseEntity {
     @Builder.Default
     private Integer stock = 0;
 
+    // [준호 추가] 인기 품목 통계를 위한 조회수 필드
+    @Builder.Default
+    private Long viewCount = 0L;
+
     @Builder.Default
     private Boolean onSale = false;     // 할인 중 여부
 
@@ -73,5 +77,12 @@ public class MarketItem extends BaseEntity {
             this.originalPrice = originalPrice;
         if (imageUrl != null) this.imageUrl = imageUrl;
         if (stock != null) this.stock = stock;
+    }
+
+    // [준호 추가] 조회수를 하나씩 올리는 비즈니스 메서드
+    // 손님이 이 상품을 클릭할 때마다 호출해주면 조회수가 1씩 올라갑니다.
+    public void addViewCount() {
+        if (this.viewCount == null) this.viewCount = 0L;
+        this.viewCount++;
     }
 }

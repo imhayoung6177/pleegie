@@ -117,7 +117,7 @@ const AdminMarketManagePage = () => {
                         {market.status !== "ACTIVE" && (
                           <button
                             className="admin-action-btn"
-                            style={{ backgroundColor: "#4caf50", color: "white" }}
+                            style={{ backgroundColor: "#fdd537", color: "#1a1a1a" }}
                             onClick={() => handleMarketAction(market.id, "approve", market.name)}
                           >
                             승인
@@ -126,7 +126,7 @@ const AdminMarketManagePage = () => {
                         <button
                           className="admin-action-btn"
                           style={{
-                            backgroundColor: market.status === "ACTIVE" ? "#ff9800" : "#ff4d4f",
+                            backgroundColor: market.status === "ACTIVE" ? "#1890ff" : "#ff4d4f",
                             color: "white",
                           }}
                           onClick={() => handleMarketAction(market.id, "reject", market.name)}

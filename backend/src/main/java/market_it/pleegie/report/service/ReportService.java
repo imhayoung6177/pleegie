@@ -74,4 +74,24 @@ public class ReportService {
                 .map(ReportResponse::from)
                 .collect(Collectors.toList());
     }
+
+    // 신고 삭제 기능을 위한 메서드 추가 << 5.6 종빈 추가 >>
+    @Transactional
+    public void deleteReport(Long userId, Long reportId) {
+        // 1. 해당 신고글 조회
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+
+        // 2. 본인 작성 여부 검증
+        if (!report.getWriter().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 3.  이미 처리 중(IN_PROGRESS)이거나 완료(RESOLVED)된 건 삭제 불가하게 설정 가능
+        if (!"PENDING".equals(report.getStatus())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT); // "이미 처리 중인 내역은 취소할 수 없습니다."
+        }
+
+        reportRepository.delete(report);
+    }
 }

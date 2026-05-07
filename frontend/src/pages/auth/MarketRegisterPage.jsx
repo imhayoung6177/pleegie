@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import "../../Styles/auth/AuthPage.css";
-import "../../Styles/auth/RegisterPage.css";
+// import "../../Styles/auth/AuthPage.css";
+import "../../Styles/auth/MarketRegisterPage.css";
 
 // ✅ [연동 추가] 상인 회원가입 & 사업자 인증 API 함수 import
 // → marketService.js 에 아래 두 함수를 만들어야 함 (하단 authService 참고)
@@ -59,9 +59,7 @@ const MarketRegisterPage = () => {
     if (errors.phone) setErrors(prev => ({ ...prev, phone: "" }));
   };
 
-  // ✅ [연동] 사업자 번호 인증 → 실제 공공 API or 자체 백엔드로 교체
-  // → 백엔드: POST /auth/biz-verify { bizNumber }
-  // → 성공 시 응답: { bizName: "홍길동 식품", ceoName: "홍길동" }
+
 const handleVerifyBiz = async () => {
   if (!form.bizNumber.trim()) {
     setErrors(prev => ({ ...prev, bizNumber: "사업자 번호를 입력해주세요" }));
@@ -99,7 +97,7 @@ const handleAddressSearch = () => {
     new window.daum.Postcode({
       oncomplete: async (data) => {
         const address = data.roadAddress || data.jibunAddress;
-        
+
         try {
           const res = await fetch(
             `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
@@ -221,7 +219,8 @@ const handleAddressSearch = () => {
   );
 
   return (
-    <div className="auth-bg">
+/* ✅ 1. 최상단 div에 "market-theme" 클래스를 추가하여 배경 이미지를 적용합니다 */
+    <div className="auth-bg market-theme">
       <div className="auth-circle circle-left" />
       <div className="auth-circle circle-right" />
 

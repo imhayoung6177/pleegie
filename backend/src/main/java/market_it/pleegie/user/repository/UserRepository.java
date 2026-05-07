@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ROLE이 USER이고, 상태가 DELETED가 아닌 사람만 골라내는 도구 [준호 추가]
     List<User> findAllByRoleAndStatusNot(String role, String status);
+
+    // 최근 7일 가입자 계산용 [준호 추가]
+    long countByCreatedAtAfter(LocalDateTime date);
 
     // 관리자 - 이름으로 검색
     @Query("SELECT u FROM User u WHERE u.role = :role AND u.name LIKE %:name%")
