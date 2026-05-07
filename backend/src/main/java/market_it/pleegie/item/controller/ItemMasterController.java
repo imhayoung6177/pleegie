@@ -2,7 +2,9 @@ package market_it.pleegie.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import market_it.pleegie.common.response.ApiResponse;
+import market_it.pleegie.item.dto.ItemMasterCreateRequest;
 import market_it.pleegie.item.dto.ItemMasterResponse;
+import market_it.pleegie.item.entity.ItemMaster;
 import market_it.pleegie.item.repository.ItemMasterRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,5 +56,27 @@ public class ItemMasterController {
                                 .stream()
                                 .map(ItemMasterResponse::from)
                                 .collect(Collectors.toList())));
+    }
+
+    // 재료 신규 생성
+    @PostMapping
+    public ResponseEntity<ApiResponse<ItemMasterResponse>>
+    createItem(@RequestBody ItemMasterCreateRequest request) {
+        // 같은 이름이 이미 있으면 기존 것 반환 (중복 생성 방지)
+        return itemMasterRepository.findByName(request.getName())
+                .map(existing -> ResponseEntity.ok(
+                        ApiResponse.ok(ItemMasterResponse.from(existing))))
+                .orElseGet(() -> {
+                    ItemMaster saved = itemMasterRepository.save(
+                            ItemMaster.builder()
+                                    .name(request.getName())
+                                    .category(request.getCategory() != null
+                                    ? request.getCategory() : "기타")
+                                    .unit(request.getUnit() != null
+                                    ? request.getUnit() : "개")
+                                    .build());
+                    return ResponseEntity.ok(
+                            ApiResponse.ok(ItemMasterResponse.from(saved)));
+                });
     }
 }

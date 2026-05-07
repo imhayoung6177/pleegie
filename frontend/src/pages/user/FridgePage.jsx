@@ -393,18 +393,13 @@ export default function FridgePage() {
      응답: ApiResponse<FridgeItemResponse>
   ─────────────────────────────────────────────────── */
   const handleAdd = async (ing) => {
-    if (!ing.id) {
-      setAddError('목록에 없는 재료는 추가할 수 없습니다. 검색 결과에서 선택해주세요.');
-      return;
-    }
     try {
-      console.log('📦 재료 추가 시도:', ing.name, '(id:', ing.id, ')');
-
       // ✅ FridgeItemCreateRequest 필드에 맞춰 전송
       // exp: LocalDate 타입 → "YYYY-MM-DD" 문자열로 전송
       const requestBody = {
-        itemMasterId: Number(ing.id),      // 필수 - ItemMaster PK
-        category:     ing.category || 'etc',
+        itemMasterId: ing.id ? Number(ing.id) : null,      // 필수 - ItemMaster PK
+        name: ing.id ? null : ing.name, // id 없으면 name 전송
+        category:     ing.category || '기타',
         quantity:     1.0,                  // 기본 수량
         unit:         ing.unit || '개',
         exp:          getTodayStr(7),       // 기본 유통기한: 오늘 + 7일
@@ -412,34 +407,26 @@ export default function FridgePage() {
         imageUrl:     null,
       };
 
-      console.log('📤 전송 데이터:', requestBody);
-
       const { response, data: result } = await safeFetch('/user/fridge/items', {
         method:  'POST',
         headers: getAuthHeaders(),
         body:    JSON.stringify(requestBody),
       });
 
-      console.log('📥 응답 상태:', response.status, '/ 데이터:', result);
-
       if (response.ok) {
         // result.data = FridgeItemResponse
         setItems(prev => [...prev, result.data]);
         setAddError('');
-        console.log('✅ 재료 추가 성공:', result.data?.name);
       } else {
         // 백엔드 에러 메시지 표시
         // 예) INVALID_INPUT: itemMasterId가 DB에 없을 때
-        const msg = result.message || '재료 추가에 실패했습니다.';
-        setAddError(msg);
-        console.error('❌ 재료 추가 실패:', msg);
+        setAddError(result.message || '재료 추가에 실패했습니다.');
       }
     } catch (err) {
       if (err.message === 'AUTH_ERROR') {
         handleAuthError();
         return;
       }
-      console.error('❌ 재료 추가 오류:', err);
       setAddError('재료 추가 중 오류가 발생했습니다.');
     }
   };
