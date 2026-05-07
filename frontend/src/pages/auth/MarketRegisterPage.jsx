@@ -60,6 +60,12 @@ const MarketRegisterPage = () => {
   };
 
 
+const handleVerifyBiz = async () => {
+  if (!form.bizNumber.trim()) {
+    setErrors(prev => ({ ...prev, bizNumber: "사업자 번호를 입력해주세요" }));
+    return;
+  }
+
   // ✅ 임시: API 호출 없이 바로 인증 성공 처리
   // 🔴 나중에 실제 API 연동할 때 이 블록을 제거하고
   //    아래 주석처리된 try/catch 블록을 살려야 함
