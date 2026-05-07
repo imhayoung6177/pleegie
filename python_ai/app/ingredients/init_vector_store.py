@@ -160,8 +160,26 @@ async def init():
     # 2. DB에 저장
     saved = save_to_db(ingredients)
 
-    # 3. Chroma 벡터 DB에 임베딩 저장
-    build_vector_store(saved)
+    # API 수집분만 아니라 DB 전체 item_master를 chroma에 저장
+    conn = pymysql.connect(
+        host=settings.db_host,
+        port=settings.db_port,
+        user=settings.db_user,
+        password=settings.db_password,
+        database=settings.db_name,
+        charset="utf8mb4",
+    )
+    try:
+        with conn.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("SELECT id, name, unit, category FROM item_master")
+            all_items = cursor.fetchall()
+    finally:
+        conn.close()
+
+    print(f" DB 전체 {len(all_items)}개 항목을 chroma에 저장합니다...")
+
+    # 3. DB 전체를 chroma에 저장
+    build_vector_store(all_items)
 
     print(" 전체 초기화 완료!")
 
