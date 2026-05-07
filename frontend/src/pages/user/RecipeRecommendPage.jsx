@@ -193,6 +193,7 @@ const saveRecipe = async (recipe) => {
 // 아까는 모달이어서 , 랜더링을 하여서 , 하나의 페이지 같은 느낌을 줄 수 있도록 설정을 하였습니다.
 
 if (showMap) {
+  console.log("showMap 렌더링, mapMarkets:", mapMarkets);
   return (
     <div className="rrp-page" style={{
       position: 'relative',
@@ -232,7 +233,7 @@ if (showMap) {
         </div>
 
         {/* ── 📍 상단 지도 영역 ── */}
-        <div style={{ width: '100%', height: '100%', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+        <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
           {mapLoading ? (
             <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
           ) : (
@@ -517,10 +518,13 @@ if (showMap) {
                         })
                       });
                       const json = await res.json();
-                      setMapMarkets(json.data?.markets || []);
+                      const markets = json.data?.markets || [];
+                      console.log("markets:", markets);
+                      setMapMarkets(markets);
+                      setMapLoading(false);
+                      setShowMap(true);
                     } catch (err) {
                       console.error('시장 검색 실패:', err);
-                    } finally {
                       setMapLoading(false);
                       setShowMap(true);
                     }

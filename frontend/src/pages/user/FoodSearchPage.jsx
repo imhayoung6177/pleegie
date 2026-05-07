@@ -218,7 +218,7 @@ if (showMap) {
         </div>
 
         {/* ── 📍 상단 지도 영역 ── */}
-        <div style={{ width: '100%', height: '100%', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+        <div style={{ width: '100%', height: '300px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
           {mapLoading ? (
             <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
           ) : (
@@ -581,6 +581,7 @@ if (showMap) {
                                             });
                                             const json = await res.json();
                                             const markets = json.data?.markets || [];
+                                            console.log("markets:",markets);
                                             setMapMarkets(markets);
                                             setMapLoading(false);
                                             setShowMap(true);
