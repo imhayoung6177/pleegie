@@ -16,6 +16,7 @@ public class MarketResponse {
     private Double latitude;
     private Double longitude;
     private String qrCodeUrl;
+    private String qrToken;
     private String status;          // PENDING / APPROVED / SUSPENDED
 
     public static MarketResponse from(Market market) {
@@ -28,6 +29,7 @@ public class MarketResponse {
         res.latitude = market.getLatitude();
         res.longitude = market.getLongitude();
         res.qrCodeUrl = market.getQrCodeUrl();
+        res.qrToken = market.getQrToken();
         res.status = market.getStatus();
         return res;
     }

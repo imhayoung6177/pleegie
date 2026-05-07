@@ -24,7 +24,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 export default function QrScanPage() {
   // ✅ URL 파라미터에서 marketId 추출
   // → 라우트: /market/scan/:marketId
-  const { marketId } = useParams();
+  const { qrToken  } = useParams();
   const navigate     = useNavigate();
 
   // 상태: loading / success / already / error
@@ -39,7 +39,7 @@ export default function QrScanPage() {
       // ✅ 로그인 안 했으면 로그인 페이지로 이동
       // → 로그인 후 다시 이 페이지로 돌아올 수 있도록 redirect 파라미터 전달
       if (!token) {
-        navigate(`/user/login?redirect=/market/scan/${marketId}`);
+        navigate(`/user/login?redirect=/market/scan/${qrToken }`);
         return;
       }
 
@@ -48,7 +48,7 @@ export default function QrScanPage() {
         // → StampController.createStamp() 호출
         // → 헤더에 JWT 토큰 첨부 (userId 자동 추출됨)
         const res = await fetch(
-          `${BASE_URL}/user/stamp?marketId=${marketId}`,
+          `${BASE_URL}/user/stamp?qrToken=${qrToken}`,
           {
             method: 'POST',
             headers: {
@@ -83,7 +83,7 @@ export default function QrScanPage() {
           } else if (res.status === 401) {
             // → 토큰 만료
             localStorage.removeItem('accessToken');
-            navigate(`/user/login?redirect=/market/scan/${marketId}`);
+            navigate(`/user/login?redirect=/market/scan/${qrToken}`);
 
           } else {
             setErrMsg(msg || '스탬프 적립에 실패했습니다.');
@@ -98,7 +98,7 @@ export default function QrScanPage() {
     };
 
     doStamp();
-  }, [marketId, navigate]);
+  }, [qrToken, navigate]);
 
   /* ── 로딩 화면 ── */
   if (status === 'loading') {

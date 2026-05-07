@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     server: {
-        host: true,
+        host: '0.0.0.0',
         port: 5173,
         proxy: {
             // ✅ Spring Boot (포트 8080)
@@ -17,6 +17,12 @@ export default defineConfig({
                 target: 'http://localhost:8080',
                 changeOrigin: true,
                 secure: false,
+                bypass: (req) => {
+                    //  /market/scan은 React 라우터가 처리하도록 bypass
+                    if (req.url.startsWith('/market/scan')) {
+                        return req.url;
+                    }
+                }
             },
             '/auth': {
                 target: 'http://localhost:8080',

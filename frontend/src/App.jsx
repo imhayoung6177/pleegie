@@ -117,7 +117,7 @@ const App = () => {
         <Route path="/market/mypage" element={<MarketMyPage />} />
         <Route path="/market/items" element={<ShopItemAddPage role="SHOP" />} />
         <Route path="/market/items/:id/sale" element={<ShopItemSalePage role="SHOP" />} />
-        <Route path="/market/scan/:marketId" element={<QrScanPage />} />
+        <Route path="/market/scan/:qrToken" element={<QrScanPage />} />
 
       {/* 🔐 관리자 관련 (보안 강화 버전) - 황준호 */}
       <Route path="/admin/login" element={<AdminLoginPage />} />
