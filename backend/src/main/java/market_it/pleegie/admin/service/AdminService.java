@@ -119,11 +119,17 @@ public class AdminService {
 
     // ── 사업자 관리 ───────────────────────────
 
-    // 전체 사업자 목록 조회
+    // 전체 사업자 목록 조회 [준호 수정]
+    // 신규 가입 상인의 '인증 대기' 상태를 반영하기 위해, User가 아닌 Market 테이블의 상태를 응답에 담아 보냅니다.
     public List<UserResponse> getAllMarkets() {
-        return userRepository.findAllByRole("MARKET")
+        // [이유] 가게 점포(Market) 정보를 먼저 조회해야 실시간 상태(PENDING/APPROVED)를 알 수 있습니다.
+        return marketRepository.findAll()
                 .stream()
-                .map(UserResponse::from)
+                .map(market -> {
+                    UserResponse response = UserResponse.from(market.getUser());
+                    return response.withId(market.getId())   // 가게의 진짜 ID 주입!
+                            .withStatus(market.getStatus());
+                })
                 .collect(Collectors.toList());
     }
 
@@ -190,6 +196,14 @@ public class AdminService {
         report.updateStatus(status);
 
         return ReportResponse.from(report);
+    }
+
+    // 신고 삭제 (관리자 - 모든 상태 삭제 가능)
+    @Transactional
+    public void deleteReport(Long reportId) {
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+        reportRepository.delete(report);
     }
 
     // ── 공지 관리 ─────────────────────────────
@@ -301,7 +315,14 @@ public class AdminService {
      */
     public AdminStatisticsResponse getStatistics() {
         // 1. 주간 신규 가입자 (최근 7일)
-        long newUsers = userRepository.countByCreatedAtAfter(LocalDateTime.now().minusDays(7));
+        LocalDateTime startTime = LocalDateTime.now()
+                .minusDays(7)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        long newUsers = userRepository.countByCreatedAtAfter(startTime);
 
         // 2. 인기 품목 (조회수 1위)
         MarketItem topItem = marketItemRepository.findFirstByOrderByViewCountDesc().orElse(null);
