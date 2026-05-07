@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class FridgeItemCreateRequest {
 
     private Long itemMasterId;  // 어떤 재료인지 (필수)
+    private String name;
     private String category;
     private Float quantity;     // 수량
     private String unit;        // 단위 (개, g, ml 등)

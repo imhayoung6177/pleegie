@@ -67,11 +67,32 @@ public class FridgeService {
 
         Fridge fridge = getOrCreateFridge(userId);
 
-        // ItemMaster 조회
-        ItemMaster itemMaster = itemMasterRepository
-                .findById(request.getItemMasterId())
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.INVALID_INPUT));
+        ItemMaster itemMaster;
+
+        if (request.getItemMasterId() != null) {
+            // itemMasterId 있으면 기존대로 조회
+            itemMaster = itemMasterRepository
+                    .findById(request.getItemMasterId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+        } else {
+            // itemMasterId 없으면 name으로 조회 or 신규 생성
+            if (request.getName() == null || request.getName().isBlank()) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+
+            itemMaster = itemMasterRepository
+                    .findByName(request.getName()) // 기존에 같은 이름이 있으면 재사용
+                    .orElseGet(() -> itemMasterRepository.save(
+                            ItemMaster.builder()
+                                    .name(request.getName())
+                                    .category(request.getCategory() != null
+                                    ? request.getCategory() : "기타")
+                                    .unit(request.getUnit() != null
+                                    ? request.getUnit() : "개")
+                                    .build()
+            ));
+            System.out.println("[FridgeService] ItemMaster 자동 생성/조회: name=" + itemMaster.getName() + ", id=" + itemMaster.getId());
+        }
 
         FridgeItem fridgeItem = request.toEntity(fridge, itemMaster);
         fridgeItemRepository.save(fridgeItem);
