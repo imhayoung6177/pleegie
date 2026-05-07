@@ -1,13 +1,20 @@
 /* App.css (공통 스타일 예시) */
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+@font-face {
+  font-family: 'PleegeFont';   /* 👈 우리가 앞으로 코드에서 부를 이름 */
+  src: url('./assets/fonts/esamanru-medium.ttf') format('truetype'); /* 👈 파일 경로 확인! */
+  font-weight: normal;
+  font-style: normal;
+}
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+
 body {
-  font-family: 'Jua', sans-serif;
+  font-family: 'PleegeFont', sans-serif;
   background-color: transparent;
 }
 

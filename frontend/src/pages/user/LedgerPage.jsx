@@ -96,7 +96,7 @@ const LedgerPage = ({ onBack }) => {
         padding: '24px', borderRadius: '20px', color: '#2a1f0e',
         textAlign: 'center', marginBottom: '20px',
       }}>
-        <div style={{ fontSize: '0.9rem', opacity: 0.9, marginBottom: '6px' }}>이번 달 총 지출</div>
+        <div style={{ fontSize: '1.1rem', opacity: 0.9, marginBottom: '6px' }}>이번 달 총 지출</div>
         <div style={{ fontSize: '2rem', fontWeight: 800, fontFamily: "var(--font-title)" }}>
           {totalSpend.toLocaleString()}원
         </div>
@@ -109,7 +109,7 @@ const LedgerPage = ({ onBack }) => {
         marginBottom: '16px',
         border: '1.5px solid rgba(0,0,0,0.08)',
       }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'black', marginBottom: '10px' }}>
+        <div style={{ fontSize: '1rem', fontWeight: 700, color: 'black', marginBottom: '10px' }}>
           + 지출 직접 입력
         </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -145,8 +145,8 @@ const LedgerPage = ({ onBack }) => {
                {item.cartId ? '🛒' : '🧾'} 
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 500, color: '#444', fontSize: '0.9rem' }}>{item.title}</div>
-              <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '2px' }}>
+              <div style={{ fontWeight: 500, color: '#444', fontSize: '1rem' }}>{item.title}</div>
+              <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '2px' }}>
                 {/* LocalDateTime 날짜 변환 */}
                 {new Date(item.purchaseDate).toLocaleDateString('ko-KR')}
               </div>

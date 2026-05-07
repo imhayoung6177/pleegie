@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { resolvePath, useLocation, useNavigate } from 'react-router-dom';
 import '../../Styles/user/RecipeRecommendPage.css';
 import KakaoMap from '../../components/ui/KakaoMap';
+import CommonHeader from '../../components/ui/CommonHeader';
+
 
 export default function FoodSearchPage() {
     const navigate = useNavigate();
@@ -180,30 +182,35 @@ export default function FoodSearchPage() {
 
 if (showMap) {
   return (
-    <div className="rrp-page" style={{ 
-      position: 'relative', 
-      height: '100vh', 
-      overflow: 'hidden',
+    // ✅ rrp-page 클래스 제거! → 완전히 새 스타일로 덮어쓰기
+    <div style={{
+      width: '100vw',           /* 화면 전체 너비 */
+      minHeight: '100vh',       /* 화면 전체 높이 */
       display: 'flex',
-      justifyContent: 'center', 
-      alignItems: 'center'      
+      flexDirection: 'column',
+      alignItems: 'center',     /* 가로 가운데 */
     }}>
-      
-      {/* ✅ 하얀색 컨테이너: 왼쪽 레시피 상세와 1:1로 동일한 너비(600px) 적용 */}
+
+      {/* 공통 헤더 - 전체 너비 */}
+      <div style={{ width: '100%' }}>
+        <CommonHeader />
+      </div>
+
+      {/* 지도 카드 */}
       <div style={{
-        width: '95%',               
-        maxWidth: '600px',          /* 👈 800px에서 600px로 줄여 왼쪽과 크기를 맞춤 */
-        height: '90vh',             
+        width: '95%',
+        maxWidth: '600px',
+        height: '85vh',
         backgroundColor: '#fff',
         borderRadius: '24px',
         boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        zIndex: 100
+        marginTop: '20px',
       }}>
-        
-        {/* ── 헤더 ── */}
+
+        {/* ── 서브 헤더 ── */}
         <div style={{
           padding: '18px 25px',
           display: 'flex',
@@ -212,21 +219,28 @@ if (showMap) {
           borderBottom: '1.5px solid #f8f8f8',
           background: '#fff'
         }}>
-          <button onClick={() => setShowMap(false)} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#333' }}>←</button>
-          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#2a1f0e' }}>주변 시장 검색 결과</span>
+          <button
+            onClick={() => setShowMap(false)}
+            style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: '#333' }}
+          >←</button>
+          <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#2a1f0e' }}>
+            주변 시장 검색 결과
+          </span>
           <div style={{ width: '28px' }} />
         </div>
 
-        {/* ── 📍 상단 지도 영역 ── */}
-        <div style={{ width: '100%', height: '300px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
+        {/* ── 지도 영역 ── */}
+        <div style={{ width: '100%', height: '280px', background: '#f8f8f8', flexShrink: 0, position: 'relative' }}>
           {mapLoading ? (
-            <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>주변 정보를 분석 중...</div>
+            <div style={{ textAlign: 'center', paddingTop: '120px', color: '#aaa', fontSize: '0.9rem' }}>
+              주변 정보를 분석 중...
+            </div>
           ) : (
             <KakaoMap markets={mapMarkets} />
           )}
         </div>
 
-        {/* ── 🛒 하단 시장 리스트 영역 ── */}
+        {/* ── 시장 리스트 ── */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 25px', background: '#fcfaf7' }}>
           {mapMarkets.length === 0 && !mapLoading ? (
             <div style={{ textAlign: 'center', marginTop: '50px' }}>
@@ -240,9 +254,8 @@ if (showMap) {
                 border: '1px solid #f0ede8', boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
               }}>
                 <strong style={{ fontSize: '1.05rem', color: '#2a1f0e', display: 'block', marginBottom: '12px' }}>
-                   {market.marketName}
+                  {market.marketName}
                 </strong>
-                
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {market.items?.map((item, i) => (
                     <div key={i} style={{
@@ -251,18 +264,25 @@ if (showMap) {
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#333' }}>
-                          {item.onSale && <span style={{ color: '#FF6B35' }}>[특가] </span>}{item.name}
+                          {item.onSale && <span style={{ color: '#FF6B35' }}>[특가] </span>}
+                          {item.name}
                         </span>
-                        <span style={{ fontSize: '0.85rem', color: item.onSale ? '#FF6B35' : '#4CAF50', fontWeight: 600, marginTop: '2px' }}>
-                          {item.onSale ? item.discountPrice?.toLocaleString() : item.originalPrice?.toLocaleString()}원
+                        <span style={{
+                          fontSize: '0.85rem',
+                          color: item.onSale ? '#FF6B35' : '#4CAF50',
+                          fontWeight: 600, marginTop: '2px'
+                        }}>
+                          {item.onSale
+                            ? item.discountPrice?.toLocaleString()
+                            : item.originalPrice?.toLocaleString()}원
                         </span>
                       </div>
-                      
-                      <button 
-                        onClick={() => handleAddToCart(item, item.marketName)}
+                      <button
+                        onClick={() => handleAddToCart(item, market.marketName)}
                         style={{
                           padding: '8px 18px', background: '#fdd537', color: '#2a1f0e',
-                          border: 'none', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer'
+                          border: 'none', borderRadius: '10px',
+                          fontSize: '0.85rem', fontWeight: 800, cursor: 'pointer'
                         }}
                       >
                         담기
@@ -274,6 +294,7 @@ if (showMap) {
             ))
           )}
         </div>
+
       </div>
     </div>
   );
@@ -281,6 +302,7 @@ if (showMap) {
 
     return (
         <div className="rrp-page">
+             <CommonHeader />
             <div className="rrp-header">
                 <button
                     className="rrp-header-back"
@@ -300,8 +322,8 @@ if (showMap) {
                         borderRadius: '12px',
                         padding: '12px 16px',
                         marginBottom: '16px',
-                        fontSize: '0.85rem',
-                        color: '#FF6B35'
+                        fontSize: '0.9rem',
+                        color: '#000000'
                     }}>
                         ⚠️ 부족한 재료: {missingFromRecipe.join(', ')}
                     </div>
@@ -381,8 +403,8 @@ if (showMap) {
                                 onClick={() => setSelectedRecipe(r)}
                             >
                                 <div className="rrp-card-info">
-                                    <strong className="rrp-card-name">
-                                        {r.has_expiring ? '🔥 ' : '🥗 '}
+                                    <strong className="rrp-card-name" style={{fontSize:'1.2rem'}}>
+                                        {r.has_expiring ? '[유통기한 임박] ' : '🥗 '}
                                         {r.title}
                                     </strong>
                                     <p className="rrp-card-desc">
@@ -405,7 +427,7 @@ if (showMap) {
                                             }} />
                                         </div>
                                         <p style={{
-                                            fontSize: '0.75rem',
+                                            fontSize: '0.95rem',
                                             color: '#8a7a60',
                                             margin: '3px 0 0'
                                         }}>
@@ -415,8 +437,8 @@ if (showMap) {
                                     </div>
                                     {r.missing_ingredients?.length > 0 && (
                                         <p style={{
-                                            fontSize: '0.76rem',
-                                            color: '#FF6B35',
+                                            fontSize: '0.9rem',
+                                            color: '#000000',
                                             margin: '4px 0 0'
                                         }}>
                                             ⚠️ 부족: {r.missing_ingredients
@@ -467,8 +489,8 @@ if (showMap) {
                             marginBottom: '16px',
                         }}>
                             <div style={{
-                                fontSize: '0.82rem',
-                                color: '#8a7a60',
+                                fontSize: '1rem',
+                                color: '#000000',
                                 marginBottom: '6px'
                             }}>
                                 냉장고 재료 매칭률
@@ -600,7 +622,8 @@ if (showMap) {
                                         color: '#000000',
                                         border: 'none',
                                         borderRadius: '12px',
-                                        fontWeight: 700,
+                                        fontWeight: 450,
+                                        fontSize: '0.95rem',
                                         cursor: 'pointer',
                                         marginTop: '8px'
                                     }}
@@ -640,11 +663,12 @@ if (showMap) {
                                 style={{
                                     width: '100%',
                                     padding: '14px',
-                                    background: '#4CAF50',
-                                    color: '#fff',
+                                    background: '#fdd537',
+                                    color: '#2a1f0e',
                                     border: 'none',
                                     borderRadius: '12px',
-                                    fontWeight: 700,
+                                    fontWeight: 450,
+                                    fontSize: '1.1rem',
                                     cursor: 'pointer',
                                     marginTop: '16px'
                                 }}

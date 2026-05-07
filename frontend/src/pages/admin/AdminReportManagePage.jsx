@@ -221,7 +221,7 @@ const AdminReportManagePage = () => {
                     </td>
 
                     {/* 상태 배지 */}
-                    <td style={{ whiteSpace: "nowrap" }}>
+                    <td style={{ whiteSpace: "nowrap", fontSize: "13px"  }}>
                       <span className={`status-badge ${isDone(r.status) ? "status-normal" : "status-stopped"}`}>
                         {statusLabel(r.status)}
                       </span>
@@ -231,19 +231,19 @@ const AdminReportManagePage = () => {
                     <td style={{ whiteSpace: "nowrap" }}>
                       {isDone(r.status) ? (
                         // 완료/반려 상태면 버튼 대신 텍스트 표시
-                        <span style={{ color: "#999", fontSize: "12px" }}>처리 완료</span>
+                        <span style={{ color: "#999", fontSize: "15px" }}>처리 완료</span>
                       ) : (
-                        <div style={{ display: "flex", gap: "4px", justifyContent: "center", flexWrap: "nowrap" }}>
+                        <div style={{ display: "flex", gap: "4px", justifyContent: "center", flexWrap: "nowrap", fontSize: "13px"  }}>
                           <button
                             className="admin-action-btn"
-                            style={{ backgroundColor: "#fdd537", color: "#1a1a1a", whiteSpace: "nowrap" }}
+                            style={{ backgroundColor: "#fdd537", color: "#1a1a1a", whiteSpace: "nowrap", fontSize: "13px"  }}
                             onClick={() => handleReportAction(r.id, "처리중")}
                           >
                             처리중
                           </button>
                           <button
                             className="admin-action-btn"
-                            style={{ backgroundColor: "#ff4d4f", color: "white", whiteSpace: "nowrap" }}
+                            style={{ backgroundColor: "#ff4d4f", color: "white", whiteSpace: "nowrap", fontSize: "13px"  }}
                             onClick={() => handleReportAction(r.id, "완료")}
                           >
                             완료
@@ -272,10 +272,10 @@ const AdminReportManagePage = () => {
                           border: "1.5px solid #ff4d4f",
                           borderRadius: "6px",
                           color: "#ff4d4f",
-                          fontSize: "13px",
+                          fontSize: "11.5px",
                           padding: "4px 8px",
                           cursor: "pointer",
-                          fontWeight: "600",
+                          
                         }}
                         title="신고 내역 삭제"
                       >
@@ -319,10 +319,10 @@ const AdminReportManagePage = () => {
             </h2>
 
             {/* 메타 정보: 접수자, 신고일, 상태 */}
-            <div className="report-detail-meta">
-              <span>👤 접수자: {selectedReport.writerName || "-"}</span>
-              <span>📅 신고일: {new Date(selectedReport.createdAt).toLocaleDateString("ko-KR")}</span>
-              <span>
+            <div className="report-detail-meta" >
+              <span style={{ fontsize: "16px" }}>접수자: {selectedReport.writerName || "-"}</span>
+              <span style={{ fontsize: "16px" }}>신고일: {new Date(selectedReport.createdAt).toLocaleDateString("ko-KR")}</span>
+              <span style={{ fontsize: "16px" }}>
                 🔖 상태:{" "}
                 <strong style={{ color: isDone(selectedReport.status) ? "#2e7d32" : "#c62828" }}>
                   {statusLabel(selectedReport.status)}
@@ -332,7 +332,7 @@ const AdminReportManagePage = () => {
 
             {/* 신고 내용 본문 */}
             <div style={{ marginBottom: "20px" }}>
-              <p className="admin-label" style={{ marginBottom: "8px" }}>📄 신고 내용</p>
+              <p className="admin-label" style={{ marginBottom: "8px" }}>신고 내용</p>
               <div className="report-detail-content">
                 {selectedReport.content || "내용이 없습니다."}
               </div>
@@ -379,11 +379,11 @@ const AdminReportManagePage = () => {
                 background: "#fff", color: "#ff4d4f",
                 border: "2px solid #ff4d4f",
                 borderRadius: "12px",
-                fontSize: "14px", fontWeight: "bold",
+                fontSize: "16px", fontWeight: "bold",
                 marginBottom: "8px", cursor: "pointer",
               }}
             >
-              🗑️ 이 신고 삭제하기
+              신고 삭제하기
             </button>
 
             {/* 닫기 버튼 */}
@@ -392,7 +392,7 @@ const AdminReportManagePage = () => {
               style={{
                 backgroundColor: "#fdd537", color: "#1a1a1a",
                 width: "100%", height: "45px",
-                fontSize: "15px", fontWeight: "bold",
+                fontSize: "16px", fontWeight: "bold",
                 marginTop: "4px",
               }}
               onClick={() => setViewModalOpen(false)}

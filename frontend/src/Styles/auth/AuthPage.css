@@ -5,9 +5,9 @@
   --c-green:#2EC4B6; --c-green-dk:#1A9A8A;
   --c-yellow:#FFD166; --c-purple:#9B5DE5; --c-pink:#F15BB5;
   --c-bg:#FFF8EE; --c-text:#1A1A2E; --c-text-mid:#4A4A6A;
-  --font-display:'Jua',sans-serif;
-  --font-title:'Jua',sans-serif;
-  --font-body:'Jua',sans-serif;
+  --font-display:'PleegeFont',sans-serif;
+  --font-title:'PleegeFont',sans-serif;
+  --font-body:'PleegeFont',sans-serif;
   --ease-bounce:cubic-bezier(0.34,1.56,0.64,1);
 
   /* ✅ [추가] 사업자 전용 색상 변수

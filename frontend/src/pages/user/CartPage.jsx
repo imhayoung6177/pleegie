@@ -89,8 +89,8 @@ const CartPage = ({ onBack }) => {
           border: '1.5px solid rgba(253,213,55,0.8)',
         }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <strong style={{ fontSize: '1rem', color: '#2a1f0e' }}>{item.itemName}</strong>
-            <span style={{ fontSize: '0.8rem', color: '#5A4A32' }}>
+            <span style={{ fontSize: '1.2rem', color: '#2a1f0e' }}>{item.itemName}</span>
+            <span style={{ fontSize: '0.98rem', color: '#5A4A32' }}>
                 {item.marketName ? `🏪 ${item.marketName}` : "📍 직접 입력"}
             </span>
           </div>

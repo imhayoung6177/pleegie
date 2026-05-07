@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
 
 :root {
-  --font-title: 'Jua', sans-serif;
+  --font-title: 'PleegeFont', sans-serif;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -40,7 +40,7 @@
   padding: 10px 20px;
   border-radius: 50px;
   font-family: var(--font-title);
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
@@ -280,6 +280,7 @@
    포스트잇 - 절대 변경 금지
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .post-it {
+  font-size: 1.5rem;
   position: absolute;
   top: 35%;
   left: 50%;
