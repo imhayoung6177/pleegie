@@ -168,13 +168,30 @@ public class MarketService {
                     ErrorCode.MARKET_NOT_APPROVED);
         }
 
-        ItemMaster itemMaster = itemMasterRepository
-                .findById(request.getItemMasterId())
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.INVALID_INPUT));
+        ItemMaster itemMaster;
+        if (request.getItemMasterId() != null) {
+            itemMaster = itemMasterRepository
+                    .findById(request.getItemMasterId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+        } else {
+            if (request.getName() == null || request.getName().isBlank()) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+            itemMaster = itemMasterRepository
+                    .findByName(request.getMasterName())
+                    .orElseGet(() -> itemMasterRepository.save(
+                            ItemMaster.builder()
+                                    .name(request.getMasterName())
+                                    .category(request.getCategory() != null
+                                            ? request.getCategory() : "기타")
+                                    .unit("개")
+                                    .build()));
 
-        MarketItem marketItem = request.toEntity(
-                market, itemMaster);
+            log.info("[MarketService] ItemMaster 자동 생성/조회: name={}, id={}",
+                    itemMaster.getName(), itemMaster.getId());
+        }
+
+        MarketItem marketItem = request.toEntity(market, itemMaster);
         marketItemRepository.save(marketItem);
 
         return MarketItemResponse.from(marketItem);

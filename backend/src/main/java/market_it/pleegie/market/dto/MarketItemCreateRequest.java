@@ -12,6 +12,7 @@ public class MarketItemCreateRequest {
 
     private Long itemMasterId;      // 어떤 재료인지 (필수)
     private String name;
+    private String masterName;  // ItemMaster 생성용: "시금치"
     private String category;
     private Integer originalPrice;
     private String imageUrl;

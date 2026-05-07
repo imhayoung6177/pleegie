@@ -123,6 +123,9 @@ export default function ShopItemAddPage() {
     return;
   }
 
+  // 드롭다운 미선택 → RAG로 한번 더 검색 시도
+  const pureName = form.name.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
+
   setIsSaving(true);
   
   try {
@@ -135,8 +138,6 @@ export default function ShopItemAddPage() {
         itemCategory = selectedMaster.category;
 
       } else {
-        // 드롭다운 미선택 → RAG로 한번 더 검색 시도
-        const pureName = form.name.replace(/[0-9]|g|ml|봉|팩|개|묶음|단|kg/g, '').trim();
         let ragMatched = null;
 
         try {
@@ -178,10 +179,10 @@ export default function ShopItemAddPage() {
               itemMasterId = newMaster.data.id;
               itemCategory = newMaster.data.category || '기타';
             } else {
-              // 수정: ID 1번 폴백 제거 → 사용자에게 명확한 안내
-              showToast('재료 정보를 찾을 수 없습니다. 드롭다운에서 재료를 선택해주세요.');
-              setIsSaving(false);
-              return;
+              // POST 실패 시에도 중단하지 않고 name 기반으로 등록 시도
+              showToast('재료를 새로 등록합니다.');
+              itemMasterId = null;  
+              itemCategory = '기타';
             }
           } catch (e) {
             showToast('재료 정보를 찾을 수 없습니다. 드롭다운에서 재료를 선택해주세요.');
@@ -196,8 +197,9 @@ export default function ShopItemAddPage() {
     let newItem = await createMarketItem({
       itemMasterId: itemMasterId,
       name: form.name.trim(), // "시금치 1봉" 그대로 저장
+      masterName: pureName, // ItemMaster 생성용: "시금치"
       category: itemCategory,
-      originalPrice: originalPriceNum,
+      originalPrice: Number(form.originalPrice),
       imageUrl: form.imageUrl || null,
       stock: Number(form.stock) || 0,
     });
@@ -365,7 +367,7 @@ export default function ShopItemAddPage() {
                 )}
 
                 {/* 자동완성 드롭다운 */}
-                {suggestions.length > 0 && (
+                {(suggestions.length > 0 || (form.name.trim().length >= 2 && !isSearching)) && (
                   <ul style={{
                     position: 'absolute',
                     top: '100%',
@@ -411,6 +413,33 @@ export default function ShopItemAddPage() {
                         </span>
                       </li>
                     ))}
+                    {/* 직접 입력 항목 */}
+                    <li
+                      onClick={() => {
+                        setSelectedMaster(null);  // itemMasterId null로 처리 (masterName으로 생성)
+                        setSuggestions([]);
+                      }}
+                      style={{
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        borderTop: `1px solid rgba(183,204,172,0.4)`,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        fontSize: '0.9rem',
+                        color: '#8a7a60',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(183,204,172,0.18)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span>➕ "{form.name}" 새로 등록</span>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        background: 'rgba(183,204,172,0.25)',
+                        borderRadius: 6,
+                        padding: '2px 7px',
+                      }}>직접 입력</span>
+                    </li>
                   </ul>
                 )}
               </div>
