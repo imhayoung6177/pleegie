@@ -72,7 +72,7 @@ const QRSection = ({ marketInfo, onReissue }) => {
   const [isReissuing, setIsReissuing] = useState(false);
   // window.location.origin을 사용하여 현재 접속 환경의 URL을 자동으로 반영합니다.
   // 하드코딩된 IP(예: 192.168.0.x)를 사용하면 다른 기기나 환경에서 QR이 동작하지 않습니다.
-  const qrValue = `${window.location.origin}/market/scan/${marketInfo?.id}`;
+  const qrValue = `${window.location.origin}/market/scan/${marketInfo?.qrToken}`; // 보안때문에 marketId 대신 qrToken 사용
 
   const handleSave = () => {
     const canvas = document.querySelector('#qr-canvas canvas');

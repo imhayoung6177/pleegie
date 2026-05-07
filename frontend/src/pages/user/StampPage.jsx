@@ -4,7 +4,7 @@ import '../../Styles/user/MyPage.css';
 
 export default function StampPage() {
   const navigate = useNavigate();
-  const [stamps, setStamps] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const getAuthHeaders = () => ({
@@ -12,72 +12,101 @@ export default function StampPage() {
     'Content-Type': 'application/json',
   });
 
-  // ✅ [조회] 페이지 진입 시 스탬프 이력 가져오기
+  //  /user/stamp/history → /user/coupons (시장별 UserCoupon 조회)
   useEffect(() => {
-    const fetchStamps = async () => {
+    const fetchCoupons = async () => {
       try {
-        const response = await fetch('/user/stamp/history', { headers: getAuthHeaders() });
+        const response = await fetch('/user/coupons', { headers: getAuthHeaders() });
         const result = await response.json();
         if (response.ok) {
-          setStamps(result.data || []);
+          setCoupons(result.data || []);
         }
       } catch (err) {
-        console.error("스탬프 로딩 실패:", err);
+        console.error("쿠폰 로딩 실패:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchStamps();
+    fetchCoupons();
   }, []);
 
-  // ✅ [참고] 만약 버튼을 눌러 도장을 찍는다면? (시장 상세페이지용 로직)
-  const handleCreateStamp = async (marketId) => {
-    try {
-      // 💡 백엔드 컨트롤러가 @RequestParam을 사용하므로 URL 뒤에 쿼리스트링으로 붙여야 합니다.
-      const response = await fetch(`/user/stamp?marketId=${marketId}`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-      const result = await response.json();
-      if (response.ok) alert(result.message);
-    } catch (err) { console.error(err); }
-  };
-
-  const currentCount = stamps.length % 10;
-
-  if (loading) return <div className="mypage-subpage" style={{color:'white'}}>로딩 중...</div>;
+  if (loading) return (
+    <div className="mypage-subpage" style={{ color: 'white' }}>로딩 중...</div>
+  );
 
   return (
     <div className="mypage-subpage">
       <div className="mypage-white-box" style={{ textAlign: 'center' }}>
         <h2 style={{ fontFamily: 'var(--font-title)', color: '#2a1f0e' }}>🎫 나의 스탬프 현황</h2>
-        
-        <div className="stamp-board" style={{ margin: '30px 0', padding: '20px', background: '#fdfcf0', borderRadius: '15px' }}>
-          <div style={{ marginBottom: '15px', fontWeight: 700 , fontSize: '1.2rem'}}>
-            현재 적립: <span style={{ color: '#fdd537' }}>{currentCount} / 10</span>
+
+        {coupons.length === 0 ? (
+          <div style={{ padding: '40px', color: '#8a7a60' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🏪</div>
+            <p>아직 방문한 시장이 없어요<br />QR을 스캔해서 스탬프를 모아보세요!</p>
           </div>
-          <div className="stamp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-            {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className={`stamp-cell ${i < currentCount ? 'filled' : ''}`} 
-                   style={{ 
-                 height: '50px', 
-                 background: i < currentCount ? '#fdd537' : '#eee', 
-                     borderRadius: '50%', 
-                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' 
-                   }}>
-                {i < currentCount ? '💮' : ''}
+        ) : (
+          // 시장별로 각각의 도장판 렌더링
+          coupons.map(coupon => (
+            <div key={coupon.id} className="stamp-board"
+              style={{ margin: '16px 0', padding: '20px', background: '#fdfcf0', borderRadius: '15px', textAlign: 'left' }}>
+
+              {/* 시장명 + 완료 뱃지 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div style={{ fontWeight: 700, fontSize: '1rem', color: '#2a1f0e' }}>
+                  🏪 {coupon.marketName}
+                </div>
+                {coupon.isCompleted && (
+                  <span style={{
+                    background: '#fdd537', color: '#2a1f0e',
+                    borderRadius: '999px', padding: '2px 10px',
+                    fontSize: '0.78rem', fontWeight: 700
+                  }}>
+                    ✅ 완료
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
+
+              {/* 스탬프 카운트 */}
+              <div style={{ marginBottom: '12px', fontSize: '0.9rem', color: '#8a7a60' }}>
+                현재 적립:
+                <span style={{ color: '#fdd537', fontWeight: 700, marginLeft: '6px' }}>
+                  {coupon.stampCount} / {coupon.requiredStampCount}
+                </span>
+              </div>
+
+              {/* 도장판 */}
+              <div className="stamp-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: '8px'
+              }}>
+                {Array.from({ length: coupon.requiredStampCount }).map((_, i) => (
+                  <div key={i}
+                    style={{
+                      height: '48px',
+                      background: i < coupon.stampCount ? '#fdd537' : '#eee',
+                      borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1.3rem',
+                      transition: 'background 0.2s',
+                    }}>
+                    {i < coupon.stampCount ? '💮' : ''}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', width: '100%' }}>
-          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/mypage')}>
+          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }}
+            onClick={() => navigate('/user/mypage')}>
             돌아가기
           </button>
-          {/* <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }} onClick={() => navigate('/user/coupons')}>
+          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }}
+            onClick={() => navigate('/user/coupons')}>
             내 쿠폰함 바로가기
-          </button> */}
+          </button>
         </div>
       </div>
     </div>

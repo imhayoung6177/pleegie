@@ -45,8 +45,17 @@ const LoginPage = ({ role }) => {
         localStorage.setItem("loginId",      data.user.loginId);
 
         // role에 따라 페이지 분기
-        const isMarket = data.user.role === "MARKET" || data.user.role === "SHOP";
-        navigate(isMarket ? "/shop/dashboard" : "/user/fridge");
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+
+        if (redirect) {
+          // QR 스캔 등 redirect 파라미터가 있으면 해당 페이지로
+          navigate(redirect);
+        } else {
+          // 없으면 기존대로 role에 따라 분기
+          const isMarket = data.user.role === "MARKET";
+          navigate(isMarket ? "/shop/dashboard" : "/user/fridge");
+        }
       }
     } catch (err) {
       setErrors({ general: err.message || "아이디 또는 비밀번호를 확인해주세요." });

@@ -27,10 +27,10 @@ public class StampController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createStamp(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam Long marketId) {
+            @RequestParam String qrToken) {
 
         // 서비스 요리사에게 도장 찍기 명령을 내립니다.
-        stampService.createStamp(userDetails.getUserId(), marketId);
+        stampService.createStamp(userDetails.getUserId(), qrToken);
 
         // 성공하면 팀 공통 응답 양식에 담아 보냅니다.
         return ResponseEntity.ok(ApiResponse.ok("스탬프가 성공적으로 찍혔습니다.", null));
