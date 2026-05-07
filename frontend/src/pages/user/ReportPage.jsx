@@ -463,11 +463,14 @@ export default function ReportPage() {
                 fontFamily: 'var(--font-title)',
               }}
             >
-              닫기
+              닫기 (지워주세요 !!!!)
             </button>
           </div>
         </div>
       )}
+      <button>
+        버튼(수정)
+      </button>
     </div>
   );
 }
