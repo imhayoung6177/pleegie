@@ -24,7 +24,7 @@ const AdminStatisticsPage = () => {
           },
         });
 
-        if (response.data.status === "OK") {
+        if (response.status === 200) {
           setStatistics(response.data.data);
         }
       } catch (error) {

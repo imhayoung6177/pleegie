@@ -33,4 +33,16 @@ public class UserResponse {
         res.status = user.getStatus();
         return res;
     }
+
+    // ── [준호 추가] ──
+    public UserResponse withStatus(String newStatus) {
+        this.status = newStatus;
+        return this;
+    }
+
+    // ── [준호 추가] ──
+    public UserResponse withId(Long id) {
+        this.id = id;
+        return this;
+    }
 }
