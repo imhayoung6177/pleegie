@@ -29,3 +29,17 @@ async def search(name: str):
     """
     results = search_similar_ingredients(name, top_k=5)
     return {"results": results}
+
+
+# Spring Boot에서 새 ItemMaster 생성 시 호출
+@router.post("/add")
+async def add(item: dict):
+    """
+    새 식재료를 chroma에 단건 추가
+    Spring Boot ItemMasterController에서 호출
+    """
+    try:
+        add_ingredient(item)
+        return {"success": True, "message": f"{item['name']} chroma 추가 완료"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}

@@ -1,23 +1,29 @@
 package market_it.pleegie.item.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import market_it.pleegie.common.client.PythonApiClient;
 import market_it.pleegie.common.response.ApiResponse;
 import market_it.pleegie.item.dto.ItemMasterCreateRequest;
 import market_it.pleegie.item.dto.ItemMasterResponse;
 import market_it.pleegie.item.entity.ItemMaster;
 import market_it.pleegie.item.repository.ItemMasterRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/item-master")
 @RequiredArgsConstructor
 public class ItemMasterController {
 
     private final ItemMasterRepository itemMasterRepository;
+    private final PythonApiClient pythonApiClient;
 
     // 재료 전체 목록 조회
     @GetMapping
@@ -75,6 +81,9 @@ public class ItemMasterController {
                                     .unit(request.getUnit() != null
                                     ? request.getUnit() : "개")
                                     .build());
+
+                    pythonApiClient.addIngredient(saved);
+
                     return ResponseEntity.ok(
                             ApiResponse.ok(ItemMasterResponse.from(saved)));
                 });

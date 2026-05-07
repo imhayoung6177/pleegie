@@ -76,3 +76,23 @@ def search_similar_ingredients(query: str, top_k: int = 5) -> list[dict]:
             )
 
     return similar
+
+
+def add_ingredient(ingredient: dict):
+    """
+    새 식재료 단건을 chroma에 추가
+    ingredient: {"id": 1, "name": "계란", "unit": "개", "category": "단백질"}
+    """
+    collection.upsert(
+        ids=[str(ingredient["id"])],
+        embeddings=model.encode([ingredient["name"]]).tolist(),
+        documents=[ingredient["name"]],
+        metadatas=[
+            {
+                "name": ingredient["name"],
+                "unit": ingredient.get("unit", "개"),
+                "category": ingredient.get("category", "기타"),
+            }
+        ],
+    )
+    print(f"[chroma] 단건 추가: {ingredient['name']} (id={ingredient['id']})")

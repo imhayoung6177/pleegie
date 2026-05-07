@@ -344,11 +344,4 @@ public class AdminService {
                 .build();
     }
 
-    // 신고 삭제 (관리자 - 모든 상태 삭제 가능)
-    @Transactional
-    public void deleteReport(Long reportId) {
-        Report report = reportRepository.findById(reportId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
-        reportRepository.delete(report);
-    }
 }

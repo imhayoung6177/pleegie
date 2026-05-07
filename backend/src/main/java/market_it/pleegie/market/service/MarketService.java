@@ -2,6 +2,7 @@ package market_it.pleegie.market.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import market_it.pleegie.common.client.PythonApiClient;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.coupon.entity.Coupon;
@@ -34,6 +35,7 @@ public class MarketService {
     private final UserRepository userRepository;
     private final ItemMasterRepository itemMasterRepository;
     private final CouponRepository couponRepository;
+    private final PythonApiClient pythonApiClient;
 
     // ── 시장 등록 ─────────────────────────────
 
@@ -179,16 +181,22 @@ public class MarketService {
             }
             itemMaster = itemMasterRepository
                     .findByName(request.getMasterName())
-                    .orElseGet(() -> itemMasterRepository.save(
-                            ItemMaster.builder()
-                                    .name(request.getMasterName())
-                                    .category(request.getCategory() != null
-                                            ? request.getCategory() : "기타")
-                                    .unit("개")
-                                    .build()));
+                    .orElseGet(() -> {
+                        ItemMaster newItem = ItemMaster.builder()
+                                .name(request.getMasterName())
+                                .category(request.getCategory() != null
+                                        ? request.getCategory() : "기타")
+                                .unit("개")
+                                .build();
 
-            log.info("[MarketService] ItemMaster 자동 생성/조회: name={}, id={}",
-                    itemMaster.getName(), itemMaster.getId());
+                        ItemMaster saved = itemMasterRepository.save(newItem);
+
+                        pythonApiClient.addIngredient(saved);
+                        log.info("[MarketService] ItemMaster 자동 생성: name={}, id={}",
+                                saved.getName(), saved.getId());
+
+                        return saved;
+                    });
         }
 
         MarketItem marketItem = request.toEntity(market, itemMaster);

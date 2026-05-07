@@ -2,6 +2,7 @@ package market_it.pleegie.fridge.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import market_it.pleegie.common.client.PythonApiClient;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.fridge.dto.FridgeItemCreateRequest;
@@ -33,6 +34,7 @@ public class FridgeService {
     private final FridgeItemRepository fridgeItemRepository;
     private final ItemMasterRepository itemMasterRepository;
     private final UserRepository userRepository;
+    private final PythonApiClient pythonApiClient;
 
     // ── 냉장고 조회 (없으면 자동 생성) ──────────
 
@@ -81,17 +83,25 @@ public class FridgeService {
             }
 
             itemMaster = itemMasterRepository
-                    .findByName(request.getName()) // 기존에 같은 이름이 있으면 재사용
-                    .orElseGet(() -> itemMasterRepository.save(
-                            ItemMaster.builder()
-                                    .name(request.getName())
-                                    .category(request.getCategory() != null
-                                    ? request.getCategory() : "기타")
-                                    .unit(request.getUnit() != null
-                                    ? request.getUnit() : "개")
-                                    .build()
-            ));
-            System.out.println("[FridgeService] ItemMaster 자동 생성/조회: name=" + itemMaster.getName() + ", id=" + itemMaster.getId());
+                    .findByName(request.getName())
+                    .orElseGet(() -> {
+                        // 🔴 수정: newItem/saved로 분리
+                        ItemMaster newItem = ItemMaster.builder()
+                                .name(request.getName())
+                                .category(request.getCategory() != null
+                                        ? request.getCategory() : "기타")
+                                .unit(request.getUnit() != null
+                                        ? request.getUnit() : "개")
+                                .build();
+
+                        ItemMaster saved = itemMasterRepository.save(newItem);
+
+                        pythonApiClient.addIngredient(saved);  // 🔴 saved 사용 가능
+                        log.info("[FridgeService] ItemMaster 자동 생성: name={}, id={}",
+                                saved.getName(), saved.getId());
+
+                        return saved;
+                    });
         }
 
         FridgeItem fridgeItem = request.toEntity(fridge, itemMaster);
