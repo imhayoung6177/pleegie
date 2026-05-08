@@ -85,6 +85,10 @@ export default function QrScanPage() {
             localStorage.removeItem('accessToken');
             navigate(`/user/login?redirect=/market/scan/${qrToken}`);
 
+          } else if (res.status === 403) {
+            //  마켓/어드민 계정으로 스캔 시
+            setErrMsg('일반 회원만 스탬프를 적립할 수 있어요.');
+            setStatus('error');
           } else {
             setErrMsg(msg || '스탬프 적립에 실패했습니다.');
             setStatus('error');
