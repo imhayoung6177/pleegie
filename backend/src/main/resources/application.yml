@@ -24,6 +24,7 @@ spring:
 
   # properties include secret file
   profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
     include: secret
 
 uploadPath: c:/upload/
