@@ -109,13 +109,29 @@ const AdminReportManagePage = () => {
   // ── 상태값 한글 변환 ──────────────────────────────────
   // DB에 저장된 영문 상태값을 화면에 표시할 한글로 변환합니다.
   const statusLabel = (status) => {
-    if (status === "PENDING") return "접수";
-    return status; // "처리중", "완료", "반려"는 그대로 표시
+    const statusMap = {
+    "PENDING"     : "접수",
+    "IN_PROGRESS" : "보류",
+    "RESOLVED"    : "완료",
+    "REJECTED"    : "반려",
+    // 백엔드가 한글로 저장한 경우도 대비 (혼용 방지)
+    "처리중"       : "보류",
+    "완료"         : "완료",
+    "반려"         : "반려",
+    "보류"         : "보류",
+  };
+  // 매핑 테이블에 있으면 한글 반환, 없으면 원본값 그대로 반환
+  return statusMap[status] || status;
+   // "처리중", "완료", "반려"는 그대로 표시
   };
 
   // ── 처리 완료 여부 판별 ───────────────────────────────
   // "완료" 또는 "반려" 상태면 더 이상 처리 버튼을 표시하지 않습니다.
-  const isDone = (status) => status === "완료" || status === "반려";
+  const isDone = (status) => 
+  status === "완료"     || 
+  status === "반려"     || 
+  status === "RESOLVED" || 
+  status === "REJECTED";
 
   // ════════════════════════════════════════════════════
   // 📌 JSX 렌더링
@@ -237,9 +253,9 @@ const AdminReportManagePage = () => {
                           <button
                             className="admin-action-btn"
                             style={{ backgroundColor: "#fdd537", color: "#1a1a1a", whiteSpace: "nowrap", fontSize: "13px"  }}
-                            onClick={() => handleReportAction(r.id, "처리중")}
+                            onClick={() => handleReportAction(r.id, "보류")}
                           >
-                            처리중
+                           보류
                           </button>
                           <button
                             className="admin-action-btn"
@@ -346,9 +362,9 @@ const AdminReportManagePage = () => {
                   <button
                     className="admin-action-btn"
                     style={{ backgroundColor: "#fdd537", color: "#1a1a1a", flex: 1, height: "40px", fontSize: "13px" }}
-                    onClick={() => handleReportAction(selectedReport.id, "처리중")}
+                    onClick={() => handleReportAction(selectedReport.id, "보류")}
                   >
-                    처리중
+                    보류
                   </button>
                   <button
                     className="admin-action-btn"

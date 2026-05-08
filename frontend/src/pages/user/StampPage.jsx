@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../Styles/user/MyPage.css';
+import stampImg from '../../assets/pleegie_stamp.png';
 
 export default function StampPage() {
   const navigate = useNavigate();
@@ -52,18 +53,18 @@ export default function StampPage() {
 
               {/* 시장명 + 완료 뱃지 */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <div style={{ fontWeight: 700, fontSize: '1rem', color: '#2a1f0e' }}>
+                <div style={{ fontWeight: 450, fontSize: '1.3rem', color: '#2a1f0e' }}>
                   🏪 {coupon.marketName}
                 </div>
-                {coupon.isCompleted && (
-                  <span style={{
-                    background: '#fdd537', color: '#2a1f0e',
-                    borderRadius: '999px', padding: '2px 10px',
-                    fontSize: '0.78rem', fontWeight: 700
-                  }}>
-                    ✅ 완료
-                  </span>
-                )}
+                {/* {coupon.isCompleted && (
+                  // <span style={{
+                  //   background: '#fdd537', color: '#2a1f0e',
+                  //   borderRadius: '999px', padding: '2px 10px',
+                  //   fontSize: '0.78rem', fontWeight: 700
+                  // }}>
+                  //   ✅ 완료
+                  // </span>
+                )} */}
               </div>
 
               {/* 스탬프 카운트 */}
@@ -83,14 +84,25 @@ export default function StampPage() {
                 {Array.from({ length: coupon.requiredStampCount }).map((_, i) => (
                   <div key={i}
                     style={{
-                      height: '48px',
-                      background: i < coupon.stampCount ? '#fdd537' : '#eee',
-                      borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '1.3rem',
-                      transition: 'background 0.2s',
+                     aspectRatio: '1 / 1',
+    width: '100%',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s',
+
+    // ✅ 노란 배경 → 투명 PNG 이미지가 올라가면 노란 원 + 빨간 도장 완성!
+    background: i < coupon.stampCount ? '#fdd537' : '#eee',
+    opacity: i < coupon.stampCount ? 1 : 0.35,
+
+    // ✅ 도장 이미지는 그대로 (투명 PNG라서 노란 배경이 비쳐보임)
+    backgroundImage: i < coupon.stampCount ? `url(${stampImg})` : 'none',
+    backgroundSize: '85%',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
                     }}>
-                    {i < coupon.stampCount ? '💮' : ''}
+                    {i < coupon.stampCount ? '' : ''}
                   </div>
                 ))}
               </div>
@@ -102,10 +114,6 @@ export default function StampPage() {
           <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }}
             onClick={() => navigate('/user/mypage')}>
             돌아가기
-          </button>
-          <button className="auth-submit-btn" style={{ flex: 1, margin: 0 }}
-            onClick={() => navigate('/user/coupons')}>
-            내 쿠폰함 바로가기
           </button>
         </div>
       </div>
