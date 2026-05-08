@@ -57,6 +57,10 @@ public class StampService {
         // [Step 3] 실제 도장(Stamp) 데이터를 생성하여 저장합니다.
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // MARKET,ADMIN 역할은 스탬프 적립 불가
+        if ("MARKET".equals(user.getRole()) || "ADMIN".equals(user.getRole())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         // [Step 2] 이 유저가 이 시장에서 현재 모으고 있는 도장판(UserCoupon)을 찾습니다.
         // 만약 없다면, 새로운 도장판을 하나 만들어줘야 합니다. (Optional 활용)

@@ -10,12 +10,15 @@ import market_it.pleegie.admin.repository.AdminRepository;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.common.security.JwtProvider;
+import market_it.pleegie.coupon.repository.UserCouponRepository;
+import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.local_currency.entity.LocalCurrencyLog;
 import market_it.pleegie.local_currency.repository.LocalCurrencyLogRepository;
 import market_it.pleegie.notice.dto.NoticeCreateRequest;
 import market_it.pleegie.notice.dto.NoticeResponse;
 import market_it.pleegie.notice.entity.Notice;
 import market_it.pleegie.notice.repository.NoticeRepository;
+import market_it.pleegie.recipe.repository.RecipeBookRepository;
 import market_it.pleegie.report.dto.ReportResponse;
 import market_it.pleegie.report.entity.Report;
 import market_it.pleegie.report.repository.ReportRepository;
@@ -55,6 +58,9 @@ public class AdminService {
     private final RecipeRepository recipeRepository; //[준호 추가]
     private final MarketItemRepository marketItemRepository; //[준호 추가]
     private final CouponRepository couponRepository; // [준호 추가]
+    private final UserCouponRepository userCouponRepository;
+    private final RecipeBookRepository recipeBookRepository;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -263,10 +269,21 @@ public class AdminService {
     // ── 지역화폐 관리 ─────────────────────────
 
     // 지역화폐 신청 목록 조회
-    public List<LocalCurrencyLog> getLocalCurrencyRequests() {
-        return localCurrencyLogRepository
-                .findAllByStatusOrderByRequestedAtAsc(
-                        "REQUESTED");
+    public List<LocalCurrencyResponse> getLocalCurrencyRequests(String status) {
+        List<LocalCurrencyLog> logs;
+
+        if (status != null && !status.isBlank()) {
+            logs = localCurrencyLogRepository
+                    .findAllByStatusOrderByRequestedAtAsc(status);
+        } else {
+            // status 없으면 전체 조회
+            logs = localCurrencyLogRepository
+                    .findAllByOrderByRequestedAtDesc();
+        }
+
+        return logs.stream()
+                .map(LocalCurrencyResponse::from)
+                .collect(Collectors.toList());
     }
 
     // 지역화폐 승인
@@ -328,12 +345,12 @@ public class AdminService {
         MarketItem topItem = marketItemRepository.findFirstByOrderByViewCountDesc().orElse(null);
 
         // 3. 저장된 레시피 총합
-        long totalRecipes = recipeRepository.count();
+        long totalRecipes = recipeBookRepository.count();
 
         // 4. 쿠폰 사용률
-        long totalCoupons = couponRepository.count();
-        long usedCoupons = couponRepository.countByIsUsedTrue();
-        double usageRate = totalCoupons > 0 ? (double) usedCoupons / totalCoupons * 100 : 0;
+        long totalCoupons = userCouponRepository.count();
+        long issuedCount = localCurrencyLogRepository.countByStatus("ISSUED");
+        double usageRate = totalCoupons > 0 ? (double) issuedCount / totalCoupons * 100 : 0;
 
         return AdminStatisticsResponse.builder()
                 .newUsersCount(newUsers)

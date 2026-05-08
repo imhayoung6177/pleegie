@@ -8,6 +8,7 @@ import market_it.pleegie.local_currency.service.LocalCurrencyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import market_it.pleegie.local_currency.dto.LocalCurrencyApplyRequest;
 
 import java.util.List;
 
@@ -21,6 +22,25 @@ import java.util.List;
 public class LocalCurrencyController {
 
     private final LocalCurrencyService currencyService;
+
+    // 신청 가능 개수 조회
+    @GetMapping("/available-count")
+    public ResponseEntity<ApiResponse<Integer>> getAvailableCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ResponseEntity.ok(
+                ApiResponse.ok(currencyService.getAvailableCount(
+                        userDetails.getUserId())));
+    }
+
+    // 지역화폐 신청
+    @PostMapping("/apply")
+    public ResponseEntity<ApiResponse<Void>> apply(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody LocalCurrencyApplyRequest request) {
+        currencyService.apply(userDetails.getUserId(), request);
+        return ResponseEntity.ok(
+                ApiResponse.ok("지역화폐 신청이 완료되었습니다.", null));
+    }
 
     /**
      * 1. 내 지역화폐 사용 로그 조회

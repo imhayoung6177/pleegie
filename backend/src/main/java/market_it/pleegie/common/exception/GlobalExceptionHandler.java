@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.DisabledException;
 
 @Slf4j
 @RestControllerAdvice
@@ -57,5 +59,25 @@ public class GlobalExceptionHandler {
                 .internalServerError()
                 .body(ApiResponse.fail(
                         ErrorCode.INTERNAL_SERVER_ERROR.getMessage()));
+    }
+
+    // LockedException 핸들러
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleLockedException(
+            LockedException e) {
+        log.error("LockedException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.fail("정지된 계정입니다. 관리자에게 문의하세요."));
+    }
+
+    // isEnabled() = false 시 (탈퇴 회원)
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDisabledException(
+            DisabledException e) {
+        log.error("DisabledException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.fail("탈퇴한 계정입니다."));
     }
 }
