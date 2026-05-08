@@ -17,6 +17,8 @@ public interface UserCouponRepository extends JpaRepository<UserCoupon, Long> {
     Optional<UserCoupon> findByUserIdAndCouponId(
             Long userId, Long couponId);
 
+    long countByIsCompleted(Boolean isCompleted);
+
     // 유저 ID + 쿠폰 ID 존재 여부 확인
     boolean existsByUserIdAndCouponId(Long userId, Long couponId);
 

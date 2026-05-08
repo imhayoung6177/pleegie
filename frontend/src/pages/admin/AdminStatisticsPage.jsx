@@ -61,7 +61,7 @@ const AdminStatisticsPage = () => {
       icon: "🍎",
     },
     { label: "저장된 레시피", value: `${statistics?.totalSavedRecipes || 0}건`, icon: "🍳" },
-    { label: "쿠폰 사용률", value: `${statistics?.couponUsageRate || 0}%`, icon: "🎫" },
+    { label: "지역화폐 발급률", value: `${statistics?.couponUsageRate || 0}%`, icon: "💸" },
   ];
 
   return (

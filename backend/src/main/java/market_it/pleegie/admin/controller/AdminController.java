@@ -10,6 +10,7 @@ import market_it.pleegie.admin.service.AdminService;
 import market_it.pleegie.common.response.ApiResponse;
 import market_it.pleegie.common.security.CustomAdminDetails;
 import market_it.pleegie.common.security.CustomUserDetails;
+import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.notice.dto.NoticeCreateRequest;
 import market_it.pleegie.notice.dto.NoticeResponse;
 import market_it.pleegie.report.dto.ReportResponse;
@@ -165,11 +166,11 @@ public class AdminController {
     // ── 지역화폐 관리 ─────────────────────────
 
     @GetMapping("/local-currency")
-    public ResponseEntity<ApiResponse<?>>
+    public ResponseEntity<ApiResponse<List<LocalCurrencyResponse>>>
     getLocalCurrencyRequests(@RequestParam(required = false) String status) { // [준호 추가]
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService
-                        .getLocalCurrencyRequests()));
+                        .getLocalCurrencyRequests(status)));
     }
 
     @PutMapping("/local-currency/{logId}/approve")

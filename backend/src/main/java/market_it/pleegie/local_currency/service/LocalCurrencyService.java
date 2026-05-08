@@ -6,6 +6,10 @@ import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.local_currency.entity.LocalCurrencyLog;
 import market_it.pleegie.local_currency.repository.LocalCurrencyLogRepository;
+import market_it.pleegie.coupon.entity.UserCoupon;
+import market_it.pleegie.coupon.repository.UserCouponRepository;
+import market_it.pleegie.local_currency.dto.LocalCurrencyApplyRequest;
+import market_it.pleegie.market.entity.Market;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +26,56 @@ import java.util.stream.Collectors;
 public class LocalCurrencyService {
 
     private final LocalCurrencyLogRepository logRepository;
+    private final UserCouponRepository userCouponRepository;
+
+    // isCompleted=true이고 아직 신청 안 한 UserCoupon 개수
+    public Integer getAvailableCount(Long userId) {
+        List<UserCoupon> completedCoupons = userCouponRepository
+                .findAllByUserIdAndIsCompleted(userId, true);
+
+        return (int) completedCoupons.stream()
+                .filter(uc -> !logRepository
+                        .existsByUserCouponIdAndStatusIn(
+                                uc.getId(),
+                                List.of("REQUESTED", "ISSUED")))
+                .count();
+    }
+
+    // 지역화폐 신청
+    @Transactional
+    public void apply(Long userId, LocalCurrencyApplyRequest request) {
+        UserCoupon userCoupon = userCouponRepository
+                .findById(request.getUserCouponId())
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+
+        // 본인 쿠폰인지 확인
+        if (!userCoupon.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 완료된 쿠폰인지 확인
+        if (!userCoupon.getIsCompleted()) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        // 이미 신청했는지 확인
+        if (logRepository.existsByUserCouponIdAndStatusIn(
+                userCoupon.getId(), List.of("REQUESTED", "ISSUED"))) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        // 시장 정보 가져오기
+        Market market = userCoupon.getCoupon().getMarket();
+
+        LocalCurrencyLog log = LocalCurrencyLog.builder()
+                .user(userCoupon.getUser())
+                .market(market)
+                .userCoupon(userCoupon)
+                .amount(5000)  // 고정 금액
+                .build();
+
+        logRepository.save(log);
+    }
 
     /**
      * 특정 사용자의 지역화폐 사용 내역(로그) 조회

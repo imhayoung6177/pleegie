@@ -15,6 +15,8 @@ public interface LocalCurrencyLogRepository
     // 유저 ID로 조회하면서, 요청 시각(RequestedAt) 내림차순(Desc, 최신순)으로 정렬합니다.
     List<LocalCurrencyLog> findAllByUserIdOrderByRequestedAtDesc(Long userId);
 
+    long countByStatus(String status);
+
     // 유저 ID로 전체 지역화폐 이력 조회
     List<LocalCurrencyLog> findAllByUserId(Long userId);
 

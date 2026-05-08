@@ -6,7 +6,32 @@ import '../../Styles/user/LocalCurrencyPage.css';
 // ════════════════════════════════════════════════════════
 // 📌 API 설정
 // ════════════════════════════════════════════════════════
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = '';
+
+// 신청 가능 개수 조회
+const fetchAvailableCount = async () => {
+    const response = await fetch(`/user/local-currency/available-count`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error(`개수 조회 실패: ${response.status}`);
+    const result = await response.json();
+    return result.data ?? 0;
+};
+
+// 지역화폐 신청
+const applyLocalCurrency = async (userCouponId) => {
+    const response = await fetch(`/user/local-currency/apply`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ userCouponId }),
+    });
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.message || `신청 실패: ${response.status}`);
+    }
+    return await response.json();
+};
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('accessToken');
@@ -121,14 +146,12 @@ export default function LocalCurrencyPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // ✅ API 1: 내역 조회 → 현재 정상 동작
-      const logs = await fetchMyLogs();
-      setHistory(logs);
-
-      // ⚠️ TODO 1: 백엔드 /user/coupon/available-count 완성 후 주석 해제!
-      // const count = await fetchAvailableCount();
-      // setAvailableCount(count);
-
+        const [logs, count] = await Promise.all([
+            fetchMyLogs(),
+            fetchAvailableCount(), 
+        ]);
+        setHistory(logs);
+        setAvailableCount(count);
     } catch (err) {
       console.error('데이터 로드 실패:', err);
       if (err.message.includes('401')) {
@@ -173,20 +196,33 @@ export default function LocalCurrencyPage() {
    *
    * 현재는 임시로 안내 메시지만 표시합니다.
    */
-  const handleApply = () => {
-    if (availableCount <= 0) return;
+  const handleApply = async () => {
+      if (availableCount <= 0) return;
 
-    const confirmApply = window.confirm("지역화폐 '5,000원' 권을 신청하시겠습니까?");
-    if (!confirmApply) return;
+      const confirmApply = window.confirm("지역화폐 '5,000원' 권을 신청하시겠습니까?");
+      if (!confirmApply) return;
 
-    // ⚠️ 백엔드 API 미완성 → 안내 메시지만 표시 (DB 저장 안 됨)
-    alert(
-      ":::::::신청이 완료되었습니다!::::::: \n\n" +
-      "관리자 승인까지는 금일 기준 최대 3영업일 정도 걸리며 ,\n" +
-      "지역화폐는 '핸드폰 문자'로 보내드립니다.\n\n" +
-      ":::문자가 안올시 고객센터로 문의 바랍니다:::\n\n" +
-      "⚠️ [개발자 메모] 백엔드 API 연동 후 실제 DB에 저장됩니다."
-    );
+      setIsApplying(true);
+      try {
+          // 신청 가능한 첫 번째 UserCoupon으로 신청
+          const completedCoupon = await fetch('/user/coupons', {
+              headers: getAuthHeaders()
+          }).then(r => r.json());
+
+          const targetCoupon = completedCoupon.data.find(c => c.isCompleted);
+          if (!targetCoupon) {
+              alert('신청 가능한 쿠폰이 없습니다.');
+              return;
+          }
+
+          await applyLocalCurrency(targetCoupon.id);
+          alert('신청이 완료되었습니다!\n관리자 승인 후 문자로 발송됩니다.');
+          await loadData();
+      } catch (err) {
+          alert(`신청 중 오류가 발생했습니다.\n${err.message}`);
+      } finally {
+          setIsApplying(false);
+      }
   };
 
   // ════════════════════════════════════════════════════

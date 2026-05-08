@@ -12,6 +12,17 @@ export default defineConfig({
                 target: 'http://localhost:8080',
                 changeOrigin: true,
                 secure: false,
+                bypass: (req) => {
+                    const exactBypassRoutes = [
+                        '/user/login',
+                        '/user/signup',
+                        '/user/register',
+                    ];
+                    if (req.method === 'GET' &&
+                        exactBypassRoutes.includes(req.url)) {
+                        return '/index.html';
+                    }
+                }
             },
             '/market': {
                 target: 'http://localhost:8080',
