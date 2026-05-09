@@ -48,7 +48,7 @@ public class SecurityConfig {
                 // 세션 미사용 (JWT 사용)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+                                SessionCreationPolicy.IF_REQUIRED))
 
                 // URL별 접근 권한
                 .authorizeHttpRequests(auth -> auth
@@ -144,8 +144,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173"  // React 개발 서버
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",  // React 개발 서버
+                "http://3.86.25.243",
+                "http://3.86.25.243.nip.io",
+                "http://*.nip.io"
         ));
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"));
