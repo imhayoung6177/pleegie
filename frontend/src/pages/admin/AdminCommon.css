@@ -211,6 +211,9 @@
   border-radius: 20px;
   font-weight: bold;
   font-size: 15px;
+   display: inline-block;  /* ① 크기를 가지되 한 줄에 표시 */
+  white-space: nowrap;    /* ② 절대 줄바꿈 금지 ← 이게 핵심! */
+  font-size: 17px;     
 }
 
 .status-normal  { background-color: #e8f5e9; color: #2e7d32; } /* 정상 */
