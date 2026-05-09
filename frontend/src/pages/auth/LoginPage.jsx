@@ -23,7 +23,7 @@ const LoginPage = ({ role }) => {
 
   const handleSocialLogin = (platform) => {
     window.location.href =
-      `http://localhost:8080/oauth2/authorization/${platform.toLowerCase()}`;
+      `/oauth2/authorization/${platform.toLowerCase()}`;
   };
 
   const handleSubmit = async (e) => {
