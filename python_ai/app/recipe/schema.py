@@ -8,6 +8,8 @@ class RecipeRecommendRequest(BaseModel):
 
 class RecipeSearchRequest(BaseModel):
     query: str  # 먹고싶은 음식명
+    ingredients: list[str] = []
+    expiring_ingredients: list[str] = []
 
 
 class RecipeItem(BaseModel):

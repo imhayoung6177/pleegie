@@ -1,0 +1,214 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ─── Java 빌드 ───
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build Spring Boot JAR
+        working-directory: ./backend
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test
+          mv build/libs/*.jar ../app.jar
+
+      # ─── React 빌드 ───
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build React
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+          tar -czf ../frontend-dist.tar.gz -C dist .
+
+      # ─── Python 소스 압축 ───
+      - name: Pack Python source
+        run: tar -czf python-src.tar.gz python_ai/
+
+      # ─── EC2로 산출물 전송 ───
+      - name: Copy artifacts to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "app.jar,frontend-dist.tar.gz,python-src.tar.gz"
+          target: "/tmp/deploy/"
+
+      # ─── EC2에서 배포 + 재시작 ───
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            # 1) Spring Boot
+            mv /tmp/deploy/app.jar /opt/pleegie/java/app.jar
+            sudo systemctl restart pleegie-java
+
+            # 2) React
+            rm -rf /opt/pleegie/frontend/*
+            tar -xzf /tmp/deploy/frontend-dist.tar.gz -C /opt/pleegie/frontend
+            sudo chown -R ubuntu:www-data /opt/pleegie/frontend
+
+            # 3) Python
+            tar -xzf /tmp/deploy/python-src.tar.gz -C /tmp/deploy/
+            rsync -a --delete /tmp/deploy/python_ai/ /opt/pleegie/python/ \
+                  --exclude venv --exclude __pycache__ --exclude chroma_db
+            cd /opt/pleegie/python
+            source venv/bin/activate
+            pip install -q -r requirements.txt
+            deactivate
+            sudo systemctl restart pleegie-python
+
+            # Nginx 설정 업데이트
+            sudo tee /etc/nginx/sites-available/pleegie > /dev/null << 'NGINX_EOF'
+            server {
+                listen 80;
+                server_name _;
+                client_max_body_size 50M;
+
+                root /opt/pleegie/frontend;
+                index index.html;
+
+                location /api/ingredients/ {
+                    proxy_pass http://127.0.0.1:8000/api/ingredients/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_read_timeout 300s;
+                }
+
+                location /recipe/recommend {
+                    proxy_pass http://127.0.0.1:8080/recipe/recommend;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /recipe/search {
+                    proxy_pass http://127.0.0.1:8000/recipe/search;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_read_timeout 300s;
+                }
+
+                location /recipe/ {
+                    proxy_pass http://127.0.0.1:8000/recipe/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_read_timeout 300s;
+                }
+
+                location /user/ {
+                    proxy_pass http://127.0.0.1:8080/user/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /market/ {
+                    proxy_pass http://127.0.0.1:8080/market/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /admin/ {
+                    proxy_pass http://127.0.0.1:8080/admin/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /item-master {
+                    proxy_pass http://127.0.0.1:8080/item-master;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /chatbot {
+                    proxy_pass http://127.0.0.1:8080/chatbot;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /login/ {
+                    proxy_pass http://127.0.0.1:8080/login/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /oauth2/ {
+                    proxy_pass http://127.0.0.1:8080/oauth2/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /api/ {
+                    proxy_pass http://127.0.0.1:8080/api/;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                }
+
+                location /oauth2/callback {
+                    try_files $uri $uri/ /index.html;
+                }
+
+                location / {
+                    try_files $uri $uri/ /index.html;
+                }
+
+                location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$ {
+                    expires 30d;
+                    access_log off;
+                    add_header Cache-Control "public, immutable";
+                }
+            }
+            NGINX_EOF
+            sudo nginx -t
+            sudo systemctl reload nginx
+
+            # 4) 정리
+            rm -rf /tmp/deploy/*
+
+            # 5) 헬스체크
+            sleep 40
+            curl -f http://127.0.0.1:8080/ || true
+            curl -f http://127.0.0.1:8000/ || true
+            echo "배포 완료!"

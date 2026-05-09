@@ -32,9 +32,10 @@ public class OAuth2SuccessHandler
                 userDetails.getUser().getRole());
 
         // 프론트로 리다이렉트 (토큰을 쿼리 파라미터로 전달)
-        String redirectUrl = "http://localhost:5173/oauth2/callback"
-                + "?token=" + accessToken
-                + "&role=" + userDetails.getUser().getRole();
+        String redirectUrl = request.getScheme() + "://" + request.getServerName() 
+        + "/oauth2/callback"
+        + "?token=" + accessToken
+        + "&role=" + userDetails.getUser().getRole();
 
         log.info("OAuth2 로그인 성공 - userId: {}",
                 userDetails.getUserId());

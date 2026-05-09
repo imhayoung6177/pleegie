@@ -388,7 +388,7 @@ async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse
     # 1. 공공 API 레시피
     recipes_data = await fetch_recipes_from_api(" ".join(request.ingredients))
     api_recipes = parse_api_recipes(
-        recipes_data, request.ingredients, request.expiring_ingredients or []
+        recipes_data, request.ingredients, request.expiring_ingredients
     )
     print(f"API 레시피: {len(api_recipes)}개")
 
@@ -405,7 +405,7 @@ async def recommend_by_fridge(request: RecipeRecommendRequest) -> RecipeResponse
         }
     )
     llm_recipes = parse_llm_recipes(
-        llm_result, request.ingredients, request.expiring_ingredients or []
+        llm_result, request.ingredients, request.expiring_ingredients
     )
     print(f"LLM 레시피: {len(llm_recipes)}개")
 

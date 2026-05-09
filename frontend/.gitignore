@@ -25,3 +25,6 @@ dist-ssr
 
 **/.env
 **/.env.local
+
+# 카카오 REST API 추가
+**/.env.production

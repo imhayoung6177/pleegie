@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class SecurityConfig {
                 // 세션 미사용 (JWT 사용)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+                                SessionCreationPolicy.IF_REQUIRED))
 
                 // URL별 접근 권한
                 .authorizeHttpRequests(auth -> auth
@@ -95,6 +97,10 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler())
+                        .failureHandler((request, response, exception) -> {
+                                log.error("OAuth2 로그인 실패: {}", exception.getMessage());
+                                response.sendRedirect("/user/login?error=" + exception.getMessage());
+                        })
                 )
 
                 // [준호 추가] 인증 실패 시 안내데스크 설정 (Exception Handling)
@@ -144,8 +150,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:5173"  // React 개발 서버
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:5173",  // React 개발 서버
+                "http://3.86.25.243",
+                "http://3.86.25.243.nip.io",
+                "http://*.nip.io"
         ));
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"));
