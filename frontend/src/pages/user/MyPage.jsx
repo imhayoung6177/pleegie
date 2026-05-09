@@ -43,6 +43,33 @@ const MENU = [
   },
 ];
 
+// ✅ WithdrawModal 바로 위에 이 함수 추가 , 위도 경도 반환 함수
+const convertCoordsToAddress = async (latitude, longitude) => {
+  try {
+    // x = 경도(longitude), y = 위도(latitude) ← 순서 중요!
+    const res = await fetch(
+      `/kakao-api/v2/local/geo/coord2address.json?x=${longitude}&y=${latitude}`,
+      {
+        headers: {
+          Authorization: `KakaoAK ${import.meta.env.VITE_KAKAO_REST_API_KEY}`
+        }
+      }
+    );
+    const data = await res.json();
+
+    if (data.documents?.length > 0) {
+      // 도로명 주소 우선, 없으면 지번 주소
+      const roadAddr  = data.documents[0].road_address?.address_name;
+      const jibunAddr = data.documents[0].address?.address_name;
+      return roadAddr || jibunAddr || '주소 없음';
+    }
+    return '주소를 불러올 수 없습니다.';
+  } catch (err) {
+    console.error('역지오코딩 실패:', err);
+    return '주소 변환 실패';
+  }
+};
+
 /* ══════════════════════════════════════════════════════════
    탈퇴 모달 컴포넌트
 ══════════════════════════════════════════════════════════ */
@@ -80,6 +107,13 @@ export default function MyPage() {
     address: "",
     role: "",
   });
+  const [userInfo, setUserInfo] = useState({
+  name: '', phone: '', email: '',
+  address: '',    // 변환된 주소 텍스트 저장
+  latitude: null,
+  longitude: null,
+  role: ''
+});
   const [loading, setLoading] = useState(true);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
@@ -96,7 +130,26 @@ export default function MyPage() {
           headers: getAuthHeaders(),
         });
         const result = await response.json();
-        if (response.ok) setUserInfo(result.data);
+        // ✅ 수정 - 위도/경도를 주소로 변환 후 저장
+if (response.ok) {
+  const user = result.data;
+
+  // 위도/경도가 있으면 카카오 API로 주소 텍스트 변환
+  let addressText = '주소 정보 없음';
+  if (user.latitude && user.longitude) {
+    addressText = await convertCoordsToAddress(user.latitude, user.longitude);
+  }
+
+  setUserInfo({
+    name:      user.name      || '',
+    phone:     user.phone     || '',
+    email:     user.email     || '',
+    address:   addressText,           // 🔑 변환된 주소 텍스트
+    latitude:  user.latitude  || null,
+    longitude: user.longitude || null,
+    role:      user.role      || '',
+  });
+}
       } catch (err) {
         console.error("회원 정보 로딩 실패:", err);
       } finally {
