@@ -102,7 +102,13 @@ export default function FoodSearchPage() {
             const response = await fetch('/recipe/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query.trim() })
+                body: JSON.stringify({ 
+                    query: query.trim(),
+                    ingredients: fridgeItems.map(i => i.name),       
+                    expiring_ingredients: fridgeItems
+                        .filter(i => i.status === 'NEAR_EXPIRY')
+                        .map(i => i.name)                               
+                })
             });
 
             const resData = await response.json();
