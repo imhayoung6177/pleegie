@@ -7,6 +7,13 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 5173,
         proxy: {
+
+            '/kakao-api': {
+    target: 'https://dapi.kakao.com',  // 카카오 API 서버
+    changeOrigin: true,
+    secure: true,
+    rewrite: (path) => path.replace(/^\/kakao-api/, ''), // /kakao-api 접두사 제거
+},
             // ✅ Spring Boot (포트 8080)
             '/user': {
                 target: 'http://localhost:8080',
