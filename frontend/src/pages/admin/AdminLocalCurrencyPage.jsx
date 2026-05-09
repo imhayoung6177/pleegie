@@ -5,7 +5,7 @@ import "./AdminCommon.css";
 // ════════════════════════════════════════════════════════
 // 📌 API 설정
 // ════════════════════════════════════════════════════════
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = ""; // 빈 문자열로 바꾸면 vite프록시가 알아서 localhost:8080으로 전달
 
 const getAdminAuthHeaders = () => ({
   "Content-Type": "application/json",

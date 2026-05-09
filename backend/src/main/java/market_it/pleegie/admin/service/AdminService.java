@@ -10,6 +10,7 @@ import market_it.pleegie.admin.repository.AdminRepository;
 import market_it.pleegie.common.exception.CustomException;
 import market_it.pleegie.common.exception.ErrorCode;
 import market_it.pleegie.common.security.JwtProvider;
+import market_it.pleegie.local_currency.dto.LocalCurrencyResponse;
 import market_it.pleegie.local_currency.entity.LocalCurrencyLog;
 import market_it.pleegie.local_currency.repository.LocalCurrencyLogRepository;
 import market_it.pleegie.notice.dto.NoticeCreateRequest;
@@ -260,15 +261,43 @@ public class AdminService {
         noticeRepository.delete(notice);
     }
 
+    //==========================================================================================
     // ── 지역화폐 관리 ─────────────────────────
 
     // 지역화폐 신청 목록 조회
-    public List<LocalCurrencyLog> getLocalCurrencyRequests() {
-        return localCurrencyLogRepository
-                .findAllByStatusOrderByRequestedAtAsc(
-                        "REQUESTED");
-    }
+    // 수정 전 코드
+    //반환 타입이 LocalCurrencyLog 엔티티예요.
+    //엔티티는 DB 테이블과 직접 연결된 객체인데, 이걸 그대로 밖으로 내보내면 문제가 생겨요.
+    //그리고 파라미터가 없어서 어떤 상태를 조회할지 선택 자체가 불가능.
+//    public List<LocalCurrencyLog> getLocalCurrencyRequests() {
+    //"REQUESTED" 가 문자열로 고정되어 있어요.
+    //승인 탭, 반려 탭을 눌러도 항상 대기 목록만 가져오는 상태.
+//        return localCurrencyLogRepository
+//                .findAllByStatusOrderByRequestedAtAsc(
+//                        "REQUESTED");
+//    }
+    // 수정 후 코드
+    //반환 타입을 엔티티(LocalCurrencyLog) → DTO(LocalCurrencyResponse)로 변경.
+    //DTO는 DB와 직접 연결이 없는 순수한 데이터 복사본이라 안전하게 JSON으로 변환
+    //String status 파라미터를 추가해서 어떤 상태를 조회할지 외부에서 선택할 수 있도록 함.
+    // localcurrencylog 엔티티 -> .map(LocalCurrencyResponse:from) -> DTO로 변환 하여 DB세션 안에서 데이터를 미리 복사하여 안전히 변환
+    public List<LocalCurrencyResponse> getLocalCurrencyRequests(String status) {
+        List<LocalCurrencyLog> logs;
 
+        if (status == null || status.isBlank()) {
+            // status 없음 → 전체 목록 반환 (통계 카드 숫자 계산용)
+            logs = localCurrencyLogRepository.findAllByOrderByRequestedAtDesc();
+        } else {
+            // status 있음 → 해당 상태만 필터링해서 반환
+            logs = localCurrencyLogRepository
+                    .findAllByStatusOrderByRequestedAtAsc(status);
+        }
+        // 엔티티 → DTO 변환
+        return logs.stream()
+                .map(LocalCurrencyResponse::from)
+                .collect(Collectors.toList());
+    }
+//==========================================================================================
     // 지역화폐 승인
     @Transactional
     public void approveLocalCurrency(

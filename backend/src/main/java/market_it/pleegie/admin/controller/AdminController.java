@@ -169,7 +169,7 @@ public class AdminController {
     getLocalCurrencyRequests(@RequestParam(required = false) String status) { // [준호 추가]
         return ResponseEntity.ok(
                 ApiResponse.ok(adminService
-                        .getLocalCurrencyRequests()));
+                        .getLocalCurrencyRequests(status))); // 여기 status를 통해 전달을 하는데 , 여기 빈칸이었어서 , 이 부분을 status로 바꿨습니다.
     }
 
     @PutMapping("/local-currency/{logId}/approve")
