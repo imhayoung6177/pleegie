@@ -33,7 +33,6 @@ public class OAuth2SuccessHandler
 
         // 프론트로 리다이렉트 (토큰을 쿼리 파라미터로 전달)
         String redirectUrl = request.getScheme() + "://" + request.getServerName() 
-        + (request.getServerPort() == 80 ? "" : ":" + request.getServerPort())
         + "/oauth2/callback"
         + "?token=" + accessToken
         + "&role=" + userDetails.getUser().getRole();
