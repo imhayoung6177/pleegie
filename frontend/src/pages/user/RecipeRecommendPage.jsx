@@ -60,11 +60,12 @@ export default function RecipeRecommendPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          itemId: item.id,
-          name: item.name,
-          price: item.onSale ? item.discountPrice : item.originalPrice,
-          marketName: marketName,
-          quantity: 1
+         marketItemId: item.itemId,  // ✅ "itemId" → "marketItemId" 수정 (핵심!)
+        // ✅ customItemName 제거: 시장 품목이므로 불필요
+        // ✅ name 제거: 백엔드 DTO에 없는 필드
+        // ✅ marketName 제거: 백엔드가 marketItem.getMarket().getName()으로 자동 조회
+        // ✅ price 제거: 백엔드가 marketItem.getOriginalPrice() 자동 사용
+        quantity: 1
         })
       });
 

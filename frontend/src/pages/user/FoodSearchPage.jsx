@@ -44,11 +44,11 @@ export default function FoodSearchPage() {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-  itemId: item.id,            // marketItem 연결용
-  customItemName: item.name,  // 👈 이 부분을 추가해서 상품명을 같이 보내주세요!
-  price: item.onSale ? item.discountPrice : item.originalPrice,
-  marketName: marketName,
+        // ✅ 수정된 코드
+body: JSON.stringify({
+  marketItemId: item.itemId,       // 백엔드 DTO 필드명과 일치!
+  // customItemName 제거! (시장 품목이니까 불필요)
+  // price 제거! (백엔드가 marketItem.getOriginalPrice()를 자동으로 씀)
   quantity: 1
 })
       });
