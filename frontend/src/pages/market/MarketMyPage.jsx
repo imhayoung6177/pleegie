@@ -247,7 +247,14 @@ export default function MarketMyPage() {
 
   if (activeTab === 'shopprofile') return (
     <ShopProfileEdit
-      shopInfo={{ shopId: shopInfo?.id, bizNumber: shopInfo?.businessNumber, shopName: shopInfo?.name, ownerName: shopInfo?.ceoName, phone: shopInfo?.phone }}
+      shopInfo={{ 
+        shopId: shopInfo?.id, 
+        bizNumber: shopInfo?.businessNumber, 
+        shopName: shopInfo?.name, 
+        ownerName: shopInfo?.ceoName, 
+              latitude:  shopInfo?.latitude  || '',   // ✅ 추가
+      longitude: shopInfo?.longitude || '',   // ✅ 추가
+        phone: shopInfo?.phone }}
       onBack={goBack} onSave={(u) => setShopInfo(p => ({ ...p, ...u }))} />
   );
   if (activeTab === 'qr')       return <PageCard emoji="📱" title="QR 코드"  onBack={goBack}><QRSection marketInfo={shopInfo} onReissue={triggerRefresh} /></PageCard>;

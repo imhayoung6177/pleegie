@@ -109,6 +109,21 @@ public class MarketService {
                 request.getLatitude(),
                 request.getLongitude()
         );
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateInfo(
+                request.getName(),      // 상호명
+                request.getPhone(),     // 전화번호
+                null,                   // email → 변경 없으므로 null
+                null,                   // address → 변경 없으므로 null
+                request.getLatitude(),  // ✅ 위도 동기화
+                request.getLongitude()  // ✅ 경도 동기화
+        );
+
+        log.info("[updateMarket] market + user 동기화 완료 - userId: {}, lat: {}, lng: {}",
+                userId, request.getLatitude(), request.getLongitude());
         return MarketResponse.from(market);
     }
 
