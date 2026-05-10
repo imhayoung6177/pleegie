@@ -45,7 +45,7 @@ export default function FoodSearchPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-  itemId: item.id,            // marketItem 연결용
+  marketItemId: item.itemId,            // marketItem 연결용
   customItemName: item.name,  // 👈 이 부분을 추가해서 상품명을 같이 보내주세요!
   price: item.onSale ? item.discountPrice : item.originalPrice,
   marketName: marketName,

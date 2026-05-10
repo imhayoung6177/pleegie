@@ -60,8 +60,8 @@ export default function RecipeRecommendPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          itemId: item.id,
-          name: item.name,
+          marketItemId: item.itemId,
+          customItemName: item.name,
           price: item.onSale ? item.discountPrice : item.originalPrice,
           marketName: marketName,
           quantity: 1
